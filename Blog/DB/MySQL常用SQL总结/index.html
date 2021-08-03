@@ -20,7 +20,7 @@
 <meta property="og:site_name" content="YingLong">
 <meta property="og:description" content="查看索引1show index from compliance_page_info; 创建联合唯一性索引1234567alter table compliance_page_info add unique index unique_index_name(uuid, type);alter table compliance_page_info add unique unique_index_name">
 <meta property="og:locale" content="en">
-<meta property="og:updated_time" content="2020-10-20T10:48:55.131Z">
+<meta property="og:updated_time" content="2021-08-03T06:47:48.088Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="MySQL常用SQL总结">
 <meta name="twitter:description" content="查看索引1show index from compliance_page_info; 创建联合唯一性索引1234567alter table compliance_page_info add unique index unique_index_name(uuid, type);alter table compliance_page_info add unique unique_index_name">
@@ -506,6 +506,8 @@
                 
                     <li class="file"><a href="/Blog/中间件/常见问题/Maven编译后文件损坏/">Maven编译后文件损坏</a></li>
                 
+                    <li class="file"><a href="/Blog/中间件/常见问题/文件压缩问题/">文件压缩问题</a></li>
+                
             </ul>
         
                     </li>
@@ -821,6 +823,7 @@
 <h5 id="正则-amp-字符长度查询"><a href="#正则-amp-字符长度查询" class="headerlink" title="正则&amp;字符长度查询"></a>正则&amp;字符长度查询</h5><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">delete</span> <span class="keyword">from</span> update_log <span class="keyword">where</span> <span class="keyword">LENGTH</span>(did_or_page) &gt; <span class="number">30</span> <span class="keyword">or</span> did_or_page REGEXP <span class="string">'[0-9]+'</span>;</span><br></pre></td></tr></table></figure>
 <h5 id="将一个表中的字段更新到另一表中"><a href="#将一个表中的字段更新到另一表中" class="headerlink" title="将一个表中的字段更新到另一表中"></a>将一个表中的字段更新到另一表中</h5><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">update</span> asset_certificate a, base_static_data b</span><br><span class="line">  <span class="keyword">set</span> a.certificate_type = b.code_value, a.certificate_authority = b.extend_value</span><br><span class="line"><span class="keyword">where</span> a.certificate_type_code = b.code_name</span><br><span class="line">  <span class="keyword">and</span> a.certificate_type <span class="keyword">in</span> (<span class="string">'null'</span>, <span class="string">'-'</span>, <span class="string">''</span>) <span class="keyword">or</span> a.certificate_type <span class="keyword">is</span> <span class="literal">null</span>;</span><br></pre></td></tr></table></figure>
 <h5 id="关联更新"><a href="#关联更新" class="headerlink" title="关联更新"></a>关联更新</h5><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">update</span> old_product op, new_product np </span><br><span class="line"><span class="keyword">set</span> np.category = op <span class="keyword">category</span></span><br><span class="line"><span class="keyword">where</span> op.name = np.name</span><br></pre></td></tr></table></figure>
+<h5 id="分组查询最大ID数据"><a href="#分组查询最大ID数据" class="headerlink" title="分组查询最大ID数据"></a>分组查询最大ID数据</h5><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> a.* <span class="keyword">from</span> component a, (</span><br><span class="line">	<span class="keyword">select</span> component_id, <span class="keyword">max</span>(<span class="keyword">version</span>) <span class="keyword">as</span> <span class="keyword">version</span></span><br><span class="line">    <span class="keyword">from</span> component <span class="keyword">group</span> <span class="keyword">by</span> component_id</span><br><span class="line">) b</span><br><span class="line"><span class="keyword">where</span> a.component_id = b.component_id <span class="keyword">and</span> a.version = b.version</span><br></pre></td></tr></table></figure>
 
         </div>
         

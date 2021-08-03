@@ -4,26 +4,26 @@
     <meta charset="utf-8">
     
     <title>
-        索引的原理与使用 |
+        文件压缩问题 |
         
         YingLong</title>
     
     
-        <meta name="keywords" content="MySQL">
+        <meta name="keywords" content="Java">
     
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-    <meta name="description" content="MySQL的索引使用的是B+树而不是使用的B树，因为B树不管叶子节点还是非叶子节点，都会保存数据，这样导致在非叶子节点中能保存的指针数量变少，指针少的情况下要保存大量数据，只能增加树的高度，而在查找数据时一次页的查找代表一次IO，导致IO操作变多，查询性能变低；">
-<meta name="keywords" content="MySQL">
+    <meta name="description" content="本地文件压缩一般的正常的文件压缩代码如下，需要注意的是需要先关闭ZipOutputStream流再关闭FileOutputStream流： 123456789101112131415161718192021222324252627282930313233343536373839404142public static void main(String[] args) throws Exception">
+<meta name="keywords" content="Java">
 <meta property="og:type" content="article">
-<meta property="og:title" content="索引的原理与使用">
-<meta property="og:url" content="https://yaoyinglong.github.io/Blog/DB/索引的原理与使用/index.html">
+<meta property="og:title" content="文件压缩问题">
+<meta property="og:url" content="https://yaoyinglong.github.io/Blog/中间件/常见问题/文件压缩问题/index.html">
 <meta property="og:site_name" content="YingLong">
-<meta property="og:description" content="MySQL的索引使用的是B+树而不是使用的B树，因为B树不管叶子节点还是非叶子节点，都会保存数据，这样导致在非叶子节点中能保存的指针数量变少，指针少的情况下要保存大量数据，只能增加树的高度，而在查找数据时一次页的查找代表一次IO，导致IO操作变多，查询性能变低；">
+<meta property="og:description" content="本地文件压缩一般的正常的文件压缩代码如下，需要注意的是需要先关闭ZipOutputStream流再关闭FileOutputStream流： 123456789101112131415161718192021222324252627282930313233343536373839404142public static void main(String[] args) throws Exception">
 <meta property="og:locale" content="en">
-<meta property="og:updated_time" content="2021-06-18T07:32:35.460Z">
+<meta property="og:updated_time" content="2021-07-02T09:34:48.419Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="索引的原理与使用">
-<meta name="twitter:description" content="MySQL的索引使用的是B+树而不是使用的B树，因为B树不管叶子节点还是非叶子节点，都会保存数据，这样导致在非叶子节点中能保存的指针数量变少，指针少的情况下要保存大量数据，只能增加树的高度，而在查找数据时一次页的查找代表一次IO，导致IO操作变多，查询性能变低；">
+<meta name="twitter:title" content="文件压缩问题">
+<meta name="twitter:description" content="本地文件压缩一般的正常的文件压缩代码如下，需要注意的是需要先关闭ZipOutputStream流再关闭FileOutputStream流： 123456789101112131415161718192021222324252627282930313233343536373839404142public static void main(String[] args) throws Exception">
     
 
     
@@ -455,9 +455,9 @@
         
                     </li>
                 
-                    <li class="directory">
+                    <li class="directory open">
                         <a href="#" data-role="directory">
-                            <i class="fa fa-folder"></i>
+                            <i class="fa fa-folder-open"></i>
                             &nbsp;
                             中间件
                         </a>
@@ -493,9 +493,9 @@
         
                     </li>
                 
-                    <li class="directory">
+                    <li class="directory open">
                         <a href="#" data-role="directory">
-                            <i class="fa fa-folder"></i>
+                            <i class="fa fa-folder-open"></i>
                             &nbsp;
                             常见问题
                         </a>
@@ -506,7 +506,7 @@
                 
                     <li class="file"><a href="/Blog/中间件/常见问题/Maven编译后文件损坏/">Maven编译后文件损坏</a></li>
                 
-                    <li class="file"><a href="/Blog/中间件/常见问题/文件压缩问题/">文件压缩问题</a></li>
+                    <li class="file active"><a href="/Blog/中间件/常见问题/文件压缩问题/">文件压缩问题</a></li>
                 
             </ul>
         
@@ -766,7 +766,7 @@
     <div id="toTop" class="fa fa-angle-up"></div>
 </aside>
         
-        <section id="main"><article id="post-DB/索引的原理与使用" class="article article-type-post" itemscope itemprop="blogPost">
+        <section id="main"><article id="post-中间件/常见问题/文件压缩问题" class="article article-type-post" itemscope itemprop="blogPost">
     <div class="article-inner">
         
         
@@ -776,20 +776,20 @@
                         
     <div class="article-category">
         <i class="fa fa-folder"></i>
-        <a class="article-category-link" href="/categories/hide/">hide</a>
+        <a class="article-category-link" href="/categories/中间件/">中间件</a><i class="fa fa-angle-right"></i><a class="article-category-link" href="/categories/中间件/常见问题/">常见问题</a>
     </div>
 
                         
     <div class="article-tag">
         <i class="fa fa-tag"></i>
-        <a class="tag-link" href="/tags/MySQL/">MySQL</a>
+        <a class="tag-link" href="/tags/Java/">Java</a>
     </div>
 
                         
     <div class="article-date">
         <i class="fa fa-calendar"></i>
-        <a href="/Blog/DB/索引的原理与使用/">
-            <time datetime="2019-09-04T16:00:00.000Z" itemprop="datePublished">2019-09-05</time>
+        <a href="/Blog/中间件/常见问题/文件压缩问题/">
+            <time datetime="2021-07-01T16:00:00.000Z" itemprop="datePublished">2021-07-02</time>
         </a>
     </div>
 
@@ -800,7 +800,7 @@
                 
     
         <h1 class="article-title" itemprop="name">
-            索引的原理与使用
+            文件压缩问题
         </h1>
     
 
@@ -813,8 +813,9 @@
                     
             
             
-                <p><code>MySQL</code>的索引使用的是<strong><code>B+</code></strong>树而不是使用的<code>B</code>树，因为<strong><code>B</code>树不管叶子节点还是非叶子节点，都会保存数据</strong>，这样导致在非叶子节点中能保存的<strong>指针数量变少</strong>，指针少的情况下要保存大量数据，只能<strong>增加树的高度</strong>，而在<strong>查找数据时一次页的查找代表一次<code>IO</code></strong>，导致IO操作变多，查询性能变低；</p>
-
+                <h3 id="本地文件压缩"><a href="#本地文件压缩" class="headerlink" title="本地文件压缩"></a>本地文件压缩</h3><p>一般的正常的文件压缩代码如下，需要注意的是需要先关闭<code>ZipOutputStream</code>流再关闭<code>FileOutputStream</code>流：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">    FileOutputStream fos = <span class="keyword">new</span> FileOutputStream(<span class="string">"E:\\IData\\压缩文件.zip"</span>);</span><br><span class="line">    ZipOutputStream zos = <span class="keyword">new</span> ZipOutputStream(fos);</span><br><span class="line">    String path = <span class="string">"E:\\IData\\test"</span>;</span><br><span class="line">    File srcFile = <span class="keyword">new</span> File(path);</span><br><span class="line">    <span class="keyword">if</span> (!srcFile.exists()) &#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> Exception(<span class="string">"文件["</span> + path + <span class="string">"]不出在"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    String baseDir = <span class="string">""</span>;</span><br><span class="line">    compress(srcFile, baseDir, zos);</span><br><span class="line"></span><br><span class="line">    zos.close();</span><br><span class="line">    fos.close();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">compress</span><span class="params">(File srcFile, String baseDir, ZipOutputStream zos)</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (srcFile.isFile()) &#123;</span><br><span class="line">        FileInputStream fis = <span class="keyword">new</span> FileInputStream(srcFile);</span><br><span class="line">        BufferedInputStream bis = <span class="keyword">new</span> BufferedInputStream(fis);</span><br><span class="line">        ZipEntry entry = <span class="keyword">new</span> ZipEntry(baseDir + srcFile.getName());</span><br><span class="line">        zos.putNextEntry(entry);</span><br><span class="line">        <span class="keyword">int</span> count;</span><br><span class="line">        <span class="keyword">byte</span>[] buf = <span class="keyword">new</span> <span class="keyword">byte</span>[<span class="number">1024</span>];</span><br><span class="line">        <span class="keyword">while</span> ((count = bis.read(buf)) != -<span class="number">1</span>) &#123;</span><br><span class="line">            zos.write(buf, <span class="number">0</span>, count);</span><br><span class="line">        &#125;</span><br><span class="line">        fis.close();</span><br><span class="line">        bis.close();</span><br><span class="line">        zos.flush();</span><br><span class="line">        zos.closeEntry();</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (srcFile.isDirectory()) &#123;</span><br><span class="line">        File[] subFiles = srcFile.listFiles();</span><br><span class="line">        <span class="keyword">if</span> (subFiles.length == <span class="number">0</span>) &#123;</span><br><span class="line">            zos.putNextEntry(<span class="keyword">new</span> ZipEntry(baseDir + srcFile.getName() + File.separator));</span><br><span class="line">            zos.flush();</span><br><span class="line">            zos.closeEntry();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">for</span> (File subFile : subFiles) &#123;</span><br><span class="line">            compress(subFile, baseDir + srcFile.getName() + File.separator, zos);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="HDFS文件压缩"><a href="#HDFS文件压缩" class="headerlink" title="HDFS文件压缩"></a><code>HDFS</code>文件压缩</h3>
         </div>
         
     <footer class="article-footer">
@@ -824,6 +825,16 @@
 
 
     
+    <nav id="article-nav">
+        
+        
+            <a href="/Blog/设计模式/行为型模式/观察者模式/" id="article-nav-older" class="article-nav-link-wrap">
+                <strong class="article-nav-caption">Older</strong>
+                <div class="article-nav-title">观察者模式</div>
+            </a>
+        
+    </nav>
+
 
 
 
