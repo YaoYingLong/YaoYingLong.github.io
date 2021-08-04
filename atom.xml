@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="https://yaoyinglong.github.io/"/>
-  <updated>2021-08-03T07:09:29.720Z</updated>
+  <updated>2021-08-04T06:34:21.177Z</updated>
   <id>https://yaoyinglong.github.io/</id>
   
   <author>
@@ -15,6 +15,38 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>外观模式</title>
+    <link href="https://yaoyinglong.github.io/Blog/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/%E7%BB%93%E6%9E%84%E5%9E%8B%E6%A8%A1%E5%BC%8F/%E5%A4%96%E8%A7%82%E6%A8%A1%E5%BC%8F/"/>
+    <id>https://yaoyinglong.github.io/Blog/设计模式/结构型模式/外观模式/</id>
+    <published>2021-08-03T16:00:00.000Z</published>
+    <updated>2021-08-04T06:34:21.177Z</updated>
+    
+    <content type="html"><![CDATA[<p><strong>外观模式</strong>也叫<strong>门面模式</strong>，<strong>注重统一的对象</strong>，是一种通过为<strong>多个复杂的子系统提供一个一致的接口</strong>，而使这些子系统更加容易被访问的模式。</p><p>该模式对外有一个统一接口，外部应用程序不用关心内部子系统的具体细节，这样会大大降低应用程序的复杂度，提高了程序的可维护性。</p><p>除了这个接口不允许有任何访问子系统的行为发生，是<strong>外界访问子系统内部的唯一通道</strong>，是一种比较常用的封装模式。</p><p>一般情况下，一个子系统只要一个门面，但若<strong>门面已经庞大到不能忍受</strong>的程度，可拆分成多个门面；<strong>需要子系统可以提供不同访问路径</strong>的情况，也可提供多个门面。</p><p><strong>门面不参与子系统的业务逻辑</strong>，否则会产生<strong>倒依赖问题</strong>，子系统必须依赖门面才能被访问，违反了单一职责原则，同时也破坏了系统的封装性。</p><h3 id="定义"><a href="#定义" class="headerlink" title="定义"></a>定义</h3><p>要求一个<strong>子系统的外部</strong>与其内部的通信必须<strong>通过一个统一的对象</strong>进行，<strong>外观模式提供一个高层次的接口</strong>，使得子系统更易于使用。 </p><h3 id="实现"><a href="#实现" class="headerlink" title="实现"></a>实现</h3><p><img src="../../../../../images/设计模式/外观模式类图.png" alt="外观模式类图"></p><p><strong>外观角色<code>Facade</code></strong>：为多个子系统对外提供一个共同的接口。</p><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Facade</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> SubSystem01 obj1 = <span class="keyword">new</span> SubSystem01();</span><br><span class="line">    <span class="keyword">private</span> SubSystem02 obj2 = <span class="keyword">new</span> SubSystem02();</span><br><span class="line">    <span class="keyword">private</span> SubSystem03 obj3 = <span class="keyword">new</span> SubSystem03();</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">method</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        obj1.method1();</span><br><span class="line">        obj2.method2();</span><br><span class="line">        obj3.method3();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><p><strong>子系统角色<code>SubSystem</code></strong>：实现系统的部分功能，客户可以通过外观角色访问它。</p><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SubSystem01</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">method1</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"子系统01的method1()被调用"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SubSystem02</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">method2</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"子系统02的method2()被调用"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SubSystem03</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">method3</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"子系统03的method3()被调用"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><p><strong>客户角色<code>Client</code></strong>：通过一个外观角色访问各个子系统的功能。</p><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">    Facade facade = <span class="keyword">new</span> Facade();</span><br><span class="line">    facade.method();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><h3 id="优点"><a href="#优点" class="headerlink" title="优点"></a>优点</h3><ul><li>减少了系统的相互依赖，所有的依赖都是对门面对象的依赖，与子系统无关，降低了子系统与客户端之间的耦合度</li><li>对客户屏蔽了子系统组件，减少了客户处理的对象数目，并使得子系统使用起来更加容易。</li><li>提高了灵活性，不管子系统内部如何变化，只要不影响到门面对象，可随意修改</li><li>提高了安全性，不在门面上开通的方法不能访问</li></ul><h3 id="缺点"><a href="#缺点" class="headerlink" title="缺点"></a>缺点</h3><ul><li>不符合开闭原则，增加新的子系统可能需要修改外观类或客户端的源代码</li></ul><h3 id="应用场景"><a href="#应用场景" class="headerlink" title="应用场景"></a>应用场景</h3><ul><li>为一个复杂的模块或子系统提供一个供外界访问的接口</li><li>子系统相对独立，外界对子系统的访问只要黑箱操作即可，如利息计算问题</li><li>预防低水平人员带来的风险扩散</li><li>对分层结构系统构建时，使用外观模式定义子系统中每层的入口点可以简化子系统之间的依赖关系</li><li>当客户端与多个子系统之间存在很大的联系时，引入外观模式可将它们分离，从而提高子系统的独立性和可移植性。</li><li>使用外观模式整合已有的API</li></ul>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;p&gt;&lt;strong&gt;外观模式&lt;/strong&gt;也叫&lt;strong&gt;门面模式&lt;/strong&gt;，&lt;strong&gt;注重统一的对象&lt;/strong&gt;，是一种通过为&lt;strong&gt;多个复杂的子系统提供一个一致的接口&lt;/strong&gt;，而使这些子系统更加容易被访问的模式。&lt;/p&gt;
+&lt;p&gt;
+      
+    
+    </summary>
+    
+      <category term="设计模式" scheme="https://yaoyinglong.github.io/categories/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/"/>
+    
+      <category term="结构型模式" scheme="https://yaoyinglong.github.io/categories/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/%E7%BB%93%E6%9E%84%E5%9E%8B%E6%A8%A1%E5%BC%8F/"/>
+    
+    
+      <category term="设计模式" scheme="https://yaoyinglong.github.io/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/"/>
+    
+      <category term="外观模式" scheme="https://yaoyinglong.github.io/tags/%E5%A4%96%E8%A7%82%E6%A8%A1%E5%BC%8F/"/>
+    
+      <category term="门面模式" scheme="https://yaoyinglong.github.io/tags/%E9%97%A8%E9%9D%A2%E6%A8%A1%E5%BC%8F/"/>
+    
+  </entry>
   
   <entry>
     <title>文件压缩问题</title>
@@ -542,31 +574,6 @@
     </summary>
     
       <category term="自度" scheme="https://yaoyinglong.github.io/categories/%E8%87%AA%E5%BA%A6/"/>
-    
-    
-  </entry>
-  
-  <entry>
-    <title>2020总结</title>
-    <link href="https://yaoyinglong.github.io/Blog/%E8%87%AA%E5%BA%A6/2020%E6%80%BB%E7%BB%93/"/>
-    <id>https://yaoyinglong.github.io/Blog/自度/2020总结/</id>
-    <published>2021-01-25T16:00:00.000Z</published>
-    <updated>2021-01-22T02:12:02.393Z</updated>
-    
-    <content type="html"><![CDATA[<p>之前没有写年终总结的习惯，但是今年发生了太多的事，对于我而言算是意义非凡的一年吧。</p><p>总的来说今年算是梦幻开局，平淡结束吧。</p><p>去年底和今年初疫情的原因，开始有点人心惶惶，但是过年没法走亲戚以及开年延迟上班在家办公对于一个宅男来说算是一种慰藉。</p><p>今年经历了曾经从来没有经历过的事，虽然最后还是以失败告终，不去追究谁对谁错，每个人都有自己的选择，有些是没有经历过真的是不太懂，失去过后才来后悔，在那段时间里我不断自我反省，到处寻找答案，甚至买了好几本书看，渐渐的可能找到了一些答案吧。这段经历使我成长了好多好多，撞碎了一些我以为的思想。不再对任何人任何事一开始抱有比较高的期望，逐渐明悟自己想要的是什么，对待感情不再那么执着较真。</p><p>为了转移注意力开始学习，买了差不多二三十本专业的书来看，去LeetCode刷题。</p><p>感谢一路上有人一直带我走出我自己的世界，面对真实的自己，人前人后展现更加真实的自己。可能很多人对我有比较大的误解，觉得我没什么主见什么都听别人的感觉，在意一个人的时候很容易全部注意力都在她身上，总是把她的一举一动一言一行看得很重要所以很容易失去了自我，显得自己很没有主见，</p><p>曾经我是一个极度容易尴尬的人，经过今年的成长，参加了很多活动，内心平静自然多了。</p><p>每次要写点东西的时候总是感觉有好多东西要说，但是真正写的时候又说不出来什么，感觉好像很多事又不值得一说反正也就那样。2020就这样潦草结尾吧。</p>]]></content>
-    
-    <summary type="html">
-    
-      
-      
-        &lt;p&gt;之前没有写年终总结的习惯，但是今年发生了太多的事，对于我而言算是意义非凡的一年吧。&lt;/p&gt;
-&lt;p&gt;总的来说今年算是梦幻开局，平淡结束吧。&lt;/p&gt;
-&lt;p&gt;去年底和今年初疫情的原因，开始有点人心惶惶，但是过年没法走亲戚以及开年延迟上班在家办公对于一个宅男来说算是一种慰藉。&lt;/p
-      
-    
-    </summary>
-    
-      <category term="hide" scheme="https://yaoyinglong.github.io/categories/hide/"/>
     
     
   </entry>
