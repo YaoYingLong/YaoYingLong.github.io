@@ -20,7 +20,7 @@
 <meta property="og:site_name" content="YingLong">
 <meta property="og:description" content="btracebtrace是生产环境&amp;amp;预发的排查问题大杀器； 查看当前谁调用了ArrayList的add方法，同时只打印当前ArrayList的size大于500的线程调用栈； 12345678910@OnMethod(clazz = &quot;java.util.ArrayList&quot;, method=&quot;add&quot;, location = @Location(value = Kind.CALL, cl">
 <meta property="og:locale" content="en">
-<meta property="og:updated_time" content="2021-06-29T02:01:22.006Z">
+<meta property="og:updated_time" content="2021-08-09T06:41:14.454Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Java问题排查工具及命令">
 <meta name="twitter:description" content="btracebtrace是生产环境&amp;amp;预发的排查问题大杀器； 查看当前谁调用了ArrayList的add方法，同时只打印当前ArrayList的size大于500的线程调用栈； 12345678910@OnMethod(clazz = &quot;java.util.ArrayList&quot;, method=&quot;add&quot;, location = @Location(value = Kind.CALL, cl">
@@ -682,6 +682,8 @@
                 
                     <li class="file"><a href="/Blog/设计模式/行为型模式/备忘录模式/">备忘录模式</a></li>
                 
+                    <li class="file"><a href="/Blog/设计模式/行为型模式/访问者模式/">访问者模式</a></li>
+                
             </ul>
         
                     </li>
@@ -836,6 +838,12 @@
 <li>怎样直接从JVM内查找某个类的实例？</li>
 </ul>
 <h3 id="排查问题常用命令"><a href="#排查问题常用命令" class="headerlink" title="排查问题常用命令"></a>排查问题常用命令</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// </span></span><br><span class="line">jps -mlvV</span><br><span class="line"><span class="comment">// </span></span><br><span class="line">jstack <span class="number">2815</span></span><br><span class="line"><span class="comment">// </span></span><br><span class="line">jstack -m <span class="number">2815</span></span><br><span class="line"><span class="comment">// </span></span><br><span class="line">jinfo -flags <span class="number">2815</span></span><br><span class="line"><span class="comment">// </span></span><br><span class="line">jmap -heap <span class="number">2815</span></span><br><span class="line"><span class="comment">// </span></span><br><span class="line">jmap -dump:live,format=b,file=/tmp/heap2.bin <span class="number">2815</span></span><br><span class="line"><span class="comment">// </span></span><br><span class="line">jmap -histo <span class="number">2815</span> | head -<span class="number">10</span></span><br><span class="line"><span class="comment">// </span></span><br><span class="line">jstat -gcutil <span class="number">2815</span> <span class="number">1000</span></span><br></pre></td></tr></table></figure>
+<h3 id="CPU占用过高问题排查"><a href="#CPU占用过高问题排查" class="headerlink" title="CPU占用过高问题排查"></a>CPU占用过高问题排查</h3><ul>
+<li>用<strong><code>top</code></strong>命令查看系统资源占用信息</li>
+<li>用<strong><code>ps -mp pid -o THREAD,tid,time</code></strong>命令查看这个程序的线程信息,tid代码线程ID，time代表这个线程的已运行时间</li>
+<li>通过<strong><code>printf “%x\n” number</code></strong>命令将tid进行进制转换</li>
+<li>通过<strong><code>jstack -pid | grep 2hex</code></strong>查询</li>
+</ul>
 
         </div>
         
