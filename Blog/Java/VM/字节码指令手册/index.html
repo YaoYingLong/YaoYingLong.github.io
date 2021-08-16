@@ -1,0 +1,956 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta name="generator" content="Hexo 3.8.0">
+    <meta charset="utf-8">
+    
+    <title>
+        字节码指令手册 |
+        
+        YingLong</title>
+    
+    
+        <meta name="keywords" content="JVM">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="description" content="栈和局部变量操作将常量压入栈的指令aconst_null 将null对象引用压入栈iconst_m1 将int类型常量-1压入栈iconst_0 将int类型常量0压入栈iconst_1 将int类型常量1压入操作数栈iconst_2 将int类型常量2压入栈iconst_3 将int类型常量3压入栈iconst_4 将int类型常量4压入栈iconst_5 将int类型常量5压入栈lconst_">
+<meta name="keywords" content="JVM">
+<meta property="og:type" content="article">
+<meta property="og:title" content="字节码指令手册">
+<meta property="og:url" content="https://yaoyinglong.github.io/Blog/Java/VM/字节码指令手册/index.html">
+<meta property="og:site_name" content="YingLong">
+<meta property="og:description" content="栈和局部变量操作将常量压入栈的指令aconst_null 将null对象引用压入栈iconst_m1 将int类型常量-1压入栈iconst_0 将int类型常量0压入栈iconst_1 将int类型常量1压入操作数栈iconst_2 将int类型常量2压入栈iconst_3 将int类型常量3压入栈iconst_4 将int类型常量4压入栈iconst_5 将int类型常量5压入栈lconst_">
+<meta property="og:locale" content="en">
+<meta property="og:updated_time" content="2021-08-16T07:31:59.671Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="字节码指令手册">
+<meta name="twitter:description" content="栈和局部变量操作将常量压入栈的指令aconst_null 将null对象引用压入栈iconst_m1 将int类型常量-1压入栈iconst_0 将int类型常量0压入栈iconst_1 将int类型常量1压入操作数栈iconst_2 将int类型常量2压入栈iconst_3 将int类型常量3压入栈iconst_4 将int类型常量4压入栈iconst_5 将int类型常量5压入栈lconst_">
+    
+
+    
+
+    
+        <link rel="icon" href="/favicon.ico">
+    
+
+    <link rel="stylesheet" href="/libs/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/libs/open-sans/styles.css">
+    <link rel="stylesheet" href="/libs/source-code-pro/styles.css">
+
+    <link rel="stylesheet" href="/css/style.css">
+    <script src="/libs/jquery/2.1.3/jquery.min.js"></script>
+    <script src="/libs/jquery/plugins/cookie/1.4.1/jquery.cookie.js"></script>
+    
+    
+        <link rel="stylesheet" href="/libs/lightgallery/css/lightgallery.min.css">
+    
+    
+        <link rel="stylesheet" href="/libs/justified-gallery/justifiedGallery.min.css">
+    
+    
+    
+    
+
+
+</head>
+</html>
+<body>
+<div id="container">
+    <header id="header">
+    <div id="header-main" class="header-inner">
+        <div class="outer">
+            <a href="/" id="logo">
+                <i class="logo"></i>
+                <span class="site-title">YingLong</span>
+            </a>
+            <nav id="main-nav">
+                
+                    <a class="main-nav-link" href="/">Home</a>
+                
+                    <a class="main-nav-link" href="/archives">Archives</a>
+                
+                    <a class="main-nav-link" href="/categories">Categories</a>
+                
+                    <a class="main-nav-link" href="/tags">Tags</a>
+                
+                    <a class="main-nav-link" href="/about">About</a>
+                
+            </nav>
+            
+            <div id="search-form-wrap">
+    
+        <form class="search-form">
+            <input type="text" class="ins-search-input search-form-input" placeholder="Search">
+            <button type="submit" class="search-form-submit"></button>
+        </form>
+        <div class="ins-search">
+    <div class="ins-search-mask"></div>
+    <div class="ins-search-container">
+        <div class="ins-input-wrapper">
+            <input type="text" class="ins-search-input" placeholder="Type something...">
+            <span class="ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+    (function (window) {
+        var INSIGHT_CONFIG = {
+            TRANSLATION: {
+                POSTS: 'Posts',
+                PAGES: 'Pages',
+                CATEGORIES: 'Categories',
+                TAGS: 'Tags',
+                UNTITLED: '(Untitled)',
+            },
+            ROOT_URL: '/',
+            CONTENT_URL: '/content.json',
+        };
+        window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+    })(window);
+</script>
+<script src="/js/insight.js"></script>
+    
+</div>
+        </div>
+    </div>
+    <div id="main-nav-mobile" class="header-sub header-inner">
+        <table class="menu outer">
+            <tr>
+                
+                    <td><a class="main-nav-link" href="/">Home</a></td>
+                
+                    <td><a class="main-nav-link" href="/archives">Archives</a></td>
+                
+                    <td><a class="main-nav-link" href="/categories">Categories</a></td>
+                
+                    <td><a class="main-nav-link" href="/tags">Tags</a></td>
+                
+                    <td><a class="main-nav-link" href="/about">About</a></td>
+                
+                <td>
+                    
+    <div class="search-form">
+        <input type="text" class="ins-search-input search-form-input" placeholder="Search">
+    </div>
+
+                </td>
+            </tr>
+        </table>
+    </div>
+</header>
+
+    <div class="outer">
+        
+        
+            <aside id="sidebar">
+    
+        
+    <div class="widget-wrap" id="categories">
+        <h3 class="widget-title">
+            <span>categories</span>
+            &nbsp;
+            <a id="allExpand" href="#">
+                <i class="fa fa-angle-double-down fa-2x"></i>
+            </a>
+        </h3>
+
+        
+        
+        
+            <ul class="unstyled" id="tree">
+                
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            DB
+                        </a>
+                        
+            <ul class="unstyled" id="tree">
+                
+                    <li class="file"><a href="/Blog/DB/MySQL基础/">MySQL基础</a></li>
+                
+                    <li class="file"><a href="/Blog/DB/MySQL常用SQL总结/">MySQL常用SQL总结</a></li>
+                
+                    <li class="file"><a href="/Blog/DB/分库分表/">分库分表</a></li>
+                
+            </ul>
+        
+                    </li>
+                
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            Git
+                        </a>
+                        
+            <ul class="unstyled" id="tree">
+                
+                    <li class="file"><a href="/Blog/Git/GIt基本概念/">Git基本概念</a></li>
+                
+                    <li class="file"><a href="/Blog/Git/GIt常用命令/">Git常用命令</a></li>
+                
+                    <li class="file"><a href="/Blog/Git/分支管理理解/">分支管理理解</a></li>
+                
+            </ul>
+        
+                    </li>
+                
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            Go
+                        </a>
+                        
+            <ul class="unstyled" id="tree">
+                
+                    <li class="file"><a href="/Blog/Go/Go基础/">Go基础</a></li>
+                
+            </ul>
+        
+                    </li>
+                
+                    <li class="directory open">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder-open"></i>
+                            &nbsp;
+                            Java
+                        </a>
+                        
+            <ul class="unstyled" id="tree">
+                
+                    <li class="directory open">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder-open"></i>
+                            &nbsp;
+                            VM
+                        </a>
+                        
+            <ul class="unstyled" id="tree">
+                
+                    <li class="file"><a href="/Blog/Java/VM/HotSpot收集算法实现/">HotSpot收集算法实现</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/VM/JVM内存池/">JVM内存池</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/VM/内存非配与回收策略/">内存分配与回收策略</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/VM/Java内存区域/">Java内存区域</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/VM/Minor&Major&Full GC/">Minor&Major&Full GC</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/VM/OutOfMemoryError异常/">OOM异常实验</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/VM/垃圾收集算法/">垃圾收集算法</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/VM/堆中对象分配&布局&访问/">堆中对象分配&布局&访问</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/VM/对象是否存活/">对象是否存活</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/VM/类加载的时机/">类加载的时机</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/VM/运行时栈帧结构/">运行时栈帧结构</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/VM/垃圾收集器/">垃圾收集器</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/VM/方法调用/">方法调用</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/VM/字节码指令/">字节码指令</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/VM/理解GC日志/">理解GC日志</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/VM/类加载器/">类加载器</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/VM/Class文件结构/">Class文件结构</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/VM/属性表集合/">属性表集合</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/VM/类加载过程/">类加载过程</a></li>
+                
+                    <li class="file active"><a href="/Blog/Java/VM/字节码指令手册/">字节码指令手册</a></li>
+                
+            </ul>
+        
+                    </li>
+                
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            基础
+                        </a>
+                        
+            <ul class="unstyled" id="tree">
+                
+                    <li class="file"><a href="/Blog/Java/基础/lambda常用总结/">lambda常用总结</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/基础/时间及日期总结/">Java8时间及日期</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/基础/位运算/">位运算</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/基础/注解实现及应用/">注解实现及应用</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/基础/HashMap源码分析JDK8/">HashMap源码分析JDK8</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/基础/HashMap源码分析JDK7/">HashMap源码分析JDK7</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/基础/反射基础/">反射基础</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/基础/动态代理/">动态代理</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/基础/Java实用工具库/">Java实用工具库</a></li>
+                
+            </ul>
+        
+                    </li>
+                
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            工具
+                        </a>
+                        
+            <ul class="unstyled" id="tree">
+                
+                    <li class="file"><a href="/Blog/Java/工具/Java中调用Groovy脚本/">Java中调用Groovy脚本</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/工具/国密SM2/">国密SM2</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/工具/国密SM4/">国密SM4</a></li>
+                
+            </ul>
+        
+                    </li>
+                
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            并发
+                        </a>
+                        
+            <ul class="unstyled" id="tree">
+                
+                    <li class="file"><a href="/Blog/Java/并发/原子性、可见性、有序性/">原子性、可见性、有序性</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/并发/Synchronized总结/">Synchronized总结</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/并发/线程安全/">线程安全</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/并发/线程安全实现方式/">线程安全实现方式</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/并发/ThreadLocal原理/">ThreadLocal原理</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/并发/Volatile原理/">Volatile原理</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/并发/Java与线程/">Java与线程</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/并发/锁优化/">锁优化</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/并发/Java内存模型与线程/">Java内存模型</a></li>
+                
+            </ul>
+        
+                    </li>
+                
+                    <li class="file"><a href="/Blog/Java/JVM整体概览/">JVM整体概览</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/JVM内存参数设置/">JVM内存参数设置</a></li>
+                
+            </ul>
+        
+                    </li>
+                
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            Linux
+                        </a>
+                        
+            <ul class="unstyled" id="tree">
+                
+                    <li class="file"><a href="/Blog/Linux/Linux常用命令/">Linux常用命令</a></li>
+                
+                    <li class="file"><a href="/Blog/Linux/Linux常用技巧/">Linux常用技巧</a></li>
+                
+            </ul>
+        
+                    </li>
+                
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            Maven
+                        </a>
+                        
+            <ul class="unstyled" id="tree">
+                
+                    <li class="file"><a href="/Blog/Maven/Maven加密JAR包/">Maven加密JAR包</a></li>
+                
+                    <li class="file"><a href="/Blog/Maven/Maven基础/">Maven基础</a></li>
+                
+                    <li class="file"><a href="/Blog/Maven/Maven常用/">Maven常用</a></li>
+                
+                    <li class="file"><a href="/Blog/Maven/Maven属性/">Maven属性</a></li>
+                
+                    <li class="file"><a href="/Blog/Maven/Maven常用工具/">Maven常用工具</a></li>
+                
+                    <li class="file"><a href="/Blog/Maven/Maven插件编写/">Maven插件编写</a></li>
+                
+                    <li class="file"><a href="/Blog/Maven/Maven生命周期/">Maven生命周期</a></li>
+                
+                    <li class="file"><a href="/Blog/Maven/Maven个性化打包/">Maven个性化打包</a></li>
+                
+                    <li class="file"><a href="/Blog/Maven/Maven仓库/">Maven仓库</a></li>
+                
+                    <li class="file"><a href="/Blog/Maven/Maven插件基础/">Maven插件基础</a></li>
+                
+                    <li class="file"><a href="/Blog/Maven/Maven聚合与继承/">Maven聚合与继承</a></li>
+                
+                    <li class="file"><a href="/Blog/Maven/Maven常用插件/">Maven常用插件</a></li>
+                
+                    <li class="file"><a href="/Blog/Maven/Maven标签全解/">Maven标签全解</a></li>
+                
+                    <li class="file"><a href="/Blog/Maven/Maven Assembly标签全解/">Maven Assembly标签全解</a></li>
+                
+            </ul>
+        
+                    </li>
+                
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            Python
+                        </a>
+                        
+            <ul class="unstyled" id="tree">
+                
+                    <li class="file"><a href="/Blog/Python/Excel文件数据抽取/">Excel文件数据抽取</a></li>
+                
+            </ul>
+        
+                    </li>
+                
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            Test
+                        </a>
+                        
+            <ul class="unstyled" id="tree">
+                
+                    <li class="file"><a href="/Blog/Test/IT测试总结/">IT测试总结</a></li>
+                
+                    <li class="file"><a href="/Blog/Test/JMeter日常总结/">JMeter日常总结</a></li>
+                
+                    <li class="file"><a href="/Blog/Test/LoadRunner日常总结/">LoadRunner日常总结</a></li>
+                
+                    <li class="file"><a href="/Blog/Test/UT测试总结/">UT测试总结</a></li>
+                
+            </ul>
+        
+                    </li>
+                
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            中间件
+                        </a>
+                        
+            <ul class="unstyled" id="tree">
+                
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            Spring
+                        </a>
+                        
+            <ul class="unstyled" id="tree">
+                
+                    <li class="file"><a href="/Blog/中间件/Spring/IoC容器/">IoC容器</a></li>
+                
+                    <li class="file"><a href="/Blog/中间件/Spring/Spring Gzip压缩/">Spring Gzip压缩</a></li>
+                
+                    <li class="file"><a href="/Blog/中间件/Spring/Spring整体架构/">Spring整体架构</a></li>
+                
+                    <li class="file"><a href="/Blog/中间件/Spring/Spring线程池跨线程数据共享/">Spring线程池跨线程数据共享</a></li>
+                
+                    <li class="file"><a href="/Blog/中间件/Spring/Spring知识点/">Spring知识点</a></li>
+                
+                    <li class="file"><a href="/Blog/中间件/Spring/SpringMvc异步/">SpringMvc异步原理及实现</a></li>
+                
+                    <li class="file"><a href="/Blog/中间件/Spring/Hystrix总结/">Hystrix总结</a></li>
+                
+                    <li class="file"><a href="/Blog/中间件/Spring/Spring初始化扩展/">Spring初始化扩展</a></li>
+                
+            </ul>
+        
+                    </li>
+                
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            常见问题
+                        </a>
+                        
+            <ul class="unstyled" id="tree">
+                
+                    <li class="file"><a href="/Blog/中间件/常见问题/HBase依赖冲突/">HBase依赖冲突</a></li>
+                
+                    <li class="file"><a href="/Blog/中间件/常见问题/Maven编译后文件损坏/">Maven编译后文件损坏</a></li>
+                
+            </ul>
+        
+                    </li>
+                
+                    <li class="file"><a href="/Blog/中间件/Redis分布式锁实现/">Redis分布式锁实现</a></li>
+                
+                    <li class="file"><a href="/Blog/中间件/Redis总结/">Redis总结</a></li>
+                
+                    <li class="file"><a href="/Blog/中间件/Tomcat工作原理/">Tomcat工作原理</a></li>
+                
+            </ul>
+        
+                    </li>
+                
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            协议族
+                        </a>
+                        
+            <ul class="unstyled" id="tree">
+                
+                    <li class="file"><a href="/Blog/协议族/TCPIP四层&五层模型/">TCP/IP四层&五层模型</a></li>
+                
+                    <li class="file"><a href="/Blog/协议族/网络基础知识/">网络基础知识</a></li>
+                
+                    <li class="file"><a href="/Blog/协议族/以太网/">以太网</a></li>
+                
+                    <li class="file"><a href="/Blog/协议族/地址解析协议/">地址解析协议ARP</a></li>
+                
+            </ul>
+        
+                    </li>
+                
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            杂记
+                        </a>
+                        
+            <ul class="unstyled" id="tree">
+                
+                    <li class="file"><a href="/Blog/杂记/IDEA实用插件/">IDEA实用插件</a></li>
+                
+                    <li class="file"><a href="/Blog/杂记/JAVA实用工具/">JAVA实用工具</a></li>
+                
+                    <li class="file"><a href="/Blog/杂记/IDEA快捷的使用/">IDEA的快捷使用</a></li>
+                
+                    <li class="file"><a href="/Blog/杂记/Win实用工具/">Win实用工具</a></li>
+                
+                    <li class="file"><a href="/Blog/杂记/XSD使用总结/">XSD实用总结</a></li>
+                
+                    <li class="file"><a href="/Blog/杂记/SonarQube配置总结/">SonarQube配置总结</a></li>
+                
+            </ul>
+        
+                    </li>
+                
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            算法
+                        </a>
+                        
+            <ul class="unstyled" id="tree">
+                
+                    <li class="file"><a href="/Blog/算法/二叉搜索树/">二叉搜索树</a></li>
+                
+                    <li class="file"><a href="/Blog/算法/平衡二叉树/">平衡二叉树</a></li>
+                
+                    <li class="file"><a href="/Blog/算法/树基础/">树基础</a></li>
+                
+                    <li class="file"><a href="/Blog/算法/排序算法/">排序算法</a></li>
+                
+                    <li class="file"><a href="/Blog/算法/图基础/">图基础</a></li>
+                
+            </ul>
+        
+                    </li>
+                
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            自度
+                        </a>
+                        
+            <ul class="unstyled" id="tree">
+                
+                    <li class="file"><a href="/Blog/自度/隐形眼镜攻略/"></a></li>
+                
+            </ul>
+        
+                    </li>
+                
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            设计模式
+                        </a>
+                        
+            <ul class="unstyled" id="tree">
+                
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            创建型模式
+                        </a>
+                        
+            <ul class="unstyled" id="tree">
+                
+                    <li class="file"><a href="/Blog/设计模式/创建型模式/单例模式/">单例模式</a></li>
+                
+                    <li class="file"><a href="/Blog/设计模式/创建型模式/原型模式/">原型模式</a></li>
+                
+                    <li class="file"><a href="/Blog/设计模式/创建型模式/建造者模式/">建造者模式</a></li>
+                
+                    <li class="file"><a href="/Blog/设计模式/创建型模式/工厂模式/">工厂模式</a></li>
+                
+            </ul>
+        
+                    </li>
+                
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            结构型模式
+                        </a>
+                        
+            <ul class="unstyled" id="tree">
+                
+                    <li class="file"><a href="/Blog/设计模式/结构型模式/代理模式/">代理模式</a></li>
+                
+                    <li class="file"><a href="/Blog/设计模式/结构型模式/装饰模式/">装饰模式</a></li>
+                
+                    <li class="file"><a href="/Blog/设计模式/结构型模式/适配器模式/">适配器模式</a></li>
+                
+                    <li class="file"><a href="/Blog/设计模式/结构型模式/组合模式/">组合模式</a></li>
+                
+                    <li class="file"><a href="/Blog/设计模式/结构型模式/外观模式/">外观模式</a></li>
+                
+            </ul>
+        
+                    </li>
+                
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            行为型模式
+                        </a>
+                        
+            <ul class="unstyled" id="tree">
+                
+                    <li class="file"><a href="/Blog/设计模式/行为型模式/模板方法模式/">模板方法模式</a></li>
+                
+                    <li class="file"><a href="/Blog/设计模式/行为型模式/中介者模式/">中介者模式</a></li>
+                
+                    <li class="file"><a href="/Blog/设计模式/行为型模式/命令模式/">命令模式</a></li>
+                
+                    <li class="file"><a href="/Blog/设计模式/行为型模式/责任链模式/">责任链模式</a></li>
+                
+                    <li class="file"><a href="/Blog/设计模式/行为型模式/策略模式/">策略模式</a></li>
+                
+                    <li class="file"><a href="/Blog/设计模式/行为型模式/迭代器模式/">迭代器模式</a></li>
+                
+                    <li class="file"><a href="/Blog/设计模式/行为型模式/观察者模式/">观察者模式</a></li>
+                
+                    <li class="file"><a href="/Blog/设计模式/行为型模式/备忘录模式/">备忘录模式</a></li>
+                
+                    <li class="file"><a href="/Blog/设计模式/行为型模式/访问者模式/">访问者模式</a></li>
+                
+                    <li class="file"><a href="/Blog/设计模式/行为型模式/状态模式/">状态模式</a></li>
+                
+            </ul>
+        
+                    </li>
+                
+                    <li class="file"><a href="/Blog/设计模式/SOLID基本原则/">SOLID基本原则</a></li>
+                
+                    <li class="file"><a href="/Blog/设计模式/设计模式概览/">设计模式概览</a></li>
+                
+            </ul>
+        
+                    </li>
+                
+                    <li class="file"><a href="/Blog/index/">Welcome YingLong's Blog</a></li>
+                
+            </ul>
+        
+    </div>
+    <script>
+        $(document).ready(function () {
+            var iconFolderOpenClass = 'fa-folder-open';
+            var iconFolderCloseClass = 'fa-folder';
+            var iconAllExpandClass = 'fa-angle-double-down';
+            var iconAllPackClass = 'fa-angle-double-up';
+            // Handle directory-tree expansion:
+            // 左键单独展开目录
+            $(document).on('click', '#categories a[data-role="directory"]', function (event) {
+                event.preventDefault();
+
+                var icon = $(this).children('.fa');
+                var expanded = icon.hasClass(iconFolderOpenClass);
+                var subtree = $(this).siblings('ul');
+                icon.removeClass(iconFolderOpenClass).removeClass(iconFolderCloseClass);
+                if (expanded) {
+                    if (typeof subtree != 'undefined') {
+                        subtree.slideUp({duration: 100});
+                    }
+                    icon.addClass(iconFolderCloseClass);
+                } else {
+                    if (typeof subtree != 'undefined') {
+                        subtree.slideDown({duration: 100});
+                    }
+                    icon.addClass(iconFolderOpenClass);
+                }
+            });
+            // 右键展开下属所有目录
+            $('#categories a[data-role="directory"]').bind("contextmenu", function (event) {
+                event.preventDefault();
+
+                var icon = $(this).children('.fa');
+                var expanded = icon.hasClass(iconFolderOpenClass);
+                var listNode = $(this).siblings('ul');
+                var subtrees = $.merge(listNode.find('li ul'), listNode);
+                var icons = $.merge(listNode.find('.fa'), icon);
+                icons.removeClass(iconFolderOpenClass).removeClass(iconFolderCloseClass);
+                if (expanded) {
+                    subtrees.slideUp({duration: 100});
+                    icons.addClass(iconFolderCloseClass);
+                } else {
+                    subtrees.slideDown({duration: 100});
+                    icons.addClass(iconFolderOpenClass);
+                }
+            })
+            // 展开关闭所有目录按钮
+            $(document).on('click', '#allExpand', function (event) {
+                event.preventDefault();
+
+                var icon = $(this).children('.fa');
+                var expanded = icon.hasClass(iconAllExpandClass);
+                icon.removeClass(iconAllExpandClass).removeClass(iconAllPackClass);
+                if (expanded) {
+                    $('#sidebar .fa.fa-folder').removeClass('fa-folder').addClass('fa-folder-open')
+                    $('#categories li ul').slideDown({duration: 100});
+                    icon.addClass(iconAllPackClass);
+                } else {
+                    $('#sidebar .fa.fa-folder-open').removeClass('fa-folder-open').addClass('fa-folder')
+                    $('#categories li ul').slideUp({duration: 100});
+                    icon.addClass(iconAllExpandClass);
+                }
+            });
+        });
+    </script>
+
+    
+    <div id="toTop" class="fa fa-angle-up"></div>
+</aside>
+        
+        <section id="main"><article id="post-Java/VM/字节码指令手册" class="article article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+        
+            <header class="article-header">
+                
+                    <div class="article-meta">
+                        
+    <div class="article-category">
+        <i class="fa fa-folder"></i>
+        <a class="article-category-link" href="/categories/Java/">Java</a><i class="fa fa-angle-right"></i><a class="article-category-link" href="/categories/Java/VM/">VM</a>
+    </div>
+
+                        
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link" href="/tags/JVM/">JVM</a>
+    </div>
+
+                        
+    <div class="article-date">
+        <i class="fa fa-calendar"></i>
+        <a href="/Blog/Java/VM/字节码指令手册/">
+            <time datetime="2021-08-14T16:00:00.000Z" itemprop="datePublished">2021-08-15</time>
+        </a>
+    </div>
+
+
+                        
+                    </div>
+                
+                
+    
+        <h1 class="article-title" itemprop="name">
+            字节码指令手册
+        </h1>
+    
+
+            </header>
+        
+        
+        <div class="article-entry" itemprop="articleBody">
+            
+            
+                    
+            
+            
+                <h3 id="栈和局部变量操作"><a href="#栈和局部变量操作" class="headerlink" title="栈和局部变量操作"></a>栈和局部变量操作</h3><h5 id="将常量压入栈的指令"><a href="#将常量压入栈的指令" class="headerlink" title="将常量压入栈的指令"></a>将常量压入栈的指令</h5><p><strong><code>aconst_null</code></strong> 将null对象引用压入栈<br><strong><code>iconst_m1</code></strong> 将int类型常量-1压入栈<br><strong><code>iconst_0</code></strong> 将int类型常量0压入栈<br><strong><code>iconst_1</code></strong> 将int类型常量1压入操作数栈<br><strong><code>iconst_2</code></strong> 将int类型常量2压入栈<br><strong><code>iconst_3</code></strong> 将int类型常量3压入栈<br><strong><code>iconst_4</code></strong> 将int类型常量4压入栈<br><strong><code>iconst_5</code></strong> 将int类型常量5压入栈<br><strong><code>lconst_0</code></strong> 将long类型常量0压入栈<br><strong><code>lconst_1</code></strong> 将long类型常量1压入栈<br><strong><code>fconst_0</code></strong> 将float类型常量0压入栈<br><strong><code>fconst_1</code></strong> 将float类型常量1压入栈<br><strong><code>dconst_0</code></strong> 将double类型常量0压入栈<br><strong><code>dconst_1</code></strong> 将double类型常量1压入栈<br><strong><code>bipush</code></strong> 将一个8位带符号整数压入栈<br><strong><code>sipush</code></strong> 将16位带符号整数压入栈<br><strong><code>ldc</code></strong> 把常量池中的项压入栈<br><strong><code>ldc_w</code></strong> 把常量池中的项压入栈（使用宽索引）<br><strong><code>ldc2_w</code></strong> 把常量池中long类型或者double类型的项压入栈（使用宽索引）</p>
+<h5 id="从栈中的局部变量中装载值的指令"><a href="#从栈中的局部变量中装载值的指令" class="headerlink" title="从栈中的局部变量中装载值的指令"></a>从栈中的局部变量中装载值的指令</h5><p><strong><code>iload</code></strong> 从局部变量中装载int类型值<br><strong><code>lload</code></strong> 从局部变量中装载long类型值<br><strong><code>fload</code></strong> 从局部变量中装载float类型值<br><strong><code>dload</code></strong> 从局部变量中装载double类型值<br><strong><code>aload</code></strong> 从局部变量中装载引用类型值（refernce）<br><strong><code>iload_0</code></strong> 从局部变量0中装载int类型值<br><strong><code>iload_1</code></strong> 从局部变量1中装载int类型值<br><strong><code>iload_2</code></strong> 从局部变量2中装载int类型值<br><strong><code>iload_3</code></strong> 从局部变量3中装载int类型值<br><strong><code>lload_0</code></strong> 从局部变量0中装载long类型值<br><strong><code>lload_1</code></strong> 从局部变量1中装载long类型值<br><strong><code>lload_2</code></strong> 从局部变量2中装载long类型值<br><strong><code>lload_3</code></strong> 从局部变量3中装载long类型值<br><strong><code>fload_0</code></strong> 从局部变量0中装载float类型值<br><strong><code>fload_1</code></strong> 从局部变量1中装载float类型值<br><strong><code>fload_2</code></strong> 从局部变量2中装载float类型值<br><strong><code>fload_3</code></strong> 从局部变量3中装载float类型值<br><strong><code>dload_0</code></strong> 从局部变量0中装载double类型值<br><strong><code>dload_1</code></strong> 从局部变量1中装载double类型值<br><strong><code>dload_2</code></strong> 从局部变量2中装载double类型值<br><strong><code>dload_3</code></strong> 从局部变量3中装载double类型值<br><strong><code>aload_0</code></strong> 从局部变量0中装载引用类型值<br><strong><code>aload_1</code></strong> 从局部变量1中装载引用类型值<br><strong><code>aload_2</code></strong> 从局部变量2中装载引用类型值<br><strong><code>aload_3</code></strong> 从局部变量3中装载引用类型值<br><strong><code>iaload</code></strong> 从数组中装载int类型值<br><strong><code>laload</code></strong> 从数组中装载long类型值<br><strong><code>faload</code></strong> 从数组中装载float类型值<br><strong><code>daload</code></strong> 从数组中装载double类型值<br><strong><code>aaload</code></strong> 从数组中装载引用类型值<br><strong><code>baload</code></strong> 从数组中装载byte类型或boolean类型值<br><strong><code>caload</code></strong> 从数组中装载char类型值<br><strong><code>saload</code></strong> 从数组中装载short类型值</p>
+<h5 id="将栈中的值存入局部变量的指令"><a href="#将栈中的值存入局部变量的指令" class="headerlink" title="将栈中的值存入局部变量的指令"></a>将栈中的值存入局部变量的指令</h5><p><strong><code>istore</code></strong> 将int类型值存入局部变量<br><strong><code>lstore</code></strong> 将long类型值存入局部变量<br><strong><code>fstore</code></strong> 将float类型值存入局部变量<br><strong><code>dstore</code></strong> 将double类型值存入局部变量<br><strong><code>astore</code></strong> 将将引用类型或returnAddress类型值存入局部变量<br><strong><code>istore_0</code></strong> 将int类型值存入局部变量0<br><strong><code>istore_1</code></strong> 将int类型值存入局部变量1<br><strong><code>istore_2</code></strong> 将int类型值存入局部变量2<br><strong><code>istore_3</code></strong> 将int类型值存入局部变量3<br><strong><code>lstore_0</code></strong> 将long类型值存入局部变量0<br><strong><code>lstore_1</code></strong> 将long类型值存入局部变量1<br><strong><code>lstore_2</code></strong> 将long类型值存入局部变量2<br><strong><code>lstore_3</code></strong> 将long类型值存入局部变量3<br><strong><code>fstore_0</code></strong> 将float类型值存入局部变量0<br><strong><code>fstore_1</code></strong> 将float类型值存入局部变量1<br><strong><code>fstore_2</code></strong> 将float类型值存入局部变量2<br><strong><code>fstore_3</code></strong> 将float类型值存入局部变量3<br><strong><code>dstore_0</code></strong> 将double类型值存入局部变量0<br><strong><code>dstore_1</code></strong> 将double类型值存入局部变量1<br><strong><code>dstore_2</code></strong> 将double类型值存入局部变量2<br><strong><code>dstore_3</code></strong> 将double类型值存入局部变量3<br><strong><code>astore_0</code></strong> 将引用类型或returnAddress类型值存入局部变量0<br><strong><code>astore_1</code></strong> 将引用类型或returnAddress类型值存入局部变量1<br><strong><code>astore_2</code></strong> 将引用类型或returnAddress类型值存入局部变量2<br><strong><code>astore_3</code></strong> 将引用类型或returnAddress类型值存入局部变量3<br><strong><code>iastore</code></strong> 将int类型值存入数组中<br><strong><code>lastore</code></strong> 将long类型值存入数组中<br><strong><code>fastore</code></strong> 将float类型值存入数组中<br><strong><code>dastore</code></strong> 将double类型值存入数组中<br><strong><code>aastore</code></strong> 将引用类型值存入数组中<br><strong><code>bastore</code></strong> 将byte类型或者boolean类型值存入数组中<br><strong><code>castore</code></strong> 将char类型值存入数组中<br><strong><code>sastore</code></strong> 将short类型值存入数组中</p>
+<h3 id="wide指令"><a href="#wide指令" class="headerlink" title="wide指令"></a>wide指令</h3><p><strong><code>wide</code></strong> 使用附加字节扩展局部变量索引通用(无类型）栈操作<br><strong><code>nop</code></strong> 不做任何操作<br><strong><code>pop</code></strong> 弹出栈顶端一个字长的内容<br><strong><code>pop2</code></strong> 弹出栈顶端两个字长的内容<br><strong><code>dup</code></strong> 复制栈顶部一个字长内容<br><strong><code>dup_x1</code></strong> 复制栈顶部一个字长的内容，然后将复制内容及原来弹出的两个字长的内容压入栈<br><strong><code>dup_x2</code></strong> 复制栈顶部一个字长的内容，然后将复制内容及原来弹出的三个字长的内容压入栈<br><strong><code>dup2</code></strong> 复制栈顶部两个字长内容<br><strong><code>dup2_x1</code></strong> 复制栈顶部两个字长的内容，然后将复制内容及原来弹出的三个字长的内容压入栈<br><strong><code>dup2_x2</code></strong> 复制栈顶部两个字长的内容，然后将复制内容及原来弹出的四个字长的内容压入栈<br><strong><code>swap</code></strong> 交换栈顶部两个字长内容</p>
+<h3 id="类型转换"><a href="#类型转换" class="headerlink" title="类型转换"></a>类型转换</h3><p><strong><code>i2l</code></strong> 把int类型的数据转化为long类型<br><strong><code>i2f</code></strong> 把int类型的数据转化为float类型<br><strong><code>i2d</code></strong> 把int类型的数据转化为double类型<br><strong><code>l2i</code></strong> 把long类型的数据转化为int类型<br><strong><code>l2f</code></strong> 把long类型的数据转化为float类型<br><strong><code>l2d</code></strong> 把long类型的数据转化为double类型<br><strong><code>f2i</code></strong> 把float类型的数据转化为int类型<br><strong><code>f2l</code></strong> 把float类型的数据转化为long类型<br><strong><code>f2d</code></strong> 把float类型的数据转化为double类型<br><strong><code>d2i</code></strong> 把double类型的数据转化为int类型<br><strong><code>d2l</code></strong> 把double类型的数据转化为long类型<br><strong><code>d2f</code></strong> 把double类型的数据转化为float类型<br><strong><code>i2b</code></strong> 把int类型的数据转化为byte类型<br><strong><code>i2c</code></strong> 把int类型的数据转化为char类型<br><strong><code>i2s</code></strong> 把int类型的数据转化为short类型</p>
+<h3 id="整数运算"><a href="#整数运算" class="headerlink" title="整数运算"></a>整数运算</h3><p><strong><code>iadd</code></strong> 执行int类型的加法<br><strong><code>ladd</code></strong> 执行long类型的加法<br><strong><code>isub</code></strong> 执行int类型的减法<br><strong><code>lsub</code></strong> 执行long类型的减法<br><strong><code>imul</code></strong> 执行int类型的乘法<br><strong><code>lmul</code></strong> 执行long类型的乘法<br><strong><code>idiv</code></strong> 执行int类型的除法<br><strong><code>ldiv</code></strong> 执行long类型的除法<br><strong><code>irem</code></strong> 计算int类型除法的余数<br><strong><code>lrem</code></strong> 计算long类型除法的余数<br><strong><code>ineg</code></strong> 对一个int类型值进行取反操作<br><strong><code>lneg</code></strong> 对一个long类型值进行取反操作<br><strong><code>iinc</code></strong> 把一个常量值加到一个int类型的局部变量上</p>
+<h3 id="逻辑运算"><a href="#逻辑运算" class="headerlink" title="逻辑运算"></a>逻辑运算</h3><h5 id="移位操作"><a href="#移位操作" class="headerlink" title="移位操作"></a>移位操作</h5><p><strong><code>ishl</code></strong> 执行int类型的向左移位操作<br><strong><code>lshl</code></strong> 执行long类型的向左移位操作<br><strong><code>ishr</code></strong> 执行int类型的向右移位操作<br><strong><code>lshr</code></strong> 执行long类型的向右移位操作<br><strong><code>iushr</code></strong> 执行int类型的向右逻辑移位操作<br><strong><code>lushr</code></strong> 执行long类型的向右逻辑移位操作</p>
+<h5 id="按位布尔运算"><a href="#按位布尔运算" class="headerlink" title="按位布尔运算"></a>按位布尔运算</h5><p><strong><code>iand</code></strong> 对int类型值进行“逻辑与”操作<br><strong><code>land</code></strong> 对long类型值进行“逻辑与”操作<br><strong><code>ior</code></strong> 对int类型值进行“逻辑或”操作<br><strong><code>lor</code></strong> 对long类型值进行“逻辑或”操作<br><strong><code>ixor</code></strong> 对int类型值进行“逻辑异或”操作<br><strong><code>lxor</code></strong> 对long类型值进行“逻辑异或”操作</p>
+<h3 id="浮点运算"><a href="#浮点运算" class="headerlink" title="浮点运算"></a>浮点运算</h3><p><strong><code>fadd</code></strong> 执行float类型的加法<br><strong><code>dadd</code></strong> 执行double类型的加法<br><strong><code>fsub</code></strong> 执行float类型的减法<br><strong><code>dsub</code></strong> 执行double类型的减法<br><strong><code>fmul</code></strong> 执行float类型的乘法<br><strong><code>dmul</code></strong> 执行double类型的乘法<br><strong><code>fdiv</code></strong> 执行float类型的除法<br><strong><code>ddiv</code></strong> 执行double类型的除法<br><strong><code>frem</code></strong> 计算float类型除法的余数<br><strong><code>drem</code></strong> 计算double类型除法的余数<br><strong><code>fneg</code></strong> 将一个float类型的数值取反<br><strong><code>dneg</code></strong> 将一个double类型的数值取反</p>
+<h3 id="对象和数组"><a href="#对象和数组" class="headerlink" title="对象和数组"></a>对象和数组</h3><h5 id="对象操作指令"><a href="#对象操作指令" class="headerlink" title="对象操作指令"></a>对象操作指令</h5><p><strong><code>new</code></strong> 创建一个新对象<br><strong><code>checkcast</code></strong> 确定对象为所给定的类型<br><strong><code>getfield</code></strong> 从对象中获取字段<br><strong><code>putfield</code></strong> 设置对象中字段的值<br><strong><code>getstatic</code></strong> 从类中获取静态字段<br><strong><code>putstatic</code></strong> 设置类中静态字段的值<br><strong><code>instanceof</code></strong> 判断对象是否为给定的类型</p>
+<h5 id="数组操作指令"><a href="#数组操作指令" class="headerlink" title="数组操作指令"></a>数组操作指令</h5><p><strong><code>newarray</code></strong> 分配数据成员类型为基本上数据类型的新数组<br><strong><code>anewarray</code></strong> 分配数据成员类型为引用类型的新数组<br><strong><code>arraylength</code></strong> 获取数组长度<br><strong><code>multianewarray</code></strong> 分配新的多维数组</p>
+<h3 id="控制流"><a href="#控制流" class="headerlink" title="控制流"></a>控制流</h3><h5 id="条件分支指令"><a href="#条件分支指令" class="headerlink" title="条件分支指令"></a>条件分支指令</h5><p><strong><code>ifeq</code></strong> 如果等于0，则跳转<br><strong><code>ifne</code></strong> 如果不等于0，则跳转<br><strong><code>iflt</code></strong> 如果小于0，则跳转<br><strong><code>ifge</code></strong> 如果大于等于0，则跳转<br><strong><code>ifgt</code></strong> 如果大于0，则跳转<br><strong><code>ifle</code></strong> 如果小于等于0，则跳转<br><strong><code>if_icmpcq</code></strong> 如果两个int值相等，则跳转<br><strong><code>if_icmpne</code></strong> 如果两个int类型值不相等，则跳转<br><strong><code>if_icmplt</code></strong> 如果一个int类型值小于另外一个int类型值，则跳转<br><strong><code>if_icmpge</code></strong> 如果一个int类型值大于或者等于另外一个int类型值，则跳转<br><strong><code>if_icmpgt</code></strong> 如果一个int类型值大于另外一个int类型值，则跳转<br><strong><code>if_icmple</code></strong> 如果一个int类型值小于或者等于另外一个int类型值，则跳转<br><strong><code>ifnull</code></strong> 如果等于null，则跳转<br><strong><code>ifnonnull</code></strong> 如果不等于null，则跳转<br><strong><code>if_acmpeq</code></strong> 如果两个对象引用相等，则跳转<br><strong><code>if_acmpnc</code></strong> 如果两个对象引用不相等，则跳转</p>
+<h5 id="比较指令"><a href="#比较指令" class="headerlink" title="比较指令"></a>比较指令</h5><p><strong><code>lcmp</code></strong> 比较long类型值<br><strong><code>fcmpl</code></strong> 比较float类型值（当遇到NaN时，返回-1）<br><strong><code>fcmpg</code></strong> 比较float类型值（当遇到NaN时，返回1）<br><strong><code>dcmpl</code></strong> 比较double类型值（当遇到NaN时，返回-1）<br><strong><code>dcmpg</code></strong> 比较double类型值（当遇到NaN时，返回1）</p>
+<h5 id="无条件转移指令"><a href="#无条件转移指令" class="headerlink" title="无条件转移指令"></a>无条件转移指令</h5><p><strong><code>goto</code></strong> 无条件跳转<br><strong><code>goto_w</code></strong> 无条件跳转（宽索引）</p>
+<h5 id="表跳转指令"><a href="#表跳转指令" class="headerlink" title="表跳转指令"></a>表跳转指令</h5><p><strong><code>tableswitch</code></strong> 通过索引访问跳转表，并跳转<br><strong><code>lookupswitch</code></strong> 通过键值匹配访问跳转表，并执行跳转操作</p>
+<h3 id="异常"><a href="#异常" class="headerlink" title="异常"></a>异常</h3><p><strong><code>athrow</code></strong> 抛出异常或错误<br><strong><code>finally</code></strong> 子句<br><strong><code>jsr</code></strong> 跳转到子例程<br><strong><code>jsr_w</code></strong> 跳转到子例程（宽索引）<br><strong><code>rct</code></strong> 从子例程返回</p>
+<h3 id="方法调用与返回"><a href="#方法调用与返回" class="headerlink" title="方法调用与返回"></a>方法调用与返回</h3><h5 id="方法调用指令"><a href="#方法调用指令" class="headerlink" title="方法调用指令"></a>方法调用指令</h5><p><strong><code>invokcvirtual</code></strong> 运行时按照对象的类来调用实例方法<br><strong><code>invokespecial</code></strong> 根据编译时类型来调用实例方法<br><strong><code>invokestatic</code></strong> 调用类（静态）方法<br><strong><code>invokcinterface</code></strong> 调用接口方法</p>
+<h5 id="方法返回指令"><a href="#方法返回指令" class="headerlink" title="方法返回指令"></a>方法返回指令</h5><p><strong><code>ireturn</code></strong> 从方法中返回int类型的数据<br><strong><code>lreturn</code></strong> 从方法中返回long类型的数据<br><strong><code>freturn</code></strong> 从方法中返回float类型的数据<br><strong><code>dreturn</code></strong> 从方法中返回double类型的数据<br><strong><code>areturn</code></strong> 从方法中返回引用类型的数据<br><strong><code>return</code></strong> 从方法中返回，返回值为void</p>
+<h3 id="线程同步"><a href="#线程同步" class="headerlink" title="线程同步"></a>线程同步</h3><p><strong><code>montiorenter</code></strong> 进入并获取对象监视器<br><strong><code>monitorexit</code></strong> 释放并退出对象监视器</p>
+<h3 id="JVM指令助记符"><a href="#JVM指令助记符" class="headerlink" title="JVM指令助记符"></a>JVM指令助记符</h3><p><strong>变量到操作数栈</strong>：<strong><code>iload,iload_,lload,lload_,fload,fload_,dload,dload_,aload,aload_</code></strong><br><strong>操作数栈到变量</strong>：<strong><code>istore,istore_,lstore,lstore_,fstore,fstore_,dstore,dstor_,astore,astore_</code></strong><br><strong>常数到操作数栈</strong>：<strong><code>bipush,sipush,ldc,ldc_w,ldc2_w,aconst_null,iconst_ml,iconst_,lconst_,fconst_,dconst_</code></strong><br><strong>加</strong>：<strong><code>iadd,ladd,fadd,dadd</code></strong><br><strong>减</strong>：<strong><code>isub,lsub,fsub,dsub</code></strong><br><strong>乘</strong>：<strong><code>imul,lmul,fmul,dmul</code></strong><br><strong>除</strong>：<strong><code>idiv,ldiv,fdiv,ddiv</code></strong><br><strong>余数</strong>：<strong><code>irem,lrem,frem,drem</code></strong><br><strong>取负</strong>：<strong><code>ineg,lneg,fneg,dneg</code></strong><br><strong>移位</strong>：<strong><code>ishl,lshr,iushr,lshl,lshr,lushr</code></strong><br><strong>按位或</strong>：<strong><code>ior,lor</code></strong><br><strong>按位与</strong>：<strong><code>iand,land</code></strong><br><strong>按位异或</strong>：<strong><code>ixor,lxor</code></strong><br><strong>类型转换</strong>：<strong><code>i2l,i2f,i2d,l2f,l2d,f2d(放宽数值转换)</code></strong><br>    <strong><code>i2b,i2c,i2s,l2i,f2i,f2l,d2i,d2l,d2f(缩窄数值转换)</code></strong><br><strong>创建类实便</strong>：<strong><code>new</code></strong><br><strong>创建新数组</strong>：<strong><code>newarray,anewarray,multianwarray</code></strong><br><strong>访问类的域和类实例域</strong>：<strong><code>getfield,putfield,getstatic,putstatic</code></strong><br><strong>把数据装载到操作数栈</strong>：<strong><code>baload,caload,saload,iaload,laload,faload,daload,aaload</code></strong><br><strong>从操作数栈存存储到数组</strong>：<strong><code>bastore,castore,sastore,iastore,lastore,fastore,dastore,aastore</code></strong><br><strong>获取数组长度</strong>：<strong><code>arraylength</code></strong><br><strong>检相类实例或数组属性</strong>：<strong><code>instanceof,checkcast</code></strong><br><strong>操作数栈管理</strong>：<strong><code>pop,pop2,dup,dup2,dup_xl,dup2_xl,dup_x2,dup2_x2,swap</code></strong><br><strong>有条件转移</strong>：<strong><code>ifeq</code></strong>,<strong><code>iflt</code></strong>,<strong><code>ifle</code></strong>,<strong><code>ifne</code></strong>,<strong><code>ifgt</code></strong>,<strong><code>ifge</code></strong>,<strong><code>ifnull</code></strong>,<strong><code>ifnonnull</code></strong>,<strong><code>if_icmpeq</code></strong>,<strong><code>if_icmpene</code></strong>,<strong><code>if_icmplt</code></strong>,<br><strong><code>if_icmpgt</code></strong>,<strong><code>if_icmple</code></strong>,<strong><code>if_icmpge</code></strong>,<strong><code>if_acmpeq</code></strong>,<strong><code>if_acmpne</code></strong>,<strong><code>lcmp</code></strong>,<strong><code>fcmpl</code></strong>,<strong><code>fcmpg</code></strong>,<strong><code>dcmpl</code></strong>,<strong><code>dcmpg</code></strong><br><strong>复合条件转移</strong>：<strong><code>tableswitch,lookupswitch</code></strong><br><strong>无条件转移</strong>：<strong><code>goto,goto_w,jsr,jsr_w,ret</code></strong><br><strong>调度对象的实便方法</strong>：<strong><code>invokevirtual</code></strong><br><strong>调用由接口实现的方法</strong>：<strong><code>invokeinterface</code></strong><br><strong>调用需要特殊处理的实例方法</strong>：<strong><code>invokespecial</code></strong><br><strong>调用命名类中的静态方法</strong>：<strong><code>invokestatic</code></strong><br><strong>方法返回</strong>：<strong><code>ireturn,lreturn,freturn,dreturn,areturn,return</code></strong><br><strong>异常</strong>：<strong><code>athrow</code></strong><br><strong>finally关键字的实现使用</strong>：<strong><code>jsr,jsr_w,ret</code></strong>  </p>
+
+        </div>
+        
+    <footer class="article-footer">
+    </footer>
+    </div>
+</article>
+
+
+    
+    <nav id="article-nav">
+        
+            <a href="/Blog/Java/JVM内存参数设置/" id="article-nav-newer" class="article-nav-link-wrap">
+                <strong class="article-nav-caption">Newer</strong>
+                <div class="article-nav-title">
+                    
+                        JVM内存参数设置
+                    
+                </div>
+            </a>
+        
+        
+            <a href="/Blog/设计模式/行为型模式/状态模式/" id="article-nav-older" class="article-nav-link-wrap">
+                <strong class="article-nav-caption">Older</strong>
+                <div class="article-nav-title">状态模式</div>
+            </a>
+        
+    </nav>
+
+
+
+
+
+    
+    
+
+
+
+
+    <!-- baidu url auto push script -->
+    <script type="text/javascript">
+        !function () {
+            var e = /([http|https]:\/\/[a-zA-Z0-9\_\.]+\.baidu\.com)/gi, r = window.location.href,
+                o = document.referrer;
+            if (!e.test(r)) {
+                var n = "//api.share.baidu.com/s.gif";
+                o ? (n += "?r=" + encodeURIComponent(document.referrer), r && (n += "&l=" + r)) : r && (n += "?l=" + r);
+                var t = new Image;
+                t.src = n
+            }
+        }(window);
+    </script>
+</section>
+    </div>
+    <footer id="footer">
+    <div class="outer">
+        <div id="footer-info" class="inner">
+            YaoYingLong &copy; 2021
+            <!-- <a rel="license" href="http://creativecommons.org/licenses/by-nc-nd/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-nc-nd/4.0/80x15.png" /></a> -->
+            <br> Powered by <a href="http://hexo.io/" target="_blank" rel="external nofollow noopener noreferrer">Hexo</a>. Theme - <a href="https://github.com/zthxxx/hexo-theme-Wikitten" rel="external nofollow noopener noreferrer" target="_blank">wikitten</a>
+        </div>
+    </div>
+</footer>
+    
+
+    
+        <script src="/libs/lightgallery/js/lightgallery.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-thumbnail.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-pager.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-autoplay.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-fullscreen.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-zoom.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-hash.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-share.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-video.min.js"></script>
+    
+    
+        <script src="/libs/justified-gallery/jquery.justifiedGallery.min.js"></script>
+    
+    
+        <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [ ["$","$"], ["\\(","\\)"] ],
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
+            processEscapes: true,
+            TeX: {
+                equationNumbers: {
+                  autoNumber: 'AMS'
+                }
+            }
+        }
+    });
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax();
+        for (var i = 0; i < all.length; ++i)
+            all[i].SourceElement().parentNode.className += ' has-jax';
+    });
+
+
+</script>
+<script async src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+
+
+
+<!-- Custom Scripts -->
+<script src="/js/main.js"></script>
+
+</div>
+</body>
