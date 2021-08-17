@@ -12,18 +12,22 @@
         <meta name="keywords" content="JVM">
     
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-    <meta name="description" content="标记清除算法标记清除算法是最基础的收集算法，分为标记和清除两个阶段，标记阶段标记出所有需要回收的对象，清除阶段统一回收所有被标记的对象。之所以说标记清除算法是最基础的收集算法，是因为后续的收集算法都是基于这种思路并对其不足进行改进而得到的。 标记清除算法主要有两个不足，一是效率问题，标记和清除两个过程的效率都不高；二是空间问题，标记清除后会产生大量不连续的内存碎片，空间碎片太多可能会导致以后再程序">
+    <meta name="description" content="标记清除算法标记清除算法是最基础的收集算法，分为标记和清除两个阶段，标记阶段标记出所有需要回收的对象，清除阶段统一回收所有被标记的对象。之所以说标记清除算法是最基础的收集算法，是因为后续的收集算法都是基于这种思路并对其不足进行改进而得到的。  标记清除算法主要有两个不足，一是效率问题，标记和清除两个过程的效率都不高；二是空间问题，标记清除后会产生大量不连续的内存碎片，空间碎片太多可能会导致以后再程">
 <meta name="keywords" content="JVM">
 <meta property="og:type" content="article">
 <meta property="og:title" content="垃圾收集算法">
 <meta property="og:url" content="https://yaoyinglong.github.io/Blog/Java/VM/垃圾收集算法/index.html">
 <meta property="og:site_name" content="YingLong">
-<meta property="og:description" content="标记清除算法标记清除算法是最基础的收集算法，分为标记和清除两个阶段，标记阶段标记出所有需要回收的对象，清除阶段统一回收所有被标记的对象。之所以说标记清除算法是最基础的收集算法，是因为后续的收集算法都是基于这种思路并对其不足进行改进而得到的。 标记清除算法主要有两个不足，一是效率问题，标记和清除两个过程的效率都不高；二是空间问题，标记清除后会产生大量不连续的内存碎片，空间碎片太多可能会导致以后再程序">
+<meta property="og:description" content="标记清除算法标记清除算法是最基础的收集算法，分为标记和清除两个阶段，标记阶段标记出所有需要回收的对象，清除阶段统一回收所有被标记的对象。之所以说标记清除算法是最基础的收集算法，是因为后续的收集算法都是基于这种思路并对其不足进行改进而得到的。  标记清除算法主要有两个不足，一是效率问题，标记和清除两个过程的效率都不高；二是空间问题，标记清除后会产生大量不连续的内存碎片，空间碎片太多可能会导致以后再程">
 <meta property="og:locale" content="en">
-<meta property="og:updated_time" content="2019-06-27T09:26:09.582Z">
+<meta property="og:image" content="https://yaoyinglong.github.io/images/JVM/标记清除算法.png">
+<meta property="og:image" content="https://yaoyinglong.github.io/images/JVM/标记复制算法.png">
+<meta property="og:image" content="https://yaoyinglong.github.io/images/JVM/标记整理算法.png">
+<meta property="og:updated_time" content="2021-08-17T05:22:24.754Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="垃圾收集算法">
-<meta name="twitter:description" content="标记清除算法标记清除算法是最基础的收集算法，分为标记和清除两个阶段，标记阶段标记出所有需要回收的对象，清除阶段统一回收所有被标记的对象。之所以说标记清除算法是最基础的收集算法，是因为后续的收集算法都是基于这种思路并对其不足进行改进而得到的。 标记清除算法主要有两个不足，一是效率问题，标记和清除两个过程的效率都不高；二是空间问题，标记清除后会产生大量不连续的内存碎片，空间碎片太多可能会导致以后再程序">
+<meta name="twitter:description" content="标记清除算法标记清除算法是最基础的收集算法，分为标记和清除两个阶段，标记阶段标记出所有需要回收的对象，清除阶段统一回收所有被标记的对象。之所以说标记清除算法是最基础的收集算法，是因为后续的收集算法都是基于这种思路并对其不足进行改进而得到的。  标记清除算法主要有两个不足，一是效率问题，标记和清除两个过程的效率都不高；二是空间问题，标记清除后会产生大量不连续的内存碎片，空间碎片太多可能会导致以后再程">
+<meta name="twitter:image" content="https://yaoyinglong.github.io/images/JVM/标记清除算法.png">
     
 
     
@@ -824,12 +828,16 @@
             
             
                 <h3 id="标记清除算法"><a href="#标记清除算法" class="headerlink" title="标记清除算法"></a>标记清除算法</h3><p>标记清除算法是<strong>最基础的收集算法</strong>，分为<strong>标记</strong>和<strong>清除</strong>两个阶段，标记阶段标记出所有需要回收的对象，清除阶段统一回收所有被标记的对象。之所以说标记清除算法是最基础的收集算法，是因为后续的收集算法都是基于这种思路并对其不足进行改进而得到的。</p>
+<p><img src="../../../../../images/JVM/标记清除算法.png" alt></p>
 <p>标记清除算法主要有两个不足，一是<strong>效率问题，标记和清除两个过程的效率都不高</strong>；二是<strong>空间问题</strong>，标记清除后<strong>会产生大量不连续的内存碎片</strong>，空间碎片太多可能会导致以后再程序运行过程中需要分配较大对象时，无法找到足够的连续内存而不得不提前触发垃圾收集动作。</p>
 <h3 id="复制算法"><a href="#复制算法" class="headerlink" title="复制算法"></a>复制算法</h3><p>复制算法的出现是<strong>为了解决效率问题</strong>，它将可用内存<strong>按容量划分为大小相等的两块</strong>，每次只使用其中一块。当这一块使用完了，就将还存活着的对象复制到另一块上面，然后再把已使用过的内存空间一次清理掉。每次都是对整个半区进行内存回收，内存分配时不用考虑内存碎片等复杂情况，只要移动堆顶指针按顺序分配内存即可，<strong>实现简单运行高效</strong>。但是<strong>代价是将内存缩小为原来的一半</strong>。</p>
+<p><img src="../../../../../images/JVM/标记复制算法.png" alt="标记复制算法"></p>
 <p>现在商用虚拟机都采用复制算法来<strong>回收新生代</strong>，因为<strong>新生代对象98%是朝生夕死</strong>，所以不需要按1：1来划分内存空间。而是将内存空间分为<strong>一块较大的<a href="../JVM内存池#Eden空间">Eden空间</a></strong>和<strong>两块较小的<a href="../JVM内存池#Survivor空间">Survivor空间</a>（From Survior和To Survovor），HotSpot虚拟机默认Eden：From Survivor：To Survivor的大小比例是8：1：1</strong>，每次使用<strong>Eden和From Survivor空间</strong>。当Eden空间执行<strong>Minor GC</strong>时会将<strong>Eden和From Survivor空间</strong>中还存活的对象复制到<strong>To Survivor空间</strong>中（如果<strong>To Survivor空间没有足够空间</strong>存放上一次新生代收集下来存活的对象时，这些对象将直接<strong>通过分配担保机制进入老年代</strong>。），然后清理掉Eden和From Survivor空间，最后<strong>将To Survivor空间和From Survivor空间角色互换</strong>。</p>
 <p>复制算法在对象存活率较高时就要进行较多的复制操作，效率将会变低，老年代一般不能直接选用复制算法。</p>
 <h3 id="标记整理算法"><a href="#标记整理算法" class="headerlink" title="标记整理算法"></a>标记整理算法</h3><p>根据老年代的特点，提出了标记整理算法，<strong>标记过程任然与标记清除算法一样，整理阶段让所有存活的对象都向一端移动，然后直接清理掉边界以外的内存</strong>。</p>
+<p><img src="../../../../../images/JVM/标记整理算法.png" alt="标记整理算法"></p>
 <h3 id="分代收集算法"><a href="#分代收集算法" class="headerlink" title="分代收集算法"></a>分代收集算法</h3><p>目前商业虚拟机的垃圾收集都<strong>采用分代收集算法</strong>，这种算法并<strong>没有新思想</strong>，只是<strong>根据对象存活周期将内存分为几块</strong>，一般把堆内存分为<strong>新生代</strong>和<strong>老年代</strong>，<strong>新生代采用复制算法，老年代采用标记清除算法或标记整理算法</strong>进行回收。</p>
+<p><strong>注</strong>：<strong>标记-清除</strong>或<strong>标记-整理</strong>算法会比<strong>复制算法慢10倍以上</strong> </p>
 
         </div>
         
