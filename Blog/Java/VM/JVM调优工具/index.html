@@ -1,0 +1,1004 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta name="generator" content="Hexo 3.8.0">
+    <meta charset="utf-8">
+    
+    <title>
+        JVM调优工具 |
+        
+        YingLong</title>
+    
+    
+        <meta name="keywords" content="JVM">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="description" content="jpsjps的作用是显示当前系统的java进程情况及进程id 123jps25712 Jps25900 Launcher 123456# 输出传递给main方法的参数jps -m# 输出应用程序main class的完整package名或者应用程序的jar文件完整路径名jps -l# 输出传递给JVM的参数jps -v jmap用来查看内存信息，实例个数以及占用内存大小   1jmap -hist">
+<meta name="keywords" content="JVM">
+<meta property="og:type" content="article">
+<meta property="og:title" content="JVM调优工具">
+<meta property="og:url" content="https://yaoyinglong.github.io/Blog/Java/VM/JVM调优工具/index.html">
+<meta property="og:site_name" content="YingLong">
+<meta property="og:description" content="jpsjps的作用是显示当前系统的java进程情况及进程id 123jps25712 Jps25900 Launcher 123456# 输出传递给main方法的参数jps -m# 输出应用程序main class的完整package名或者应用程序的jar文件完整路径名jps -l# 输出传递给JVM的参数jps -v jmap用来查看内存信息，实例个数以及占用内存大小   1jmap -hist">
+<meta property="og:locale" content="en">
+<meta property="og:image" content="https://yaoyinglong.github.io/images/JVM/jmap-histo.png">
+<meta property="og:image" content="https://yaoyinglong.github.io/images/JVM/jvisualvm检测线程死锁.png">
+<meta property="og:image" content="https://yaoyinglong.github.io/images/JVM/top命令查看cpu使用情况.png">
+<meta property="og:image" content="https://yaoyinglong.github.io/images/JVM/Top命令查看具体线程CPU使用情况.png">
+<meta property="og:image" content="https://yaoyinglong.github.io/images/JVM/jstack查看线程情况.png">
+<meta property="og:updated_time" content="2021-08-20T08:36:53.479Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="JVM调优工具">
+<meta name="twitter:description" content="jpsjps的作用是显示当前系统的java进程情况及进程id 123jps25712 Jps25900 Launcher 123456# 输出传递给main方法的参数jps -m# 输出应用程序main class的完整package名或者应用程序的jar文件完整路径名jps -l# 输出传递给JVM的参数jps -v jmap用来查看内存信息，实例个数以及占用内存大小   1jmap -hist">
+<meta name="twitter:image" content="https://yaoyinglong.github.io/images/JVM/jmap-histo.png">
+    
+
+    
+
+    
+        <link rel="icon" href="/favicon.ico">
+    
+
+    <link rel="stylesheet" href="/libs/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/libs/open-sans/styles.css">
+    <link rel="stylesheet" href="/libs/source-code-pro/styles.css">
+
+    <link rel="stylesheet" href="/css/style.css">
+    <script src="/libs/jquery/2.1.3/jquery.min.js"></script>
+    <script src="/libs/jquery/plugins/cookie/1.4.1/jquery.cookie.js"></script>
+    
+    
+        <link rel="stylesheet" href="/libs/lightgallery/css/lightgallery.min.css">
+    
+    
+        <link rel="stylesheet" href="/libs/justified-gallery/justifiedGallery.min.css">
+    
+    
+    
+    
+
+
+</head>
+</html>
+<body>
+<div id="container">
+    <header id="header">
+    <div id="header-main" class="header-inner">
+        <div class="outer">
+            <a href="/" id="logo">
+                <i class="logo"></i>
+                <span class="site-title">YingLong</span>
+            </a>
+            <nav id="main-nav">
+                
+                    <a class="main-nav-link" href="/">Home</a>
+                
+                    <a class="main-nav-link" href="/archives">Archives</a>
+                
+                    <a class="main-nav-link" href="/categories">Categories</a>
+                
+                    <a class="main-nav-link" href="/tags">Tags</a>
+                
+                    <a class="main-nav-link" href="/about">About</a>
+                
+            </nav>
+            
+            <div id="search-form-wrap">
+    
+        <form class="search-form">
+            <input type="text" class="ins-search-input search-form-input" placeholder="Search">
+            <button type="submit" class="search-form-submit"></button>
+        </form>
+        <div class="ins-search">
+    <div class="ins-search-mask"></div>
+    <div class="ins-search-container">
+        <div class="ins-input-wrapper">
+            <input type="text" class="ins-search-input" placeholder="Type something...">
+            <span class="ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+    (function (window) {
+        var INSIGHT_CONFIG = {
+            TRANSLATION: {
+                POSTS: 'Posts',
+                PAGES: 'Pages',
+                CATEGORIES: 'Categories',
+                TAGS: 'Tags',
+                UNTITLED: '(Untitled)',
+            },
+            ROOT_URL: '/',
+            CONTENT_URL: '/content.json',
+        };
+        window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+    })(window);
+</script>
+<script src="/js/insight.js"></script>
+    
+</div>
+        </div>
+    </div>
+    <div id="main-nav-mobile" class="header-sub header-inner">
+        <table class="menu outer">
+            <tr>
+                
+                    <td><a class="main-nav-link" href="/">Home</a></td>
+                
+                    <td><a class="main-nav-link" href="/archives">Archives</a></td>
+                
+                    <td><a class="main-nav-link" href="/categories">Categories</a></td>
+                
+                    <td><a class="main-nav-link" href="/tags">Tags</a></td>
+                
+                    <td><a class="main-nav-link" href="/about">About</a></td>
+                
+                <td>
+                    
+    <div class="search-form">
+        <input type="text" class="ins-search-input search-form-input" placeholder="Search">
+    </div>
+
+                </td>
+            </tr>
+        </table>
+    </div>
+</header>
+
+    <div class="outer">
+        
+        
+            <aside id="sidebar">
+    
+        
+    <div class="widget-wrap" id="categories">
+        <h3 class="widget-title">
+            <span>categories</span>
+            &nbsp;
+            <a id="allExpand" href="#">
+                <i class="fa fa-angle-double-down fa-2x"></i>
+            </a>
+        </h3>
+
+        
+        
+        
+            <ul class="unstyled" id="tree">
+                
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            DB
+                        </a>
+                        
+            <ul class="unstyled" id="tree">
+                
+                    <li class="file"><a href="/Blog/DB/MySQL基础/">MySQL基础</a></li>
+                
+                    <li class="file"><a href="/Blog/DB/MySQL常用SQL总结/">MySQL常用SQL总结</a></li>
+                
+                    <li class="file"><a href="/Blog/DB/分库分表/">分库分表</a></li>
+                
+            </ul>
+        
+                    </li>
+                
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            Git
+                        </a>
+                        
+            <ul class="unstyled" id="tree">
+                
+                    <li class="file"><a href="/Blog/Git/GIt基本概念/">Git基本概念</a></li>
+                
+                    <li class="file"><a href="/Blog/Git/GIt常用命令/">Git常用命令</a></li>
+                
+                    <li class="file"><a href="/Blog/Git/分支管理理解/">分支管理理解</a></li>
+                
+            </ul>
+        
+                    </li>
+                
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            Go
+                        </a>
+                        
+            <ul class="unstyled" id="tree">
+                
+                    <li class="file"><a href="/Blog/Go/Go基础/">Go基础</a></li>
+                
+            </ul>
+        
+                    </li>
+                
+                    <li class="directory open">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder-open"></i>
+                            &nbsp;
+                            Java
+                        </a>
+                        
+            <ul class="unstyled" id="tree">
+                
+                    <li class="directory open">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder-open"></i>
+                            &nbsp;
+                            VM
+                        </a>
+                        
+            <ul class="unstyled" id="tree">
+                
+                    <li class="file"><a href="/Blog/Java/VM/HotSpot收集算法实现/">HotSpot收集算法实现</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/VM/JVM内存池/">JVM内存池</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/VM/内存非配与回收策略/">内存分配与回收策略</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/VM/Java内存区域/">Java内存区域</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/VM/Minor&Major&Full GC/">Minor&Major&Full GC</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/VM/OutOfMemoryError异常/">OOM异常实验</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/VM/垃圾收集算法/">垃圾收集算法</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/VM/堆中对象分配&布局&访问/">堆中对象分配&布局&访问</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/VM/对象是否存活/">对象是否存活</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/VM/类加载的时机/">类加载的时机</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/VM/运行时栈帧结构/">运行时栈帧结构</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/VM/垃圾收集器/">垃圾收集器</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/VM/方法调用/">方法调用</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/VM/字节码指令/">字节码指令</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/VM/理解GC日志/">理解GC日志</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/VM/类加载器/">类加载器</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/VM/Class文件结构/">Class文件结构</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/VM/属性表集合/">属性表集合</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/VM/类加载过程/">类加载过程</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/VM/字节码指令手册/">字节码指令手册</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/VM/JVM调优思路/">JVM调优思路</a></li>
+                
+                    <li class="file active"><a href="/Blog/Java/VM/JVM调优工具/">JVM调优工具</a></li>
+                
+            </ul>
+        
+                    </li>
+                
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            基础
+                        </a>
+                        
+            <ul class="unstyled" id="tree">
+                
+                    <li class="file"><a href="/Blog/Java/基础/lambda常用总结/">lambda常用总结</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/基础/时间及日期总结/">Java8时间及日期</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/基础/位运算/">位运算</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/基础/注解实现及应用/">注解实现及应用</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/基础/HashMap源码分析JDK8/">HashMap源码分析JDK8</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/基础/HashMap源码分析JDK7/">HashMap源码分析JDK7</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/基础/反射基础/">反射基础</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/基础/动态代理/">动态代理</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/基础/Java实用工具库/">Java实用工具库</a></li>
+                
+            </ul>
+        
+                    </li>
+                
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            工具
+                        </a>
+                        
+            <ul class="unstyled" id="tree">
+                
+                    <li class="file"><a href="/Blog/Java/工具/Java中调用Groovy脚本/">Java中调用Groovy脚本</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/工具/国密SM2/">国密SM2</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/工具/国密SM4/">国密SM4</a></li>
+                
+            </ul>
+        
+                    </li>
+                
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            并发
+                        </a>
+                        
+            <ul class="unstyled" id="tree">
+                
+                    <li class="file"><a href="/Blog/Java/并发/原子性、可见性、有序性/">原子性、可见性、有序性</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/并发/Synchronized总结/">Synchronized总结</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/并发/线程安全/">线程安全</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/并发/线程安全实现方式/">线程安全实现方式</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/并发/ThreadLocal原理/">ThreadLocal原理</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/并发/Volatile原理/">Volatile原理</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/并发/Java与线程/">Java与线程</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/并发/锁优化/">锁优化</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/并发/Java内存模型与线程/">Java内存模型</a></li>
+                
+            </ul>
+        
+                    </li>
+                
+                    <li class="file"><a href="/Blog/Java/JVM整体概览/">JVM整体概览</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/JVM内存参数设置/">JVM内存参数设置</a></li>
+                
+            </ul>
+        
+                    </li>
+                
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            Linux
+                        </a>
+                        
+            <ul class="unstyled" id="tree">
+                
+                    <li class="file"><a href="/Blog/Linux/Linux常用命令/">Linux常用命令</a></li>
+                
+                    <li class="file"><a href="/Blog/Linux/Linux常用技巧/">Linux常用技巧</a></li>
+                
+            </ul>
+        
+                    </li>
+                
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            Maven
+                        </a>
+                        
+            <ul class="unstyled" id="tree">
+                
+                    <li class="file"><a href="/Blog/Maven/Maven加密JAR包/">Maven加密JAR包</a></li>
+                
+                    <li class="file"><a href="/Blog/Maven/Maven基础/">Maven基础</a></li>
+                
+                    <li class="file"><a href="/Blog/Maven/Maven常用/">Maven常用</a></li>
+                
+                    <li class="file"><a href="/Blog/Maven/Maven属性/">Maven属性</a></li>
+                
+                    <li class="file"><a href="/Blog/Maven/Maven常用工具/">Maven常用工具</a></li>
+                
+                    <li class="file"><a href="/Blog/Maven/Maven插件编写/">Maven插件编写</a></li>
+                
+                    <li class="file"><a href="/Blog/Maven/Maven生命周期/">Maven生命周期</a></li>
+                
+                    <li class="file"><a href="/Blog/Maven/Maven个性化打包/">Maven个性化打包</a></li>
+                
+                    <li class="file"><a href="/Blog/Maven/Maven仓库/">Maven仓库</a></li>
+                
+                    <li class="file"><a href="/Blog/Maven/Maven插件基础/">Maven插件基础</a></li>
+                
+                    <li class="file"><a href="/Blog/Maven/Maven聚合与继承/">Maven聚合与继承</a></li>
+                
+                    <li class="file"><a href="/Blog/Maven/Maven常用插件/">Maven常用插件</a></li>
+                
+                    <li class="file"><a href="/Blog/Maven/Maven标签全解/">Maven标签全解</a></li>
+                
+                    <li class="file"><a href="/Blog/Maven/Maven Assembly标签全解/">Maven Assembly标签全解</a></li>
+                
+            </ul>
+        
+                    </li>
+                
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            Python
+                        </a>
+                        
+            <ul class="unstyled" id="tree">
+                
+                    <li class="file"><a href="/Blog/Python/Excel文件数据抽取/">Excel文件数据抽取</a></li>
+                
+            </ul>
+        
+                    </li>
+                
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            Test
+                        </a>
+                        
+            <ul class="unstyled" id="tree">
+                
+                    <li class="file"><a href="/Blog/Test/IT测试总结/">IT测试总结</a></li>
+                
+                    <li class="file"><a href="/Blog/Test/JMeter日常总结/">JMeter日常总结</a></li>
+                
+                    <li class="file"><a href="/Blog/Test/LoadRunner日常总结/">LoadRunner日常总结</a></li>
+                
+                    <li class="file"><a href="/Blog/Test/UT测试总结/">UT测试总结</a></li>
+                
+            </ul>
+        
+                    </li>
+                
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            中间件
+                        </a>
+                        
+            <ul class="unstyled" id="tree">
+                
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            Spring
+                        </a>
+                        
+            <ul class="unstyled" id="tree">
+                
+                    <li class="file"><a href="/Blog/中间件/Spring/IoC容器/">IoC容器</a></li>
+                
+                    <li class="file"><a href="/Blog/中间件/Spring/Spring Gzip压缩/">Spring Gzip压缩</a></li>
+                
+                    <li class="file"><a href="/Blog/中间件/Spring/Spring整体架构/">Spring整体架构</a></li>
+                
+                    <li class="file"><a href="/Blog/中间件/Spring/Spring线程池跨线程数据共享/">Spring线程池跨线程数据共享</a></li>
+                
+                    <li class="file"><a href="/Blog/中间件/Spring/Spring知识点/">Spring知识点</a></li>
+                
+                    <li class="file"><a href="/Blog/中间件/Spring/SpringMvc异步/">SpringMvc异步原理及实现</a></li>
+                
+                    <li class="file"><a href="/Blog/中间件/Spring/Hystrix总结/">Hystrix总结</a></li>
+                
+                    <li class="file"><a href="/Blog/中间件/Spring/Spring初始化扩展/">Spring初始化扩展</a></li>
+                
+            </ul>
+        
+                    </li>
+                
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            常见问题
+                        </a>
+                        
+            <ul class="unstyled" id="tree">
+                
+                    <li class="file"><a href="/Blog/中间件/常见问题/HBase依赖冲突/">HBase依赖冲突</a></li>
+                
+                    <li class="file"><a href="/Blog/中间件/常见问题/Maven编译后文件损坏/">Maven编译后文件损坏</a></li>
+                
+            </ul>
+        
+                    </li>
+                
+                    <li class="file"><a href="/Blog/中间件/Redis分布式锁实现/">Redis分布式锁实现</a></li>
+                
+                    <li class="file"><a href="/Blog/中间件/Redis总结/">Redis总结</a></li>
+                
+                    <li class="file"><a href="/Blog/中间件/Tomcat工作原理/">Tomcat工作原理</a></li>
+                
+            </ul>
+        
+                    </li>
+                
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            协议族
+                        </a>
+                        
+            <ul class="unstyled" id="tree">
+                
+                    <li class="file"><a href="/Blog/协议族/TCPIP四层&五层模型/">TCP/IP四层&五层模型</a></li>
+                
+                    <li class="file"><a href="/Blog/协议族/网络基础知识/">网络基础知识</a></li>
+                
+                    <li class="file"><a href="/Blog/协议族/以太网/">以太网</a></li>
+                
+                    <li class="file"><a href="/Blog/协议族/地址解析协议/">地址解析协议ARP</a></li>
+                
+            </ul>
+        
+                    </li>
+                
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            杂记
+                        </a>
+                        
+            <ul class="unstyled" id="tree">
+                
+                    <li class="file"><a href="/Blog/杂记/IDEA实用插件/">IDEA实用插件</a></li>
+                
+                    <li class="file"><a href="/Blog/杂记/JAVA实用工具/">JAVA实用工具</a></li>
+                
+                    <li class="file"><a href="/Blog/杂记/IDEA快捷的使用/">IDEA的快捷使用</a></li>
+                
+                    <li class="file"><a href="/Blog/杂记/Win实用工具/">Win实用工具</a></li>
+                
+                    <li class="file"><a href="/Blog/杂记/XSD使用总结/">XSD实用总结</a></li>
+                
+                    <li class="file"><a href="/Blog/杂记/SonarQube配置总结/">SonarQube配置总结</a></li>
+                
+            </ul>
+        
+                    </li>
+                
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            算法
+                        </a>
+                        
+            <ul class="unstyled" id="tree">
+                
+                    <li class="file"><a href="/Blog/算法/二叉搜索树/">二叉搜索树</a></li>
+                
+                    <li class="file"><a href="/Blog/算法/平衡二叉树/">平衡二叉树</a></li>
+                
+                    <li class="file"><a href="/Blog/算法/树基础/">树基础</a></li>
+                
+                    <li class="file"><a href="/Blog/算法/排序算法/">排序算法</a></li>
+                
+                    <li class="file"><a href="/Blog/算法/图基础/">图基础</a></li>
+                
+            </ul>
+        
+                    </li>
+                
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            自度
+                        </a>
+                        
+            <ul class="unstyled" id="tree">
+                
+                    <li class="file"><a href="/Blog/自度/隐形眼镜攻略/"></a></li>
+                
+            </ul>
+        
+                    </li>
+                
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            设计模式
+                        </a>
+                        
+            <ul class="unstyled" id="tree">
+                
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            创建型模式
+                        </a>
+                        
+            <ul class="unstyled" id="tree">
+                
+                    <li class="file"><a href="/Blog/设计模式/创建型模式/单例模式/">单例模式</a></li>
+                
+                    <li class="file"><a href="/Blog/设计模式/创建型模式/原型模式/">原型模式</a></li>
+                
+                    <li class="file"><a href="/Blog/设计模式/创建型模式/建造者模式/">建造者模式</a></li>
+                
+                    <li class="file"><a href="/Blog/设计模式/创建型模式/工厂模式/">工厂模式</a></li>
+                
+            </ul>
+        
+                    </li>
+                
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            结构型模式
+                        </a>
+                        
+            <ul class="unstyled" id="tree">
+                
+                    <li class="file"><a href="/Blog/设计模式/结构型模式/代理模式/">代理模式</a></li>
+                
+                    <li class="file"><a href="/Blog/设计模式/结构型模式/装饰模式/">装饰模式</a></li>
+                
+                    <li class="file"><a href="/Blog/设计模式/结构型模式/适配器模式/">适配器模式</a></li>
+                
+                    <li class="file"><a href="/Blog/设计模式/结构型模式/组合模式/">组合模式</a></li>
+                
+                    <li class="file"><a href="/Blog/设计模式/结构型模式/外观模式/">外观模式</a></li>
+                
+            </ul>
+        
+                    </li>
+                
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            行为型模式
+                        </a>
+                        
+            <ul class="unstyled" id="tree">
+                
+                    <li class="file"><a href="/Blog/设计模式/行为型模式/模板方法模式/">模板方法模式</a></li>
+                
+                    <li class="file"><a href="/Blog/设计模式/行为型模式/中介者模式/">中介者模式</a></li>
+                
+                    <li class="file"><a href="/Blog/设计模式/行为型模式/命令模式/">命令模式</a></li>
+                
+                    <li class="file"><a href="/Blog/设计模式/行为型模式/责任链模式/">责任链模式</a></li>
+                
+                    <li class="file"><a href="/Blog/设计模式/行为型模式/策略模式/">策略模式</a></li>
+                
+                    <li class="file"><a href="/Blog/设计模式/行为型模式/迭代器模式/">迭代器模式</a></li>
+                
+                    <li class="file"><a href="/Blog/设计模式/行为型模式/观察者模式/">观察者模式</a></li>
+                
+                    <li class="file"><a href="/Blog/设计模式/行为型模式/备忘录模式/">备忘录模式</a></li>
+                
+                    <li class="file"><a href="/Blog/设计模式/行为型模式/访问者模式/">访问者模式</a></li>
+                
+                    <li class="file"><a href="/Blog/设计模式/行为型模式/状态模式/">状态模式</a></li>
+                
+            </ul>
+        
+                    </li>
+                
+                    <li class="file"><a href="/Blog/设计模式/SOLID基本原则/">SOLID基本原则</a></li>
+                
+                    <li class="file"><a href="/Blog/设计模式/设计模式概览/">设计模式概览</a></li>
+                
+            </ul>
+        
+                    </li>
+                
+                    <li class="file"><a href="/Blog/index/">Welcome YingLong's Blog</a></li>
+                
+            </ul>
+        
+    </div>
+    <script>
+        $(document).ready(function () {
+            var iconFolderOpenClass = 'fa-folder-open';
+            var iconFolderCloseClass = 'fa-folder';
+            var iconAllExpandClass = 'fa-angle-double-down';
+            var iconAllPackClass = 'fa-angle-double-up';
+            // Handle directory-tree expansion:
+            // 左键单独展开目录
+            $(document).on('click', '#categories a[data-role="directory"]', function (event) {
+                event.preventDefault();
+
+                var icon = $(this).children('.fa');
+                var expanded = icon.hasClass(iconFolderOpenClass);
+                var subtree = $(this).siblings('ul');
+                icon.removeClass(iconFolderOpenClass).removeClass(iconFolderCloseClass);
+                if (expanded) {
+                    if (typeof subtree != 'undefined') {
+                        subtree.slideUp({duration: 100});
+                    }
+                    icon.addClass(iconFolderCloseClass);
+                } else {
+                    if (typeof subtree != 'undefined') {
+                        subtree.slideDown({duration: 100});
+                    }
+                    icon.addClass(iconFolderOpenClass);
+                }
+            });
+            // 右键展开下属所有目录
+            $('#categories a[data-role="directory"]').bind("contextmenu", function (event) {
+                event.preventDefault();
+
+                var icon = $(this).children('.fa');
+                var expanded = icon.hasClass(iconFolderOpenClass);
+                var listNode = $(this).siblings('ul');
+                var subtrees = $.merge(listNode.find('li ul'), listNode);
+                var icons = $.merge(listNode.find('.fa'), icon);
+                icons.removeClass(iconFolderOpenClass).removeClass(iconFolderCloseClass);
+                if (expanded) {
+                    subtrees.slideUp({duration: 100});
+                    icons.addClass(iconFolderCloseClass);
+                } else {
+                    subtrees.slideDown({duration: 100});
+                    icons.addClass(iconFolderOpenClass);
+                }
+            })
+            // 展开关闭所有目录按钮
+            $(document).on('click', '#allExpand', function (event) {
+                event.preventDefault();
+
+                var icon = $(this).children('.fa');
+                var expanded = icon.hasClass(iconAllExpandClass);
+                icon.removeClass(iconAllExpandClass).removeClass(iconAllPackClass);
+                if (expanded) {
+                    $('#sidebar .fa.fa-folder').removeClass('fa-folder').addClass('fa-folder-open')
+                    $('#categories li ul').slideDown({duration: 100});
+                    icon.addClass(iconAllPackClass);
+                } else {
+                    $('#sidebar .fa.fa-folder-open').removeClass('fa-folder-open').addClass('fa-folder')
+                    $('#categories li ul').slideUp({duration: 100});
+                    icon.addClass(iconAllExpandClass);
+                }
+            });
+        });
+    </script>
+
+    
+    <div id="toTop" class="fa fa-angle-up"></div>
+</aside>
+        
+        <section id="main"><article id="post-Java/VM/JVM调优工具" class="article article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+        
+            <header class="article-header">
+                
+                    <div class="article-meta">
+                        
+    <div class="article-category">
+        <i class="fa fa-folder"></i>
+        <a class="article-category-link" href="/categories/Java/">Java</a><i class="fa fa-angle-right"></i><a class="article-category-link" href="/categories/Java/VM/">VM</a>
+    </div>
+
+                        
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link" href="/tags/JVM/">JVM</a>
+    </div>
+
+                        
+    <div class="article-date">
+        <i class="fa fa-calendar"></i>
+        <a href="/Blog/Java/VM/JVM调优工具/">
+            <time datetime="2021-08-18T16:00:00.000Z" itemprop="datePublished">2021-08-19</time>
+        </a>
+    </div>
+
+
+                        
+                    </div>
+                
+                
+    
+        <h1 class="article-title" itemprop="name">
+            JVM调优工具
+        </h1>
+    
+
+            </header>
+        
+        
+        <div class="article-entry" itemprop="articleBody">
+            
+            
+                    
+            
+            
+                <h3 id="jps"><a href="#jps" class="headerlink" title="jps"></a><code>jps</code></h3><p><code>jps</code>的作用是<strong>显示当前系统的<code>java</code>进程情况及进程<code>id</code></strong></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">jps</span><br><span class="line">25712 Jps</span><br><span class="line">25900 Launcher</span><br></pre></td></tr></table></figure>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span> 输出传递给main方法的参数</span><br><span class="line">jps -m</span><br><span class="line"><span class="meta">#</span> 输出应用程序main class的完整package名或者应用程序的jar文件完整路径名</span><br><span class="line">jps -l</span><br><span class="line"><span class="meta">#</span> 输出传递给JVM的参数</span><br><span class="line">jps -v</span><br></pre></td></tr></table></figure>
+<h3 id="jmap"><a href="#jmap" class="headerlink" title="jmap"></a><code>jmap</code></h3><p>用来查看<strong>内存信息</strong>，<strong>实例个数</strong>以及<strong>占用内存大小</strong>  </p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">jmap -histo 23960 &gt; ./log.txt</span><br></pre></td></tr></table></figure>
+<p><img src="../../../../../images/JVM/jmap-histo.png" alt="jmap -histo pid"></p>
+<ul>
+<li><code>num</code>：序号</li>
+<li><code>instances</code>：实例数量</li>
+<li><code>bytes</code>：占用空间大小</li>
+<li><code>class name</code>：类名称</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line">jmap -heap 26500</span><br><span class="line">Attaching to process ID 26500, please wait...</span><br><span class="line">Debugger attached successfully.</span><br><span class="line">Server compiler detected.</span><br><span class="line">JVM version is 25.171-b11</span><br><span class="line"></span><br><span class="line">using thread-local object allocation.</span><br><span class="line">Parallel GC with 6 thread(s)</span><br><span class="line"></span><br><span class="line">Heap Configuration:</span><br><span class="line">   MinHeapFreeRatio         = 0</span><br><span class="line">   MaxHeapFreeRatio         = 100</span><br><span class="line">   MaxHeapSize              = 4273995776 (4076.0MB)</span><br><span class="line">   NewSize                  = 89128960 (85.0MB)</span><br><span class="line">   MaxNewSize               = 1424490496 (1358.5MB)</span><br><span class="line">   OldSize                  = 179306496 (171.0MB)</span><br><span class="line">   NewRatio                 = 2</span><br><span class="line">   SurvivorRatio            = 8</span><br><span class="line">   MetaspaceSize            = 21807104 (20.796875MB)</span><br><span class="line">   CompressedClassSpaceSize = 1073741824 (1024.0MB)</span><br><span class="line">   MaxMetaspaceSize         = 17592186044415 MB</span><br><span class="line">   G1HeapRegionSize         = 0 (0.0MB)</span><br><span class="line"></span><br><span class="line">Heap Usage:</span><br><span class="line">PS Young Generation</span><br><span class="line">Eden Space:</span><br><span class="line">   capacity = 96993280 (92.5MB)</span><br><span class="line">   used     = 14883328 (14.19384765625MB)</span><br><span class="line">   free     = 82109952 (78.30615234375MB)</span><br><span class="line">   15.34470016891892% used</span><br><span class="line">From Space:</span><br><span class="line">   capacity = 11010048 (10.5MB)</span><br><span class="line">   used     = 10977376 (10.468841552734375MB)</span><br><span class="line">   free     = 32672 (0.031158447265625MB)</span><br><span class="line">   99.70325288318452% used</span><br><span class="line">To Space:</span><br><span class="line">   capacity = 11010048 (10.5MB)</span><br><span class="line">   used     = 0 (0.0MB)</span><br><span class="line">   free     = 11010048 (10.5MB)</span><br><span class="line">   0.0% used</span><br><span class="line">PS Old Generation</span><br><span class="line">   capacity = 111149056 (106.0MB)</span><br><span class="line">   used     = 13376792 (12.757102966308594MB)</span><br><span class="line">   free     = 97772264 (93.2428970336914MB)</span><br><span class="line">   12.035002798404333% used</span><br><span class="line"></span><br><span class="line">15634 interned Strings occupying 2076984 bytes.</span><br></pre></td></tr></table></figure>
+<h4 id="堆内存dump"><a href="#堆内存dump" class="headerlink" title="堆内存dump"></a>堆内存dump</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">jmap -dump:format=b,file=test.hprof 26500</span><br><span class="line">Dumping heap to C:\Users\90627\Desktop\test.hprof ...</span><br><span class="line">Heap dump file created</span><br></pre></td></tr></table></figure>
+<p>也可以通过<strong><code>-XX:+HeapDumpOnOutOfMemoryError</code></strong> 和<strong><code>-XX:HeapDumpPath=./test</code></strong> 参数设置内存溢出<strong>自动导出dump文件</strong>，内存很大的时候，可能会导不出来，可以将导出的dump文件导入到<code>jvisualvm</code> 进行查看。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * -Xms10M -Xmx10M -XX:+PrintGCDetails -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=D:\jvm.dump</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">OOMTest</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        List&lt;Object&gt; list = <span class="keyword">new</span> ArrayList&lt;&gt;();</span><br><span class="line">        <span class="keyword">int</span> i = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">int</span> j = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">while</span> (<span class="keyword">true</span>) &#123;</span><br><span class="line">            list.add(<span class="keyword">new</span> User(i++, UUID.randomUUID().toString()));</span><br><span class="line">            <span class="keyword">new</span> User(j--, UUID.randomUUID().toString());</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="jstack"><a href="#jstack" class="headerlink" title="jstack"></a><code>jstack</code></h3><p>用jstack加进程id<strong>查找死锁</strong>。如下是死锁示例代码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">DeadLockTest</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> Object lock1 = <span class="keyword">new</span> Object();</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> Object lock2 = <span class="keyword">new</span> Object();</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">new</span> Thread(() -&gt; &#123;</span><br><span class="line">            <span class="keyword">synchronized</span> (lock1) &#123;</span><br><span class="line">                System.out.println(Thread.currentThread().getName() +  <span class="string">" begin"</span>);</span><br><span class="line">                <span class="keyword">try</span> &#123;</span><br><span class="line">                    Thread.sleep(<span class="number">5000</span>);</span><br><span class="line">                &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">                    e.printStackTrace();</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">synchronized</span> (lock2) &#123;</span><br><span class="line">                    System.out.println(Thread.currentThread().getName() + <span class="string">" end"</span>);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;, <span class="string">"thread1"</span>).start();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">new</span> Thread(() -&gt; &#123;</span><br><span class="line">            <span class="keyword">synchronized</span> (lock2) &#123;</span><br><span class="line">                System.out.println(Thread.currentThread().getName() + <span class="string">" begin"</span>);</span><br><span class="line">                <span class="keyword">try</span> &#123;</span><br><span class="line">                    Thread.sleep(<span class="number">5000</span>);</span><br><span class="line">                &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">                    e.printStackTrace();</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">synchronized</span> (lock1) &#123;</span><br><span class="line">                    System.out.println(Thread.currentThread().getName() + <span class="string">" end"</span>);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;, <span class="string">"thread2"</span>).start();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>执行后具体日志如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line">jstack <span class="number">13728</span></span><br><span class="line"><span class="number">2021</span>-<span class="number">08</span>-<span class="number">19</span> <span class="number">21</span>:<span class="number">39</span>:<span class="number">46</span></span><br><span class="line"><span class="function">Full thread dump Java <span class="title">HotSpot</span><span class="params">(TM)</span> 64-Bit Server <span class="title">VM</span> <span class="params">(<span class="number">25.171</span>-b11 mixed mode)</span>:</span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function">"thread2" #12 prio</span>=<span class="number">5</span> os_prio=<span class="number">0</span> tid=<span class="number">0x000000001f35d000</span> nid=<span class="number">0x665c</span> waiting <span class="keyword">for</span> monitor entry [<span class="number">0x000000001fb9f000</span>]</span><br><span class="line">   java.lang.Thread.State: BLOCKED (on object monitor)</span><br><span class="line">        at com.eleven.icode.jvm.DeadLockTest.lambda$main$<span class="number">1</span>(DeadLockTest.java:<span class="number">34</span>)</span><br><span class="line">        - waiting to lock &lt;<span class="number">0x000000076b3a5530</span>&gt; (a java.lang.Object)</span><br><span class="line">        - locked &lt;<span class="number">0x000000076b3a5540</span>&gt; (a java.lang.Object)</span><br><span class="line">        at com.eleven.icode.jvm.DeadLockTest$$Lambda$<span class="number">2</span>/<span class="number">2121055098</span>.run(Unknown Source)</span><br><span class="line">        at java.lang.Thread.run(Thread.java:<span class="number">748</span>)</span><br><span class="line"></span><br><span class="line">"thread1" #11 prio=5 os_prio=0 tid=0x000000001f33f800 nid=0x2cf0 waiting for monitor entry [0x000000001fa9f000]</span><br><span class="line">   java.lang.Thread.State: BLOCKED (on object monitor)</span><br><span class="line">        at com.eleven.icode.jvm.DeadLockTest.lambda$main$<span class="number">0</span>(DeadLockTest.java:<span class="number">20</span>)</span><br><span class="line">        - waiting to lock &lt;<span class="number">0x000000076b3a5540</span>&gt; (a java.lang.Object)</span><br><span class="line">        - locked &lt;<span class="number">0x000000076b3a5530</span>&gt; (a java.lang.Object)</span><br><span class="line">        at com.eleven.icode.jvm.DeadLockTest$$Lambda$<span class="number">1</span>/<span class="number">1225358173</span>.run(Unknown Source)</span><br><span class="line">        at java.lang.Thread.run(Thread.java:<span class="number">748</span>)</span><br><span class="line"></span><br><span class="line">Found one Java-level deadlock:</span><br><span class="line">=============================</span><br><span class="line"><span class="string">"thread2"</span>:</span><br><span class="line">  waiting to lock monitor <span class="number">0x000000001cb8ec78</span> (object <span class="number">0x000000076b3a5530</span>, a java.lang.Object),</span><br><span class="line">  which is held by <span class="string">"thread1"</span></span><br><span class="line"><span class="string">"thread1"</span>:</span><br><span class="line">  waiting to lock monitor <span class="number">0x000000001cb91508</span> (object <span class="number">0x000000076b3a5540</span>, a java.lang.Object),</span><br><span class="line">  which is held by <span class="string">"thread2"</span></span><br><span class="line"></span><br><span class="line">Java stack information <span class="keyword">for</span> the threads listed above:</span><br><span class="line">===================================================</span><br><span class="line"><span class="string">"thread2"</span>:</span><br><span class="line">        at com.eleven.icode.jvm.DeadLockTest.lambda$main$<span class="number">1</span>(DeadLockTest.java:<span class="number">34</span>)</span><br><span class="line">        - waiting to lock &lt;<span class="number">0x000000076b3a5530</span>&gt; (a java.lang.Object)</span><br><span class="line">        - locked &lt;<span class="number">0x000000076b3a5540</span>&gt; (a java.lang.Object)</span><br><span class="line">        at com.eleven.icode.jvm.DeadLockTest$$Lambda$<span class="number">2</span>/<span class="number">2121055098</span>.run(Unknown Source)</span><br><span class="line">        at java.lang.Thread.run(Thread.java:<span class="number">748</span>)</span><br><span class="line"><span class="string">"thread1"</span>:</span><br><span class="line">        at com.eleven.icode.jvm.DeadLockTest.lambda$main$<span class="number">0</span>(DeadLockTest.java:<span class="number">20</span>)</span><br><span class="line">        - waiting to lock &lt;<span class="number">0x000000076b3a5540</span>&gt; (a java.lang.Object)</span><br><span class="line">        - locked &lt;<span class="number">0x000000076b3a5530</span>&gt; (a java.lang.Object)</span><br><span class="line">        at com.eleven.icode.jvm.DeadLockTest$$Lambda$<span class="number">1</span>/<span class="number">1225358173</span>.run(Unknown Source)</span><br><span class="line">        at java.lang.Thread.run(Thread.java:<span class="number">748</span>)</span><br><span class="line"></span><br><span class="line">Found <span class="number">1</span> deadlock.</span><br></pre></td></tr></table></figure>
+<p><strong>还可以用<code>jvisualvm</code>自动检测死锁</strong>：</p>
+<p><img src="../../../../../images/JVM/jvisualvm检测线程死锁.png" alt="检测线程死锁"></p>
+<h5 id="启动JAR的JMX端口配置"><a href="#启动JAR的JMX端口配置" class="headerlink" title="启动JAR的JMX端口配置"></a>启动JAR的JMX端口配置</h5><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">java -Dcom.sun.management.jmxremote.port=8888 -Djava.rmi.server.hostname=192.168.0.103 -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false -jar ElevenJvmApplication.jar</span><br></pre></td></tr></table></figure>
+<h5 id="Tomcat的JMX配置"><a href="#Tomcat的JMX配置" class="headerlink" title="Tomcat的JMX配置"></a><code>Tomcat</code>的<code>JMX</code>配置</h5><p>在<code>catalina.sh</code>文件里最后一个<code>JAVA_OPTS</code>赋值语句下一行增加如下配置行：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">JAVA_OPTS="$JAVA_OPTS -Dcom.sun.management.jmxremote.port=8888 -Djava.rmi.server.hostname=192.168.50.60 -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false"</span><br></pre></td></tr></table></figure>
+<h5 id="jstack找出占用cpu最高的线程堆栈信息"><a href="#jstack找出占用cpu最高的线程堆栈信息" class="headerlink" title="jstack找出占用cpu最高的线程堆栈信息"></a><code>jstack</code>找出占用<code>cpu</code>最高的线程堆栈信息</h5><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">CpuHighTest</span> </span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> initData = <span class="number">666</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> User user = <span class="keyword">new</span> User();</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">compute</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">int</span> a = <span class="number">1</span>;</span><br><span class="line">        <span class="keyword">int</span> b = <span class="number">2</span>;</span><br><span class="line">        <span class="keyword">int</span> c = (a + b) * <span class="number">10</span>;</span><br><span class="line">        <span class="keyword">return</span> c;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        CpuHighTest test = <span class="keyword">new</span> CpuHighTest();</span><br><span class="line">        <span class="keyword">while</span> (<span class="keyword">true</span>) &#123;</span><br><span class="line">            test.compute();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>首先使用命令<code>top -p &lt;pid&gt;</code> ，显示进程的CPU使用情况</p>
+<p><img src="../../../../../images/JVM/top命令查看cpu使用情况.png" alt="top命令查看cpu使用情况"></p>
+<p>按<strong>大写的H</strong>，获取每个线程的内存情况</p>
+<p><img src="../../../../../images/JVM/Top命令查看具体线程CPU使用情况.png" alt="Top命令查看具体线程CPU使用情况"></p>
+<p>找到内存和cpu占用最高的线程tid，将线程id的十进制转为十六进制得到0x4cd0，执行<strong><code>jstack 19663|grep -A 10 4cd0</code></strong>，得到线程堆栈信息中4cd0这个线程所在行的后面10行，从堆栈中可以发现导致cpu飙高的调用方法，从而查看对应的堆栈信息找出可能存在问题的代码。</p>
+<p><img src="../../../../../images/JVM/jstack查看线程情况.png" alt></p>
+<h3 id="jinfo"><a href="#jinfo" class="headerlink" title="jinfo"></a>jinfo</h3><p>通过<strong><code>jinfo -flags  PID</code></strong>查看正在运行的<strong>Java应用程序的扩展参数</strong>：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">Attaching to process ID 15184, please wait...</span><br><span class="line">Debugger attached successfully.</span><br><span class="line">Server compiler detected.</span><br><span class="line">JVM version is 25.171-b11</span><br><span class="line">Non-default VM flags: -XX:CICompilerCount=3 -XX:InitialHeapSize=268435456 -XX:+ManagementServer -XX:MaxHeapSize=4273995776 -XX:MaxNewSize=1424490496 -XX:MinHeapDeltaBytes=524288 -XX:NewSize=89128960 -XX:OldSize=179306496 -XX:+UseCompressedClassPointers -XX:+UseCompressedOops -XX:+UseFastUnorderedTimeStamps -XX:-UseLargePagesIndividualAllocation -XX:+UseParallelGC</span><br><span class="line">Command line:  -Dcom.sun.management.jmxremote.port=8888 -Djava.rmi.server.hostname=192.168.0.103 -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false</span><br></pre></td></tr></table></figure>
+<p>通过<strong><code>jinfo -sysprops PID</code></strong>查看<strong>java系统参数</strong>:</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">Attaching to process ID 15184, please wait...</span><br><span class="line">Debugger attached successfully.</span><br><span class="line">Server compiler detected.</span><br><span class="line">JVM version is 25.171-b11</span><br><span class="line">com.sun.management.jmxremote.authenticate = false</span><br><span class="line">java.runtime.name = Java(TM) SE Runtime Environment</span><br><span class="line">java.vm.version = 25.171-b11</span><br><span class="line">sun.boot.library.path = C:\Program Files\Java\jdk1.8.0_171\jre\bin</span><br><span class="line">java.protocol.handler.pkgs = org.springframework.boot.loader</span><br><span class="line">java.vendor.url = http://java.oracle.com/</span><br><span class="line">java.vm.vendor = Oracle Corporation</span><br><span class="line">path.separator = ;</span><br><span class="line">java.rmi.server.randomIDs = true</span><br><span class="line">file.encoding.pkg = sun.io</span><br><span class="line">java.vm.name = Java HotSpot(TM) 64-Bit Server VM</span><br><span class="line">sun.os.patch.level =</span><br><span class="line">sun.java.launcher = SUN_STANDARD</span><br><span class="line">user.script =</span><br><span class="line">user.country = CN</span><br><span class="line">user.dir = D:\tmp</span><br><span class="line">java.vm.specification.name = Java Virtual Machine Specification</span><br><span class="line">com.sun.management.jmxremote.port = 8888</span><br><span class="line">PID = 15184</span><br><span class="line">java.runtime.version = 1.8.0_171-b11</span><br><span class="line">java.awt.graphicsenv = sun.awt.Win32GraphicsEnvironment</span><br><span class="line">os.arch = amd64</span><br><span class="line">java.endorsed.dirs = C:\Program Files\Java\jdk1.8.0_171\jre\lib\endorsed</span><br></pre></td></tr></table></figure>
+<h3 id="jstat"><a href="#jstat" class="headerlink" title="jstat"></a>jstat</h3><p><strong><code>jstat</code> [-命令选项] [<code>vmid</code>] [间隔时间(毫秒)] [查询次数]</strong>  查看<strong>堆内存各部分的使用量</strong>，以及<strong>加载类的数量</strong></p>
+<p><strong><code>jstat -gc 15184</code></strong></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"> S0C    S1C    S0U    S1U      EC       EU        OC         OU       MC     MU    CCSC   CCSU   YGC     YGCT    FGC    FGCT     GCT</span><br><span class="line">9728.0 12288.0  0.0    0.0   134656.0 32979.9   186880.0   15970.6   35496.0 33974.9 4656.0 4355.1      6    0.027   2      0.079    0.105</span><br></pre></td></tr></table></figure>
+<p><strong><code>S0C</code></strong>：Survivor0区大小，单位KB<br><strong><code>S1C</code></strong>：Survivor1区的大小<br><strong><code>S0U</code></strong>：Survivor0区的使用大小<br><strong><code>S1U</code></strong>：Survivor1区的使用大小<br><strong><code>EC</code></strong>：Eden区的大小<br><strong><code>EU</code></strong>：Eden区的使用大小<br><strong><code>OC</code></strong>：老年代大小<br><strong><code>OU</code></strong>：老年代使用大小<br><strong><code>MC</code></strong>：方法区大小(元空间)<br><strong><code>MU</code></strong>：方法区使用大小<br><strong><code>CCSC</code></strong>：压缩类空间大小<br><strong><code>CCSU</code></strong>：压缩类空间使用大小<br><strong><code>YGC</code></strong>：年轻代垃圾回收次数<br><strong><code>YGCT</code></strong>：年轻代垃圾回收消耗时间，单位s<br><strong><code>FGC</code></strong>：老年代垃圾回收次数<br><strong><code>FGCT</code></strong>：老年代垃圾回收消耗时间，单位s<br><strong><code>GCT</code></strong>：垃圾回收消耗总时间，单位s  </p>
+<h5 id="堆内存统计"><a href="#堆内存统计" class="headerlink" title="堆内存统计"></a>堆内存统计</h5><p><strong><code>jstat -gccapacity 15184</code></strong></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">NGCMN    NGCMX     NGC     S0C   S1C       EC      OGCMN      OGCMX       OGC         OC       MCMN     MCMX      MC     CCSMN    CCSMX     CCSC    YGC    FGC</span><br><span class="line">87040.0 1391104.0 201216.0 9728.0 12288.0 134656.0   175104.0  2782720.0   186880.0   186880.0      0.0 1081344.0  35496.0      0.0 1048576.0   4656.0      6     2</span><br></pre></td></tr></table></figure>
+<p><strong><code>NGCMN</code></strong>：新生代最小容量<br><strong><code>NGCMX</code></strong>：新生代最大容量<br><strong><code>NGC</code></strong>：当前新生代容量<br><strong><code>S0C</code></strong>：Survivor0区大小<br><strong><code>S1C</code></strong>：Survivor1区的大小<br><strong><code>EC</code></strong>：Eden区的大小<br><strong><code>OGCMN</code></strong>：老年代最小容量<br><strong><code>OGCMX</code></strong>：老年代最大容量<br><strong><code>OGC</code></strong>：当前老年代大小<br><strong><code>OC</code></strong>：当前老年代大小<br><strong><code>MCMN</code></strong>：最小元数据容量<br><strong><code>MCMX</code></strong>：最大元数据容量<br><strong><code>MC</code></strong>：当前元数据空间大小<br><strong><code>CCSMN</code></strong>：最小压缩类空间大小<br><strong><code>CCSMX</code></strong>：最大压缩类空间大小<br><strong><code>CCSC</code></strong>：当前压缩类空间大小<br><strong><code>YGC</code></strong>：年轻代GC次数<br><strong><code>FGC</code></strong>：老年代GC次数  </p>
+<h5 id="新生带垃圾回收统计"><a href="#新生带垃圾回收统计" class="headerlink" title="新生带垃圾回收统计"></a>新生带垃圾回收统计</h5><p><strong><code>jstat -gcnew 15184</code></strong></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"> S0C    S1C    S0U    S1U   TT MTT  DSS      EC       EU     YGC     YGCT</span><br><span class="line">9728.0 12288.0    0.0    0.0  7  15 12288.0 134656.0  33428.7      6    0.027</span><br></pre></td></tr></table></figure>
+<p><strong><code>S0C</code></strong>：Survivor0区的大小<br><strong><code>S1C</code></strong>：Survivor1区的大小<br><strong><code>S0U</code></strong>：Survivor0区的使用大小<br><strong><code>S1U</code></strong>：Survivor1区的使用大小<br><strong><code>TT</code></strong>：对象在新生代存活的次数<br><strong><code>MTT</code></strong>：对象在新生代存活的最大次数<br><strong><code>DSS</code></strong>：期望的幸存区大小<br><strong><code>EC</code></strong>：伊甸园区的大小<br><strong><code>EU</code></strong>：伊甸园区的使用大小<br><strong><code>YGC</code></strong>：年轻代垃圾回收次数<br><strong><code>YGCT</code></strong>：年轻代垃圾回收消耗时间</p>
+<h5 id="新生代内存统计"><a href="#新生代内存统计" class="headerlink" title="新生代内存统计"></a>新生代内存统计</h5><p><strong><code>jstat -gcnewcapacity 15184</code></strong></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"> NGCMN      NGCMX       NGC      S0CMX     S0C     S1CMX     S1C       ECMX        EC      YGC   FGC</span><br><span class="line">87040.0  1391104.0   201216.0 463360.0   9728.0 463360.0  12288.0  1390080.0   134656.0     6     2</span><br></pre></td></tr></table></figure>
+<p><strong><code>NGCMN</code></strong>：新生代最小容量<br><strong><code>NGCMX</code></strong>：新生代最大容量<br><strong><code>NGC</code></strong>：当前新生代容量<br><strong><code>S0CMX</code></strong>：最大Survivor0区大小<br><strong><code>S0C</code></strong>：当前Survivor0区大小<br><strong><code>S1CMX</code></strong>：最大Survivor1区大小<br><strong><code>S1C</code></strong>：当前Survivor1区大小<br><strong><code>ECMX</code></strong>：最大伊甸园区大小<br><strong><code>EC</code></strong>：当前伊甸园区大小<br><strong><code>YGC</code></strong>：年轻代垃圾回收次数<br><strong><code>FGC</code></strong>：老年代回收次数  </p>
+<h5 id="老年代垃圾回收统计"><a href="#老年代垃圾回收统计" class="headerlink" title="老年代垃圾回收统计"></a>老年代垃圾回收统计</h5><p><strong><code>jstat -gcold 15184</code></strong></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">   MC       MU      CCSC     CCSU       OC          OU       YGC    FGC    FGCT     GCT</span><br><span class="line">35496.0  33974.9   4656.0   4355.1    186880.0     15970.6      6     2    0.079    0.105</span><br></pre></td></tr></table></figure>
+<p><strong><code>MC</code></strong>：方法区大小<br><strong><code>MU</code></strong>：方法区使用大小<br><strong><code>CCSC</code></strong>:压缩类空间大小<br><strong><code>CCSU</code></strong>:压缩类空间使用大小<br><strong><code>OC</code></strong>：老年代大小<br><strong><code>OU</code></strong>：老年代使用大小<br><strong><code>YGC</code></strong>：年轻代垃圾回收次数<br><strong><code>FGC</code></strong>：老年代垃圾回收次数<br><strong><code>FGCT</code></strong>：老年代垃圾回收消耗时间<br><strong><code>GCT</code></strong>：垃圾回收消耗总时间  </p>
+<h5 id="老年代内存统计"><a href="#老年代内存统计" class="headerlink" title="老年代内存统计"></a>老年代内存统计</h5><p><strong><code>jstat -gcoldcapacity 15184</code></strong></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"> OGCMN       OGCMX        OGC         OC       YGC   FGC    FGCT     GCT</span><br><span class="line">175104.0   2782720.0    186880.0    186880.0     6     2    0.079    0.105</span><br></pre></td></tr></table></figure>
+<p><strong><code>OGCMN</code></strong>：老年代最小容量<br><strong><code>OGCMX</code></strong>：老年代最大容量<br><strong><code>OGC</code></strong>：当前老年代大小<br><strong><code>OC</code></strong>：老年代大小<br><strong><code>YGC</code></strong>：年轻代垃圾回收次数<br><strong><code>FGC</code></strong>：老年代垃圾回收次数<br><strong><code>FGCT</code></strong>：老年代垃圾回收消耗时间<br><strong><code>GCT</code></strong>：垃圾回收消耗总时间  </p>
+<h5 id="元数据空间统计"><a href="#元数据空间统计" class="headerlink" title="元数据空间统计"></a>元数据空间统计</h5><p><strong><code>jstat -gcmetacapacity 15184</code></strong></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">MCMN       MCMX        MC       CCSMN      CCSMX       CCSC     YGC   FGC    FGCT     GCT</span><br><span class="line">0.0     1081344.0    35496.0        0.0  1048576.0     4656.0     6     2    0.079    0.105</span><br></pre></td></tr></table></figure>
+<p><strong><code>MCMN</code></strong>:最小元数据容量<br><strong><code>MCMX</code></strong>：最大元数据容量<br><strong><code>MC</code></strong>：当前元数据空间大小<br><strong><code>CCSMN</code></strong>：最小压缩类空间大小<br><strong><code>CCSMX</code></strong>：最大压缩类空间大小<br><strong><code>CCSC</code></strong>：当前压缩类空间大小<br><strong><code>YGC</code></strong>：年轻代垃圾回收次数<br><strong><code>FGC</code></strong>：老年代垃圾回收次数<br><strong><code>FGCT</code></strong>：老年代垃圾回收消耗时间<br><strong><code>GCT</code></strong>：垃圾回收消耗总时间  </p>
+
+        </div>
+        
+    <footer class="article-footer">
+    </footer>
+    </div>
+</article>
+
+
+    
+    <nav id="article-nav">
+        
+            <a href="/Blog/Java/VM/JVM调优思路/" id="article-nav-newer" class="article-nav-link-wrap">
+                <strong class="article-nav-caption">Newer</strong>
+                <div class="article-nav-title">
+                    
+                        JVM调优思路
+                    
+                </div>
+            </a>
+        
+        
+            <a href="/Blog/Java/JVM内存参数设置/" id="article-nav-older" class="article-nav-link-wrap">
+                <strong class="article-nav-caption">Older</strong>
+                <div class="article-nav-title">JVM内存参数设置</div>
+            </a>
+        
+    </nav>
+
+
+
+
+
+    
+    
+
+
+
+
+    <!-- baidu url auto push script -->
+    <script type="text/javascript">
+        !function () {
+            var e = /([http|https]:\/\/[a-zA-Z0-9\_\.]+\.baidu\.com)/gi, r = window.location.href,
+                o = document.referrer;
+            if (!e.test(r)) {
+                var n = "//api.share.baidu.com/s.gif";
+                o ? (n += "?r=" + encodeURIComponent(document.referrer), r && (n += "&l=" + r)) : r && (n += "?l=" + r);
+                var t = new Image;
+                t.src = n
+            }
+        }(window);
+    </script>
+</section>
+    </div>
+    <footer id="footer">
+    <div class="outer">
+        <div id="footer-info" class="inner">
+            YaoYingLong &copy; 2021
+            <!-- <a rel="license" href="http://creativecommons.org/licenses/by-nc-nd/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-nc-nd/4.0/80x15.png" /></a> -->
+            <br> Powered by <a href="http://hexo.io/" target="_blank" rel="external nofollow noopener noreferrer">Hexo</a>. Theme - <a href="https://github.com/zthxxx/hexo-theme-Wikitten" rel="external nofollow noopener noreferrer" target="_blank">wikitten</a>
+        </div>
+    </div>
+</footer>
+    
+
+    
+        <script src="/libs/lightgallery/js/lightgallery.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-thumbnail.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-pager.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-autoplay.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-fullscreen.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-zoom.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-hash.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-share.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-video.min.js"></script>
+    
+    
+        <script src="/libs/justified-gallery/jquery.justifiedGallery.min.js"></script>
+    
+    
+        <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [ ["$","$"], ["\\(","\\)"] ],
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
+            processEscapes: true,
+            TeX: {
+                equationNumbers: {
+                  autoNumber: 'AMS'
+                }
+            }
+        }
+    });
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax();
+        for (var i = 0; i < all.length; ++i)
+            all[i].SourceElement().parentNode.className += ' has-jax';
+    });
+
+
+</script>
+<script async src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+
+
+
+<!-- Custom Scripts -->
+<script src="/js/main.js"></script>
+
+</div>
+</body>

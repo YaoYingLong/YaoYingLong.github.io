@@ -27,9 +27,17 @@
 <meta property="og:image" content="https://yaoyinglong.github.io/images/Serial%20Old收集器运行示意图.png">
 <meta property="og:image" content="https://yaoyinglong.github.io/images/Parallel%20Old收集器运行示意图.png">
 <meta property="og:image" content="https://yaoyinglong.github.io/images/CMS收集器运行示意图.png">
+<meta property="og:image" content="https://yaoyinglong.github.io/images/JVM/新生代老年代不再物理隔离.png">
+<meta property="og:image" content="https://yaoyinglong.github.io/images/JVM/G1%20Region.png">
 <meta property="og:image" content="https://yaoyinglong.github.io/images/G1收集器运行示意图.png">
+<meta property="og:image" content="https://yaoyinglong.github.io/images/JVM/ZGC堆Region.png">
+<meta property="og:image" content="https://yaoyinglong.github.io/images/JVM/UMA-and-NUMA.png">
+<meta property="og:image" content="https://yaoyinglong.github.io/images/JVM/颜色指针.png">
+<meta property="og:image" content="https://yaoyinglong.github.io/images/JVM/Load%20Barrier.png">
+<meta property="og:image" content="https://yaoyinglong.github.io/images/JVM/ZGC收集器运行示意图.png">
 <meta property="og:image" content="https://yaoyinglong.github.io/images/JVM/三色标记.png">
-<meta property="og:updated_time" content="2021-08-17T09:51:11.357Z">
+<meta property="og:image" content="https://yaoyinglong.github.io/images/JVM/记忆集-卡表.png">
+<meta property="og:updated_time" content="2021-08-20T08:36:53.484Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="垃圾收集器">
 <meta name="twitter:description" content="垃圾收集器是内存回收的具体实现。Java虚拟机规范中对垃圾收集器应该如何实现并没有任何规定。 两者之间存在连线的收集器可以相互搭配使用，收集器所处区域表示其属于新生代收集器还是老年代收集器。  Serial收集器Serial收集器是最基本、发展历史最有悠久、基于复制算法、单线程的新生代收集器。单线程的意义并不仅仅是使用一个CPU或一条收集线程去完成垃圾收集工作，更重要的是在垃圾收集时必须暂停其他所">
@@ -281,6 +289,10 @@
                     <li class="file"><a href="/Blog/Java/VM/类加载过程/">类加载过程</a></li>
                 
                     <li class="file"><a href="/Blog/Java/VM/字节码指令手册/">字节码指令手册</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/VM/JVM调优思路/">JVM调优思路</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/VM/JVM调优工具/">JVM调优工具</a></li>
                 
             </ul>
         
@@ -872,23 +884,87 @@
 <p><strong>浮动垃圾</strong>是指由于CMS并发清理阶段用户线程还在运行故会产生<strong>新的垃圾</strong>，但这部分垃圾出现在<strong>标记过程之后</strong>，CMS<strong>无法在当次收集中处理</strong>掉他们，只好留待<strong>下一次GC</strong>时再清理。</p>
 </blockquote>
 <h3 id="G1收集器"><a href="#G1收集器" class="headerlink" title="G1收集器"></a>G1收集器</h3><p>G1时一款面向<strong>服务端</strong>应用的垃圾收集器，其他收集器收集的范围都是整个新生代或者老年代，而G1收集器将整个Java堆划分为<strong>多个大小相等的独立区域（Region）</strong>，虽然保留了<strong>老年代</strong>和<strong>新生代</strong>的概念，但老年代和新生代<strong>不再被物理隔离</strong>，它们都是<strong>一部分Region（不需要连续）的集合</strong>。</p>
-<p>G1收集器会跟踪各个Region里面的垃圾堆积的<strong>价值大小</strong>，即<strong>回收所获得的空间大小以及回收所需时间经验值</strong>，在后台维护一个<strong>优先列表</strong>，每次<strong>根据允许收集的时间，优先回收价值最大的Region</strong>，这也是<strong>Garbage-First名称的由来</strong>。</p>
-<p>与其他收集器相比G1收集器具备<strong>并行与并发、分代收集、空间整合、可预测停顿</strong>4个特点：</p>
+<p><img src="../../../../../images/JVM/新生代老年代不再物理隔离.png" alt="新生代老年代不再物理隔离"></p>
+<p><img src="../../../../../images/JVM/G1 Region.png" alt="G1 Region"></p>
+<p><code>JVM</code><strong>最多</strong>可以有<strong><code>2048</code></strong>个<code>Region</code>，一般Region大小等于<strong>堆大小除以<code>2048</code></strong>，可以用参数<strong><code>-XX:G1HeapRegionSize</code></strong>手动指定Region大小，但<strong>推荐默认计算方式</strong>。  <strong>默认年轻代</strong>对堆内存的占比是<strong><code>5%</code></strong> ，可以通过<strong><code>-XX:G1NewSizePercent</code></strong>设置<strong>新生代初始占比</strong>，在系统运行中会不停的给年轻代增加更多的Region，但最多<strong>新生代</strong>占比<strong>不会超过<code>60%</code></strong>，可通过<strong><code>-XX:G1MaxNewSizePercent</code></strong>调整。年轻代中的Eden和Survivor对应的region比例<strong>默认还是<code>8:1:1</code></strong>。</p>
+<p><code>G1</code>有专门<strong>分配大对象的<code>Humongous</code>区</strong>，而非让大对象直接进入老年代Region中。对象大小<strong>超过一个Region大小的<code>50%</code></strong>就是<strong>大对象</strong>，且若大对象太大，可能会<strong>横跨多个Region存放</strong>，Humongous区专门存放短期巨型对象，不用直接进老年代，可节约老年代的空间，避免因老年代空间不够的GC开销。<code>Full GC</code>时也会将Humongous区<strong>一并回收</strong>。  </p>
+<p><code>G1</code>收集器会跟踪各个Region里面的垃圾堆积的<strong>价值大小</strong>，即<strong>回收所获得的空间大小以及回收所需时间经验值</strong>，在后台维护一个<strong>优先列表</strong>，每次<strong>根据允许收集的时间，优先回收价值最大的Region</strong>，这也是<strong>Garbage-First名称的由来</strong>。</p>
+<p>与其他收集器相比G1收集器具备<strong>并行与并发、分代收集、空间整合、可预测停顿</strong>4个特点： </p>
 <ul>
 <li>G1收集器可以使用<strong>并行</strong>的方式来<strong>缩短Stop-The-World停顿时间</strong>，且可以通过<strong>并发</strong>的方式让Java程序继续执行。</li>
 <li>G1收集器可以<strong>不用其他收集器的配合独立管理整个GC堆</strong>，任然<strong>保留分代的概念</strong>，采用不用的方式去处理<strong>新建的对象</strong>和已经<strong>存活了一段时间、熬过多次GC</strong>的旧对象以获得更好的收集效果。</li>
 <li>G1收集器整体来看是基于<strong>标记整理</strong>算法实现的收集器，从局部（两个Region之间）来看是基于<strong>复制算法</strong>来实现的，这意味着G1运作期间<strong>不会产生内存碎片</strong>。</li>
-<li>G1收集器除了追求<strong>低停顿</strong>外，还能建立<strong>可预测的停顿时间模型</strong>，能让使用者明确指定一个长度为<strong>M毫秒</strong>的时间<strong>片段</strong>内，消耗再垃圾收集上的时间<strong>不得超过N毫秒</strong>。之所以能建立可预测的停顿时间模型，是因为它可以<strong>有计划地避免在整个Java堆中进行全区域的垃圾收集</strong>。</li>
+<li>G1收集器除了追求<strong>低停顿</strong>外，还能建立<strong>可预测的停顿时间模型</strong>，能让使用者明确指定一个长度为<strong>M毫秒</strong>的时间<strong>片段</strong>内，消耗再垃圾收集上的时间<strong>不得超过N毫秒</strong>。之所以能建立可预测的停顿时间模型，是因为它可以<strong>有计划地避免在整个Java堆中进行全区域的垃圾收集</strong>。可用<strong><code>-XX:MaxGCPauseMillis</code></strong>参数指定<strong>期望的<code>GC</code>停顿时间</strong>，默认的停顿目标为<strong>两百毫秒</strong>。</li>
 </ul>
-<p>一个对象分配在某个Region中，它并<strong>非只能被本Region中的其他对象引用</strong>，而是可以与<strong>整个Java堆任意的对象</strong>发生引用关系。在G1收集器中<strong>Region之间</strong>的对象引用以及其他收集器中的<strong>新生代与老年代之间</strong>的对象引用，都是<strong>使用Rememberd Set来避免全堆扫描</strong>。<strong>每个Region都有一个与之对应的Rememberd Set</strong>，虚拟机发现程序在对<strong>Reference类型</strong>的数据进行<strong>写操作</strong>时，会产生一个<strong>Write Barrier暂时中断写操作</strong>，检查Reference引用的对象<strong>是否处于不同的Region之中</strong>，在分代中就检查<strong>是否老年代中的对象引用了新生代中的对象</strong>，如果是便<strong>通过CardTable把相关引用信息记录到被引用对象所属的Region的Rememberd Set中</strong>，当进行内存回收时，在进行<strong>GC根节点枚举范围中加入Rememberd Set</strong>即可保证不对全堆扫描也不会遗漏。</p>
+<p>一个对象分配在某个Region中，它并<strong>非只能被本Region中的其他对象引用</strong>，而是可以与<strong>整个Java堆任意的对象</strong>发生引用关系。在G1收集器中<strong>Region之间</strong>的对象引用以及其他收集器中的<strong>新生代与老年代之间</strong>的对象引用，都是<strong>使用记忆集来避免全堆扫描</strong>。<strong>每个Region都有一个与之对应的记忆集</strong>，虚拟机发现程序在对<strong>Reference类型</strong>的数据进行<strong>写操作</strong>时，会产生一个<strong>写屏障暂时中断写操作</strong>，检查Reference引用的对象<strong>是否处于不同的Region之中</strong>，在分代中就检查<strong>是否老年代中的对象引用了新生代中的对象</strong>，如果是便<strong>通过卡表把相关引用信息记录到被引用对象所属的Region的记忆集中</strong>，当进行内存回收时，在进行<strong>GC根节点枚举范围中加入记忆集</strong>即可保证不对全堆扫描也不会遗漏。</p>
 <p>G1收集器的的运作大致分为<strong>初始标记、并发标记、最终标记、筛选回收</strong>4个步骤。</p>
 <ul>
-<li><strong>初始标记</strong>阶段<strong>仅仅标记</strong>一下<strong>GC Roots能直接关联</strong>到的对象，并且<strong>修改TAMS（Next Top at Mark Start）的值</strong>，让下一阶段用户程序并发运行时，能在<strong>正确可用</strong>的Region中创建对象，需要停顿线程，但耗时很短。</li>
-<li><strong>并发标记</strong>阶段是从GC Roots开始对堆中对象进行<strong>可达性分析</strong>找出存活对象，耗时较长但<strong>可与用户程序并发执行</strong>。</li>
-<li><strong>最终标记</strong>阶段是为了<strong>修正在并发标记期间因用户程序继续运作而导致标记产生变动的那一部分标记记录</strong>，虚拟机将这段时间对象变化记录在线程<strong>Rememberd Set Logs</strong>里面,最终标记阶段需要把<strong>Rememberd Set Logs的数据合并到Rememberd Set中</strong>，这个阶段需要<strong>停顿线程</strong>但<strong>可并行执行</strong>。</li>
-<li><strong>筛选回收</strong>阶段首先对各个Region的<strong>回收价值和成本进行排序</strong>，根据用户所<strong>期望的GC停顿时间</strong>来制定回收计划，这个阶段也可以做到<strong>与用户程序并发执行</strong>，但因为只回收一部分Region时间是用户可控的，，而且停顿用户线程将大幅提高收集小路。</li>
+<li><strong>初始标记</strong>阶段<strong>仅仅标记</strong>一下<strong><code>GC Roots</code>能直接关联</strong>到的对象，并且<strong>修改TAMS（Next Top at Mark Start）的值</strong>，让下一阶段用户程序并发运行时，能在<strong>正确可用</strong>的Region中创建对象，<strong>需要停顿线程，但耗时很短</strong>。</li>
+<li><strong>并发标记</strong>阶段是从<code>GC Roots</code>开始对堆中对象进行<strong>可达性分析</strong>找出存活对象，<strong>耗时较长但可与用户程序并发执行</strong>。</li>
+<li><strong>最终标记</strong>阶段是为了<strong>修正在并发标记期间因用户程序继续运作而导致标记产生变动的那一部分标记记录</strong>，虚拟机将这段时间对象变化记录在线程<strong><code>Rememberd Set Logs</code></strong>里面，最终标记阶段需要把<strong><code>Rememberd Set Logs</code>的数据合并到<code>Rememberd Set</code>中</strong>，这个阶段需要<strong>停顿线程</strong>但<strong>可并行执行</strong>。</li>
+<li><strong>筛选回收</strong>阶段首先对各个Region的<strong>回收价值和成本进行排序</strong>，根据用户所<strong>期望的<code>GC</code>停顿时间</strong>来制定回收计划，这个阶段也可以做到<strong>与用户程序并发执行</strong>，但因为只回收一部分Region时间是用户可控的，，而且停顿用户线程将大幅提高收集小路。</li>
 </ul>
 <p><img src="../../../../images/G1收集器运行示意图.png" alt="G1收集器运行示意图"></p>
+<p>不要将<strong>停顿目标时间</strong>设置<strong>太短</strong>， 否则可能导致每次选出来的回收集只占堆内存很小一部分， 收集器收集速度逐渐跟不上分配器分配的速度，导致垃圾堆积，很可能一开始收集器还能从空闲的堆内存中获得一些喘息的时间，但时间一长最终占满堆引发<code>Full GC</code>反而降低性能， 故通常把期望停顿时间设置为<strong>一两百毫秒</strong>或<strong>两三百毫秒</strong>会是比较合理的。</p>
+<h4 id="G1垃圾收集分类"><a href="#G1垃圾收集分类" class="headerlink" title="G1垃圾收集分类"></a>G1垃圾收集分类</h4><h5 id="YoungGC"><a href="#YoungGC" class="headerlink" title="YoungGC"></a>YoungGC</h5><p>并非现有的Eden区放满了立刻触发，<code>G1</code>会计算现在Eden区回收大概要多久时间，若回收时间远远小于参数<code>-XX:MaxGCPauseMills</code>设定值，则增加年轻代region，继续给新对象存放，直到下一次Eden区放满，<code>G1</code>计算回收时间<strong>接近参数<code>-XX:MaxGCPauseMills</code>设定的值</strong>，则会触发<code>Young GC</code>。</p>
+<h5 id="MixedGC"><a href="#MixedGC" class="headerlink" title="MixedGC"></a>MixedGC</h5><p><strong>老年代的堆占有率达到参数<code>-XX:InitiatingHeapOccupancyPercent</code>设定值时触发</strong>，根据期望的<code>GC</code>停顿时间确定<strong>old区垃圾收集的优先顺序</strong>回收<strong>所有Young</strong>和<strong>部分Old</strong>以及<strong>大对象区</strong>，正常情况G1的垃圾收集是<strong>先做<code>MixedGC</code></strong>，主要使用<strong>复制算法</strong>，把存活的对象拷贝到别的region中，拷贝过程中若发现<strong>没有足够空region能够承载拷贝对象就会触发一次<code>Full GC</code></strong>。</p>
+<h5 id="Full-GC"><a href="#Full-GC" class="headerlink" title="Full GC"></a>Full GC</h5><p><strong>停止系统程序，采用单线程进行标记、清理和压缩整理</strong>，好空闲出来一批Region来供下一次<code>MixedGC</code>使用，该过程是非常耗时，Shenandoah优化成多线程收集了。</p>
+<h4 id="G1收集器参数设置"><a href="#G1收集器参数设置" class="headerlink" title="G1收集器参数设置"></a>G1收集器参数设置</h4><p><strong><code>-XX:+UseG1GC</code></strong>：使用<code>G1</code>收集器<br><strong><code>-XX:ParallelGCThreads</code></strong>：指定<code>GC</code>工作的线程数量<br><strong><code>-XX:G1HeapRegionSize</code></strong>：指定分区大小<strong><code>1MB~32MB</code></strong>，且必须是<strong>2的N次幂</strong>，默认将整堆划分为2048个分区<br><strong><code>-XX:MaxGCPauseMillis</code></strong>：目标暂停时间，默认<strong><code>200ms</code></strong><br><strong><code>-XX:G1NewSizePercent</code></strong>：新生代内存初始空间，<strong>默认整堆<code>5%</code></strong><br><strong><code>-XX:G1MaxNewSizePercent</code></strong>：新生代内存最大空间<br><strong><code>-XX:TargetSurvivorRatio</code></strong>：Survivor区的填充容量，<strong>默认50%</strong>，Survivor区域里的一批对象(年龄1+年龄2+年龄n的多个年龄对象)总和超过了Survivor区域的50%，此时就会把年龄n(含)以上的对象都放入老年代<br><strong><code>-XX:MaxTenuringThreshold</code></strong>：最大年龄阈值，<strong>默认15</strong><br><strong><code>-XX:InitiatingHeapOccupancyPercent</code></strong>：老年代占用空间达到整堆内存阈值，<strong>默认45%</strong>，则执行新生代和老年代的混合收集<code>MixedGC</code></p>
+<p><strong><code>-XX:G1MixedGCLiveThresholdPercent</code></strong>：region中存活对象低于该值则回收该region，<strong>默认85%</strong>，若超过该值，存活对象过多回收意义不大。<br><strong><code>-XX:G1MixedGCCountTarget</code></strong>：在一次回收过程中指定做<strong>几次筛选回收</strong>，<strong>默认8次</strong>，在最后一个筛选回收阶段可以回收一会，然后暂停回收，恢复系统运行，一会再开始回收，这样可以让系统不至于单次停顿时间过长。<br><strong><code>-XX:G1HeapWastePercent</code></strong>： GC过程空出来的region是否充足阈值，混合回收时对Region回收是基于<strong>复制算法</strong>，把要回收的Region里存活对象放入其他Region，然后该Region中垃圾对象全部清理，在回收过程就会不断空出新的Region，一旦空闲出来的Region数量达到了<strong>堆内存的5%</strong>，会立即停止混合回收，意味着<strong>本次混合回收结束</strong>。</p>
+<h4 id="优化建议"><a href="#优化建议" class="headerlink" title="优化建议"></a>优化建议</h4><p>若<code>-XX:MaxGCPauseMills</code>设置很大，导致系统运行很久，年轻代可能都占用了堆内存的60%，此时才触发年轻代<code>GC</code>，存活下来的对象可能会很多，此时会导致Survivor区域放不下那么多对象，就会进入老年代中。或年轻代<code>GC</code>后，存活下来的对象过多，导致进入Survivor区域后触发了动态年龄判定规则，达到了Survivor区域的50%，也会快速导致一些对象进入老年代中。故核心在于调节<code>-XX:MaxGCPauseMills</code>参数的值，在保证年轻代GC不太频繁的同时，还得考虑每次GC后存活对象有多少，避免存活对象太多快速进入老年代，频繁触发<code>Mixed GC</code>。</p>
+<h4 id="适合场景"><a href="#适合场景" class="headerlink" title="适合场景"></a>适合场景</h4><p>G1天生就适合这种大内存机器的JVM运行，可以<strong>比较完美的解决大内存垃圾回收时间过长的问题</strong>。</p>
+<ul>
+<li><code>50%</code>以上的堆被存活对象占用</li>
+<li>对象分配和晋升的速度变化非常大</li>
+<li>垃圾回收时间特别长，超过1秒</li>
+<li><code>8GB</code>以上的堆内存</li>
+<li>停顿时间是<code>500ms</code>以内  </li>
+</ul>
+<h3 id="ZGC收集器"><a href="#ZGC收集器" class="headerlink" title="ZGC收集器"></a>ZGC收集器</h3><p><code>JDK11</code>中新加入，是一款基于<strong>Region内存布局</strong>的， 暂时<strong>不分代</strong>的， 使用了<strong>读屏障</strong>、 <strong>颜色指针</strong>等技术来实现<strong>可并发的标记-整</strong><br><strong>理算法</strong>的， <strong>以低延迟为首要目标</strong>的<strong>实验性质</strong>一款垃圾收集器。有四大目标：</p>
+<ul>
+<li>支持TB量级的堆</li>
+<li>最大GC停顿时间不超10ms</li>
+<li>奠定未来GC特性的基础</li>
+<li>最糟糕的情况下吞吐量会降低15%</li>
+</ul>
+<p><img src="../../../../../images/JVM/ZGC堆Region.png" alt="ZGC堆Region"></p>
+<p>为大、 中、 小三类容量，小型Region容量固定为<strong><code>2MB</code></strong>， 用于放置<strong>小于<code>256KB</code>的小对象</strong>；中型Region容量固定为<strong><code>32MB</code></strong>，用于放置<strong>大于等于<code>256KB</code></strong>但<strong>小于<code>4MB</code></strong>的对象；大型Region<strong>容量不固</strong>定可以动态变化，但必须为<strong><code>2MB</code></strong>的<strong>整数倍</strong>， 用于放置<code>4MB</code>或<strong>以上</strong>的大对象。 </p>
+<p>每个大型Region中只会存放一个大对象， 也预示着虽然名字叫作大型Region， 但实际容量完全有可能小于中型Region，最小容量可低至<code>4MB</code>。 大型Region在ZGC的实现中是<strong>不会被重分配</strong>，重分配是ZGC的一种处理动作，用于复制对象的收集器阶段， 因为复制一个大对象的代价非常高昂。  </p>
+<h4 id="NUMA-aware"><a href="#NUMA-aware" class="headerlink" title="NUMA-aware"></a>NUMA-aware</h4><p>NUMA对应UMA。UMA表示内存只有一块，所有CPU都去访问这一块内存，则会存在竞争问题，争夺内存总线访问权，有竞争就会有锁，有锁效率就会受到影响，而且CPU核心数越多，竞争就越激烈。NUMA为每个CPU对应一块内存，且这块内存在主板上离这个CPU是最近的，每个CPU优先访问这块内存：  </p>
+<p><img src="../../../../../images/JVM/UMA-and-NUMA.png" alt="UMA and NUMA"></p>
+<p>服务器NUMA架构在中大型系统上一直非常盛行，也是高性能的解决方案，尤其在系统延迟方面表现都很优秀。ZGC是能自动感知NUMA架构并充分利用NUMA架构特性。  </p>
+<h4 id="颜色指针"><a href="#颜色指针" class="headerlink" title="颜色指针"></a>颜色指针</h4><p>ZGC的核心设计之一。以前的垃圾回收器的GC信息都<strong>保存在对象头</strong>中，而ZGC的GC信息<strong>保存在指针</strong>中：</p>
+<p><img src="../../../../../images/JVM/颜色指针.png" alt="颜色指针"></p>
+<p>每个对象有一个64位指针，这64位被分为：<br><strong>18位</strong>：预留给以后使用<br><strong>1位</strong>：Finalizable标识，此位与<strong>并发引用处理</strong>有关，表示该对象<strong>只能通过<code>finalizer</code>才能访问</strong><br><strong>1位</strong>：Remapped标识，设置此位的值后，对象未指向<strong>需要GC的Region集合</strong>中<br><strong>1位</strong>：Marked1标识，<strong>标记对象用于辅助GC</strong><br><strong>1位</strong>：Marked0标识，<strong>标记对象用于辅助GC</strong><br><strong>42位</strong>：对象的地址，故它可以支持<strong><code>2^42=4T</code>内存</strong></p>
+<h5 id="2个mark标记"><a href="#2个mark标记" class="headerlink" title="2个mark标记"></a>2个mark标记</h5><p>每个GC周期开始时，会交换使用标记位，使上次GC周期中修正的已标记状态失效，所有引用都变成未标记。</p>
+<ul>
+<li>GC周期1：使用mark0, 则周期结束所有引用mark标记都会成为<strong><code>01</code></strong>。</li>
+<li>GC周期2：使用mark1, 则期待的mark标记<strong><code>10</code></strong>，所有引用都能被重新标记。</li>
+</ul>
+<p>对象指针必须是64位，ZGC无法支持32位操作系统，同样的也就<strong>无法支持压缩指针</strong></p>
+<h5 id="三大优势"><a href="#三大优势" class="headerlink" title="三大优势"></a>三大优势</h5><ul>
+<li>一旦某个Region存活对象被移走后，该Region<strong>立即就能被释放和重用</strong>，不必等待整个堆中所有指向该Region的引用都被修正后才能清理，使得理论上只要还有一个空闲Region，ZGC就能完成收集。</li>
+<li>颜色指针可以大幅减少在垃圾收集过程中内存屏障的使用数量，<strong>ZGC只使用了读屏障</strong>。</li>
+<li>颜色指针<strong>具备强大的扩展性</strong>，它可以作为一种可扩展的存储结构用来记录更多与对象标记、重定位过程相关的数<br>据，以便日后进一步提高性能。  </li>
+</ul>
+<p><strong>ZGC最大的问题是浮动垃圾</strong>，ZGC停顿时间在10ms以下，但ZGC执行时间远远大于该时间。若ZGC全过程需要执行10分钟，在该期间由于对象分配速率很高，将创建大量新对象，这些对象很难进入当次GC，只能在下次GC时进行回收，<strong>这些只能等到下次GC才能回收的对象就是浮动垃圾</strong>。</p>
+<h5 id="读屏障"><a href="#读屏障" class="headerlink" title="读屏障"></a>读屏障</h5><p>之前的GC都是采用<code>Write Barrier</code>，ZGC采用<strong>完全不同的方案读屏障</strong>，在标记和移动对象的阶段，每次<strong>从堆里对象的引用类型中读取一个指针</strong>的时候，都需要加上一个<strong><code>Load Barriers</code></strong>。  尝试读取堆中的一个对象引用obj.fieldA并赋给引用，若这时候对象在GC时被移动了，接下来JVM就会加上一个读屏障，该屏障会把读出的指针更新到对象的新地址上，并且把堆里的这个指针修正到原本的字段里。这样就算GC把对象移动了，读屏障也会发现并修正指针，应用代码就永远都会持有更新后的有效指针，而且不需要STW。JVM是利用颜色指针，如果指针是Bad Color，那么程序还不能往下执行，需要修正指针；如果指针是Good Color，那么正常往下执行即可：</p>
+<p><img src="../../../../../images/JVM/Load Barrier.png" alt></p>
+<h4 id="ZGC运作过程"><a href="#ZGC运作过程" class="headerlink" title="ZGC运作过程"></a>ZGC运作过程</h4><p><img src="../../../../../images/JVM/ZGC收集器运行示意图.png" alt="ZGC收集器运行示意图"></p>
+<ul>
+<li><strong>并发标记<code>Concurrent Mark</code></strong>：与G1一样并发标记是<strong>遍历对象图做可达性分析的阶段</strong>，它的<strong>初始标记<code>Mark Start</code>和最终标记<code>Mark End</code>也会出现短暂的停顿</strong>，与G1不同的是 ZGC的标记是<strong>在指针上而不是在对象上</strong>， 标记阶段会更新染色指针中的<code>Marked 0</code>、 <code>Marked 1</code>标志位。</li>
+<li><strong>并发预备重分配<code>Concurrent Prepare for Relocate</code></strong>：该阶段需要根据特定查询条件统计得出本次收集过程要清理哪些Region，将这些Region组成<strong>重分配集<code>Relocation Set</code></strong>。每次回收都会扫描所有Region，用范围更大的扫描成本换取省去G1中记忆集的维护成本。</li>
+<li><strong>并发重分配<code>Concurrent Relocate</code></strong>：重分配是ZGC执行过程中的<strong>核心阶段</strong>，这个过程要把重分配集中的存活对象复制到新的Region上，并为重分配集中的每个Region维护一个<strong>转发表Forward Table</strong>，<strong>记录从旧对象到新对象的转向关系</strong>。ZGC收集器<strong>能仅从引用上就明确得知一个对象是否处于重分配集中</strong>，若用户线程此时并发访问了位于重分配集中的对象，这次访问将会被预置的内存屏障读屏障截获，然后立即根据Region上的转发表记录将访问转发到新复制的对象上，并同时修正更新该引用的值，使其直接指向新对象，ZGC将这种行为称为<strong>指针的自愈能力</strong>。</li>
+<li><strong>并发重映射<code>Concurrent Remap</code></strong>：<strong>修正整个堆中指向重分配集中旧对象的所有引用</strong>，但对象引用存在<strong>自愈</strong>功能，故该重映射操作并不是很迫切。ZGC很巧妙地把并发重映射阶段要做的工作，合并到了下一次垃圾收集循环中的并发标记阶段里中完成，反正它们都是要遍历所有对象的，合并后节省了一次遍历对象图的开销。一旦所有指针都被修正之后， 原来记录新旧对象关系的转发表就可以释放掉了。  </li>
+</ul>
+<p>ZGC的颜色指针因为自愈Self‐Healing能力，所以<strong>只有第一次访问旧对象会变慢</strong>， 一旦重分配集中某个Region的存活对象都复制完毕后， 该Region就可以立即释放用于新对象的分配，但转发表还得留着不能释放掉， 因为可能还有访问在使用这个转发表。</p>
+<h4 id="ZGC触发时机"><a href="#ZGC触发时机" class="headerlink" title="ZGC触发时机"></a>ZGC触发时机</h4><p>ZGC目前有4中机制触发GC：</p>
+<ul>
+<li><strong>定时触发</strong>，默认为不使用，可通过<code>ZCollectionInterval</code>参数配置。</li>
+<li><strong>预热触发</strong>，最多三次，<strong>在堆内存达到10%、20%、30%时触发</strong></li>
+<li><strong>分配速率</strong>，基于正态分布统计，计算内存99.9%可能的最大分配速率，以及此速率下内存将要耗尽的时间点，在耗尽之前触发GC，耗尽时间 - 一次GC最大持续时间 - 一次GC检测周期时间。</li>
+<li><strong>主动触发</strong>，默认开启，可通过<code>ZProactive</code>参数配置，距上次GC堆内存增长10%，或超过5分钟时，对比距上  次GC的间隔时间跟49 * 一次GC的最大持续时间，超过则触发。  </li>
+</ul>
 <h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><table>
 <thead>
 <tr>
@@ -959,6 +1035,14 @@
 </tr>
 </tbody>
 </table>
+<h3 id="选择垃圾收集器"><a href="#选择垃圾收集器" class="headerlink" title="选择垃圾收集器"></a>选择垃圾收集器</h3><ul>
+<li>优先调整堆的大小让服务器自己来选择</li>
+<li>如果内存<strong>小于<code>100M</code></strong>，使用串行收集器</li>
+<li>如果是单核，并且没有停顿时间的要求，串行或JVM自己选择</li>
+<li>如果允许停顿时间超过1秒，选择并行或者JVM自己选</li>
+<li>如果响应时间最重要，并且不能超过1秒，使用并发收集器</li>
+<li><code>4G</code>以下可以用<code>parallel</code>，<code>4-8G</code>可以用<code>ParNew+CMS</code>，<code>8G</code>以上可以用<code>G1</code>，<strong>几百G</strong>以上用<code>ZGC</code>  </li>
+</ul>
 <h3 id="三色标记"><a href="#三色标记" class="headerlink" title="三色标记"></a>三色标记</h3><p>在并发标记过程中，标记期间应用线程还在继续跑，对象间的引用可能发生变化，<strong>多标</strong>和<strong>漏标</strong>的情况就有可能发生。 把<strong><code>Gc Roots</code></strong>可达性分析遍历对象过程中遇到的对象， <strong>按照是否访问过</strong>这个条件标记成以下三种颜色： </p>
 <ul>
 <li><strong>黑色</strong>： 对象<strong>已经被垃圾收集器访问过， 且该对象的所有引用都已经扫描过</strong>。 黑色对象代表已经扫描过是安全存活的， 若有其他对象引用指向了黑色对象， 无须重新扫描。 <strong>黑色对象不可能不经过灰色对象直接指向某个白色对象</strong>。</li>
@@ -979,7 +1063,7 @@
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">pre_write_barrier</span><span class="params">(oop* field)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 获取旧值</span></span><br><span class="line">	oop old_value = *field;</span><br><span class="line">    <span class="comment">// 记录原来的引用对象</span></span><br><span class="line">	remark_set.add(old_value); </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <h5 id="写屏障实现增量更新"><a href="#写屏障实现增量更新" class="headerlink" title="写屏障实现增量更新"></a>写屏障实现增量更新</h5><p>当对象A的成员变量的<strong>引用发生变化</strong>时，如<strong>新增引用<code>a.d = d</code></strong>，我们可以利用写屏障，将A新的成员变量引用对象D记录下来： </p>
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">post_write_barrier</span><span class="params">(oop* field, oop new_value)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 记录新引用的对象</span></span><br><span class="line">	remark_set.add(new_value); </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h5 id="读屏障"><a href="#读屏障" class="headerlink" title="读屏障"></a>读屏障</h5><p>读屏障是直接针对第一步：D d = a.b.d，当读取成员变量时，一律记录下来： </p>
+<h5 id="读屏障-1"><a href="#读屏障-1" class="headerlink" title="读屏障"></a>读屏障</h5><p>读屏障是直接针对第一步：D d = a.b.d，当读取成员变量时，一律记录下来： </p>
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">oop <span class="title">oop_field_load</span><span class="params">(oop* field)</span> </span>&#123;</span><br><span class="line">	<span class="comment">// 读屏障‐读取前操作</span></span><br><span class="line">	pre_load_barrier(field); </span><br><span class="line">    <span class="keyword">return</span> *field;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">pre_load_barrier</span><span class="params">(oop* field)</span> </span>&#123;</span><br><span class="line">	oop old_value = *field;</span><br><span class="line">    <span class="comment">// 记录读取到的对象</span></span><br><span class="line">	remark_set.add(old_value); </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p><strong>使用可达性分析算法的垃圾回收器</strong>几乎都借鉴了<strong>三色标记</strong>的算法思想，尽管实现的方式不尽相同：比如白色/黑色集合一般都不会出现，但是有其他体现颜色的地方、灰色集合可以通过栈/队列/缓存日志等方式进行实现、遍历方式可以是广度/深度遍历等等。 </p>
 <p>写屏障可以用于<strong>记录跨代/区引用</strong>的变化，读屏障可以用于<strong>支持移动对象的并发执行</strong>等 ，对于读写屏障，以HotSpot为例，其<strong>并发标记时对漏标</strong>的处理方案如下：</p>
@@ -989,6 +1073,9 @@
 <li><strong><code>ZGC</code></strong>：<strong>读屏障</strong> </li>
 </ul>
 <p><strong><code>SATB</code></strong>相对<strong>增量更新效率会高</strong>，当然<strong><code>SATB</code></strong>可能<strong>造成更多的浮动垃圾</strong>，因为<strong>不需要在重新标记阶段再次深度扫描被删除引用对象</strong>，<code>CMS</code>对<strong>增量引用的根对象会做深度扫描</strong>，<code>G1</code>因为<strong>很多对象都位于不同的<code>region</code></strong>，<code>CMS</code>就一块老年代区域，<strong>重新深度扫描对象的话<code>G1</code>的代价会比<code>CMS</code>高</strong>，所以<strong><code>G1</code>选择<code>SATB</code>不深度扫描对象</strong>，只是简单标记，等到下一轮<code>GC</code>再深度扫描。 </p>
+<h3 id="记忆集与卡表"><a href="#记忆集与卡表" class="headerlink" title="记忆集与卡表"></a>记忆集与卡表</h3><p>新生代做<strong><code>GC Roots</code></strong>可达性扫描过程中<strong>可能会碰到跨代引用的对象</strong>，若又对老年代再扫描效率太低，在新生代引入<strong>记录集<code>Remember Set</code></strong>数据结构，记录从<strong>非收集区</strong>到<strong>收集区</strong>的<strong>指针集合</strong>，避免把整个老年代加入<code>GC Roots</code>扫描。并<strong>不只是新生代、 老年代之间才有跨代引用</strong>的问题， 所有<strong>涉及部分区域收集行为的垃圾收集</strong>器，典型的如<code>G1</code>、 <code>ZGC</code>和<code>Shenandoah</code>收集器， 都会面临相同的问题。</p>
+<p>收集器只需<strong>通过记忆集</strong>判断出<strong>某一块非收集区域</strong>是否存在<strong>指向收集区域的指针</strong>即可，无需了解<strong>跨代引用指针</strong>的全部细节。<code>hotspot</code>使用一种叫做<strong>卡表<code>cardtable</code></strong>的方式<strong>实现记忆集</strong>，也是目前最常用的一种方式。卡表与记忆集的关系，可以类比<code>HashMap</code>与<code>Map</code>的关系。</p>
+<p>卡表是使用一个<strong>字节数组<code>CARD_TABLE[]</code>实现，每个元素对应一个卡页，其标识的内存区域内一块特定大小的内存块</strong>。<code>hotSpot</code>的卡页是<code>2^9</code>即<strong><code>512</code>字节</strong>，一个<strong>卡页可包含多个对象</strong>，只要有<strong>一个对象的字段存在跨代指针</strong>，其<strong>对应的卡表的元素标识就变成<code>1</code></strong>，表示该元素变脏，否则为<code>0</code>；<code>GC</code>时只筛选出本收集区卡表中变脏的元素加入<code>GC Roots</code>里。<code>Hotspot</code>在发生<strong>引用字段赋值</strong>时，使用<strong>写屏障维护卡表状态</strong>。<br> <img src="../../../../../images/JVM/记忆集-卡表.png" alt="记忆集-卡表"></p>
 
         </div>
         
