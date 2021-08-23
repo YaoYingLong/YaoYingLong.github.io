@@ -1,0 +1,991 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta name="generator" content="Hexo 3.8.0">
+    <meta charset="utf-8">
+    
+    <title>
+        常量池 |
+        
+        YingLong</title>
+    
+    
+        <meta name="keywords" content="JVM">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="description" content="Class常量池与运行时常量池Class常量池可以理解为Class文件中的资源仓库，Class文件中除了包含类的版本、字段、方法、接口等描述信息外，还有一项信息就是常量池Constant pool，用于存放编译期生成的各种字面量和符号引用。一个class文件的16进制大体结构如下：  对应的含义如下：  一般不会去人工解析这种16进制的字节码文件，我们一般可以通过javap命令或一些字节码工具生成">
+<meta name="keywords" content="JVM">
+<meta property="og:type" content="article">
+<meta property="og:title" content="常量池">
+<meta property="og:url" content="https://yaoyinglong.github.io/Blog/Java/VM/常量池/index.html">
+<meta property="og:site_name" content="YingLong">
+<meta property="og:description" content="Class常量池与运行时常量池Class常量池可以理解为Class文件中的资源仓库，Class文件中除了包含类的版本、字段、方法、接口等描述信息外，还有一项信息就是常量池Constant pool，用于存放编译期生成的各种字面量和符号引用。一个class文件的16进制大体结构如下：  对应的含义如下：  一般不会去人工解析这种16进制的字节码文件，我们一般可以通过javap命令或一些字节码工具生成">
+<meta property="og:locale" content="en">
+<meta property="og:image" content="https://yaoyinglong.github.io/images/JVM/class文件16进制.png">
+<meta property="og:image" content="https://yaoyinglong.github.io/images/JVM/class文件16进制含义.png">
+<meta property="og:image" content="https://yaoyinglong.github.io/images/JVM/jdk6字符串常量池原理.png">
+<meta property="og:image" content="https://yaoyinglong.github.io/images/JVM/jdk7字符串常量次原理.png">
+<meta property="og:updated_time" content="2021-08-23T09:02:10.431Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="常量池">
+<meta name="twitter:description" content="Class常量池与运行时常量池Class常量池可以理解为Class文件中的资源仓库，Class文件中除了包含类的版本、字段、方法、接口等描述信息外，还有一项信息就是常量池Constant pool，用于存放编译期生成的各种字面量和符号引用。一个class文件的16进制大体结构如下：  对应的含义如下：  一般不会去人工解析这种16进制的字节码文件，我们一般可以通过javap命令或一些字节码工具生成">
+<meta name="twitter:image" content="https://yaoyinglong.github.io/images/JVM/class文件16进制.png">
+    
+
+    
+
+    
+        <link rel="icon" href="/favicon.ico">
+    
+
+    <link rel="stylesheet" href="/libs/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/libs/open-sans/styles.css">
+    <link rel="stylesheet" href="/libs/source-code-pro/styles.css">
+
+    <link rel="stylesheet" href="/css/style.css">
+    <script src="/libs/jquery/2.1.3/jquery.min.js"></script>
+    <script src="/libs/jquery/plugins/cookie/1.4.1/jquery.cookie.js"></script>
+    
+    
+        <link rel="stylesheet" href="/libs/lightgallery/css/lightgallery.min.css">
+    
+    
+        <link rel="stylesheet" href="/libs/justified-gallery/justifiedGallery.min.css">
+    
+    
+    
+    
+
+
+</head>
+</html>
+<body>
+<div id="container">
+    <header id="header">
+    <div id="header-main" class="header-inner">
+        <div class="outer">
+            <a href="/" id="logo">
+                <i class="logo"></i>
+                <span class="site-title">YingLong</span>
+            </a>
+            <nav id="main-nav">
+                
+                    <a class="main-nav-link" href="/">Home</a>
+                
+                    <a class="main-nav-link" href="/archives">Archives</a>
+                
+                    <a class="main-nav-link" href="/categories">Categories</a>
+                
+                    <a class="main-nav-link" href="/tags">Tags</a>
+                
+                    <a class="main-nav-link" href="/about">About</a>
+                
+            </nav>
+            
+            <div id="search-form-wrap">
+    
+        <form class="search-form">
+            <input type="text" class="ins-search-input search-form-input" placeholder="Search">
+            <button type="submit" class="search-form-submit"></button>
+        </form>
+        <div class="ins-search">
+    <div class="ins-search-mask"></div>
+    <div class="ins-search-container">
+        <div class="ins-input-wrapper">
+            <input type="text" class="ins-search-input" placeholder="Type something...">
+            <span class="ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+    (function (window) {
+        var INSIGHT_CONFIG = {
+            TRANSLATION: {
+                POSTS: 'Posts',
+                PAGES: 'Pages',
+                CATEGORIES: 'Categories',
+                TAGS: 'Tags',
+                UNTITLED: '(Untitled)',
+            },
+            ROOT_URL: '/',
+            CONTENT_URL: '/content.json',
+        };
+        window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+    })(window);
+</script>
+<script src="/js/insight.js"></script>
+    
+</div>
+        </div>
+    </div>
+    <div id="main-nav-mobile" class="header-sub header-inner">
+        <table class="menu outer">
+            <tr>
+                
+                    <td><a class="main-nav-link" href="/">Home</a></td>
+                
+                    <td><a class="main-nav-link" href="/archives">Archives</a></td>
+                
+                    <td><a class="main-nav-link" href="/categories">Categories</a></td>
+                
+                    <td><a class="main-nav-link" href="/tags">Tags</a></td>
+                
+                    <td><a class="main-nav-link" href="/about">About</a></td>
+                
+                <td>
+                    
+    <div class="search-form">
+        <input type="text" class="ins-search-input search-form-input" placeholder="Search">
+    </div>
+
+                </td>
+            </tr>
+        </table>
+    </div>
+</header>
+
+    <div class="outer">
+        
+        
+            <aside id="sidebar">
+    
+        
+    <div class="widget-wrap" id="categories">
+        <h3 class="widget-title">
+            <span>categories</span>
+            &nbsp;
+            <a id="allExpand" href="#">
+                <i class="fa fa-angle-double-down fa-2x"></i>
+            </a>
+        </h3>
+
+        
+        
+        
+            <ul class="unstyled" id="tree">
+                
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            DB
+                        </a>
+                        
+            <ul class="unstyled" id="tree">
+                
+                    <li class="file"><a href="/Blog/DB/MySQL基础/">MySQL基础</a></li>
+                
+                    <li class="file"><a href="/Blog/DB/MySQL常用SQL总结/">MySQL常用SQL总结</a></li>
+                
+                    <li class="file"><a href="/Blog/DB/分库分表/">分库分表</a></li>
+                
+            </ul>
+        
+                    </li>
+                
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            Git
+                        </a>
+                        
+            <ul class="unstyled" id="tree">
+                
+                    <li class="file"><a href="/Blog/Git/GIt基本概念/">Git基本概念</a></li>
+                
+                    <li class="file"><a href="/Blog/Git/GIt常用命令/">Git常用命令</a></li>
+                
+                    <li class="file"><a href="/Blog/Git/分支管理理解/">分支管理理解</a></li>
+                
+            </ul>
+        
+                    </li>
+                
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            Go
+                        </a>
+                        
+            <ul class="unstyled" id="tree">
+                
+                    <li class="file"><a href="/Blog/Go/Go基础/">Go基础</a></li>
+                
+            </ul>
+        
+                    </li>
+                
+                    <li class="directory open">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder-open"></i>
+                            &nbsp;
+                            Java
+                        </a>
+                        
+            <ul class="unstyled" id="tree">
+                
+                    <li class="directory open">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder-open"></i>
+                            &nbsp;
+                            VM
+                        </a>
+                        
+            <ul class="unstyled" id="tree">
+                
+                    <li class="file"><a href="/Blog/Java/VM/HotSpot收集算法实现/">HotSpot收集算法实现</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/VM/JVM内存池/">JVM内存池</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/VM/内存非配与回收策略/">内存分配与回收策略</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/VM/Java内存区域/">Java内存区域</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/VM/Minor&Major&Full GC/">Minor&Major&Full GC</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/VM/OutOfMemoryError异常/">OOM异常实验</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/VM/垃圾收集算法/">垃圾收集算法</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/VM/堆中对象分配&布局&访问/">堆中对象分配&布局&访问</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/VM/对象是否存活/">对象是否存活</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/VM/类加载的时机/">类加载的时机</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/VM/运行时栈帧结构/">运行时栈帧结构</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/VM/垃圾收集器/">垃圾收集器</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/VM/方法调用/">方法调用</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/VM/字节码指令/">字节码指令</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/VM/理解GC日志/">理解GC日志</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/VM/类加载器/">类加载器</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/VM/Class文件结构/">Class文件结构</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/VM/属性表集合/">属性表集合</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/VM/类加载过程/">类加载过程</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/VM/字节码指令手册/">字节码指令手册</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/VM/JVM调优思路/">JVM调优思路</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/VM/JVM调优工具/">JVM调优工具</a></li>
+                
+                    <li class="file active"><a href="/Blog/Java/VM/常量池/">常量池</a></li>
+                
+            </ul>
+        
+                    </li>
+                
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            基础
+                        </a>
+                        
+            <ul class="unstyled" id="tree">
+                
+                    <li class="file"><a href="/Blog/Java/基础/lambda常用总结/">lambda常用总结</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/基础/时间及日期总结/">Java8时间及日期</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/基础/位运算/">位运算</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/基础/注解实现及应用/">注解实现及应用</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/基础/HashMap源码分析JDK8/">HashMap源码分析JDK8</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/基础/HashMap源码分析JDK7/">HashMap源码分析JDK7</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/基础/反射基础/">反射基础</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/基础/动态代理/">动态代理</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/基础/Java实用工具库/">Java实用工具库</a></li>
+                
+            </ul>
+        
+                    </li>
+                
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            工具
+                        </a>
+                        
+            <ul class="unstyled" id="tree">
+                
+                    <li class="file"><a href="/Blog/Java/工具/Java中调用Groovy脚本/">Java中调用Groovy脚本</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/工具/国密SM2/">国密SM2</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/工具/国密SM4/">国密SM4</a></li>
+                
+            </ul>
+        
+                    </li>
+                
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            并发
+                        </a>
+                        
+            <ul class="unstyled" id="tree">
+                
+                    <li class="file"><a href="/Blog/Java/并发/原子性、可见性、有序性/">原子性、可见性、有序性</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/并发/Synchronized总结/">Synchronized总结</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/并发/线程安全/">线程安全</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/并发/线程安全实现方式/">线程安全实现方式</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/并发/ThreadLocal原理/">ThreadLocal原理</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/并发/Volatile原理/">Volatile原理</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/并发/Java与线程/">Java与线程</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/并发/锁优化/">锁优化</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/并发/Java内存模型与线程/">Java内存模型</a></li>
+                
+            </ul>
+        
+                    </li>
+                
+                    <li class="file"><a href="/Blog/Java/JVM整体概览/">JVM整体概览</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/JVM内存参数设置/">JVM内存参数设置</a></li>
+                
+            </ul>
+        
+                    </li>
+                
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            Linux
+                        </a>
+                        
+            <ul class="unstyled" id="tree">
+                
+                    <li class="file"><a href="/Blog/Linux/Linux常用命令/">Linux常用命令</a></li>
+                
+                    <li class="file"><a href="/Blog/Linux/Linux常用技巧/">Linux常用技巧</a></li>
+                
+            </ul>
+        
+                    </li>
+                
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            Maven
+                        </a>
+                        
+            <ul class="unstyled" id="tree">
+                
+                    <li class="file"><a href="/Blog/Maven/Maven加密JAR包/">Maven加密JAR包</a></li>
+                
+                    <li class="file"><a href="/Blog/Maven/Maven基础/">Maven基础</a></li>
+                
+                    <li class="file"><a href="/Blog/Maven/Maven常用/">Maven常用</a></li>
+                
+                    <li class="file"><a href="/Blog/Maven/Maven属性/">Maven属性</a></li>
+                
+                    <li class="file"><a href="/Blog/Maven/Maven常用工具/">Maven常用工具</a></li>
+                
+                    <li class="file"><a href="/Blog/Maven/Maven插件编写/">Maven插件编写</a></li>
+                
+                    <li class="file"><a href="/Blog/Maven/Maven生命周期/">Maven生命周期</a></li>
+                
+                    <li class="file"><a href="/Blog/Maven/Maven个性化打包/">Maven个性化打包</a></li>
+                
+                    <li class="file"><a href="/Blog/Maven/Maven仓库/">Maven仓库</a></li>
+                
+                    <li class="file"><a href="/Blog/Maven/Maven插件基础/">Maven插件基础</a></li>
+                
+                    <li class="file"><a href="/Blog/Maven/Maven聚合与继承/">Maven聚合与继承</a></li>
+                
+                    <li class="file"><a href="/Blog/Maven/Maven常用插件/">Maven常用插件</a></li>
+                
+                    <li class="file"><a href="/Blog/Maven/Maven标签全解/">Maven标签全解</a></li>
+                
+                    <li class="file"><a href="/Blog/Maven/Maven Assembly标签全解/">Maven Assembly标签全解</a></li>
+                
+            </ul>
+        
+                    </li>
+                
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            Python
+                        </a>
+                        
+            <ul class="unstyled" id="tree">
+                
+                    <li class="file"><a href="/Blog/Python/Excel文件数据抽取/">Excel文件数据抽取</a></li>
+                
+            </ul>
+        
+                    </li>
+                
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            Test
+                        </a>
+                        
+            <ul class="unstyled" id="tree">
+                
+                    <li class="file"><a href="/Blog/Test/IT测试总结/">IT测试总结</a></li>
+                
+                    <li class="file"><a href="/Blog/Test/JMeter日常总结/">JMeter日常总结</a></li>
+                
+                    <li class="file"><a href="/Blog/Test/LoadRunner日常总结/">LoadRunner日常总结</a></li>
+                
+                    <li class="file"><a href="/Blog/Test/UT测试总结/">UT测试总结</a></li>
+                
+            </ul>
+        
+                    </li>
+                
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            中间件
+                        </a>
+                        
+            <ul class="unstyled" id="tree">
+                
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            Spring
+                        </a>
+                        
+            <ul class="unstyled" id="tree">
+                
+                    <li class="file"><a href="/Blog/中间件/Spring/IoC容器/">IoC容器</a></li>
+                
+                    <li class="file"><a href="/Blog/中间件/Spring/Spring Gzip压缩/">Spring Gzip压缩</a></li>
+                
+                    <li class="file"><a href="/Blog/中间件/Spring/Spring整体架构/">Spring整体架构</a></li>
+                
+                    <li class="file"><a href="/Blog/中间件/Spring/Spring线程池跨线程数据共享/">Spring线程池跨线程数据共享</a></li>
+                
+                    <li class="file"><a href="/Blog/中间件/Spring/Spring知识点/">Spring知识点</a></li>
+                
+                    <li class="file"><a href="/Blog/中间件/Spring/SpringMvc异步/">SpringMvc异步原理及实现</a></li>
+                
+                    <li class="file"><a href="/Blog/中间件/Spring/Hystrix总结/">Hystrix总结</a></li>
+                
+                    <li class="file"><a href="/Blog/中间件/Spring/Spring初始化扩展/">Spring初始化扩展</a></li>
+                
+            </ul>
+        
+                    </li>
+                
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            常见问题
+                        </a>
+                        
+            <ul class="unstyled" id="tree">
+                
+                    <li class="file"><a href="/Blog/中间件/常见问题/HBase依赖冲突/">HBase依赖冲突</a></li>
+                
+                    <li class="file"><a href="/Blog/中间件/常见问题/Maven编译后文件损坏/">Maven编译后文件损坏</a></li>
+                
+            </ul>
+        
+                    </li>
+                
+                    <li class="file"><a href="/Blog/中间件/Redis分布式锁实现/">Redis分布式锁实现</a></li>
+                
+                    <li class="file"><a href="/Blog/中间件/Redis总结/">Redis总结</a></li>
+                
+                    <li class="file"><a href="/Blog/中间件/Tomcat工作原理/">Tomcat工作原理</a></li>
+                
+            </ul>
+        
+                    </li>
+                
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            协议族
+                        </a>
+                        
+            <ul class="unstyled" id="tree">
+                
+                    <li class="file"><a href="/Blog/协议族/TCPIP四层&五层模型/">TCP/IP四层&五层模型</a></li>
+                
+                    <li class="file"><a href="/Blog/协议族/网络基础知识/">网络基础知识</a></li>
+                
+                    <li class="file"><a href="/Blog/协议族/以太网/">以太网</a></li>
+                
+                    <li class="file"><a href="/Blog/协议族/地址解析协议/">地址解析协议ARP</a></li>
+                
+            </ul>
+        
+                    </li>
+                
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            杂记
+                        </a>
+                        
+            <ul class="unstyled" id="tree">
+                
+                    <li class="file"><a href="/Blog/杂记/IDEA实用插件/">IDEA实用插件</a></li>
+                
+                    <li class="file"><a href="/Blog/杂记/JAVA实用工具/">JAVA实用工具</a></li>
+                
+                    <li class="file"><a href="/Blog/杂记/IDEA快捷的使用/">IDEA的快捷使用</a></li>
+                
+                    <li class="file"><a href="/Blog/杂记/Win实用工具/">Win实用工具</a></li>
+                
+                    <li class="file"><a href="/Blog/杂记/XSD使用总结/">XSD实用总结</a></li>
+                
+                    <li class="file"><a href="/Blog/杂记/SonarQube配置总结/">SonarQube配置总结</a></li>
+                
+            </ul>
+        
+                    </li>
+                
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            算法
+                        </a>
+                        
+            <ul class="unstyled" id="tree">
+                
+                    <li class="file"><a href="/Blog/算法/二叉搜索树/">二叉搜索树</a></li>
+                
+                    <li class="file"><a href="/Blog/算法/平衡二叉树/">平衡二叉树</a></li>
+                
+                    <li class="file"><a href="/Blog/算法/树基础/">树基础</a></li>
+                
+                    <li class="file"><a href="/Blog/算法/排序算法/">排序算法</a></li>
+                
+                    <li class="file"><a href="/Blog/算法/图基础/">图基础</a></li>
+                
+            </ul>
+        
+                    </li>
+                
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            自度
+                        </a>
+                        
+            <ul class="unstyled" id="tree">
+                
+                    <li class="file"><a href="/Blog/自度/隐形眼镜攻略/"></a></li>
+                
+            </ul>
+        
+                    </li>
+                
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            设计模式
+                        </a>
+                        
+            <ul class="unstyled" id="tree">
+                
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            创建型模式
+                        </a>
+                        
+            <ul class="unstyled" id="tree">
+                
+                    <li class="file"><a href="/Blog/设计模式/创建型模式/单例模式/">单例模式</a></li>
+                
+                    <li class="file"><a href="/Blog/设计模式/创建型模式/原型模式/">原型模式</a></li>
+                
+                    <li class="file"><a href="/Blog/设计模式/创建型模式/建造者模式/">建造者模式</a></li>
+                
+                    <li class="file"><a href="/Blog/设计模式/创建型模式/工厂模式/">工厂模式</a></li>
+                
+            </ul>
+        
+                    </li>
+                
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            结构型模式
+                        </a>
+                        
+            <ul class="unstyled" id="tree">
+                
+                    <li class="file"><a href="/Blog/设计模式/结构型模式/代理模式/">代理模式</a></li>
+                
+                    <li class="file"><a href="/Blog/设计模式/结构型模式/装饰模式/">装饰模式</a></li>
+                
+                    <li class="file"><a href="/Blog/设计模式/结构型模式/适配器模式/">适配器模式</a></li>
+                
+                    <li class="file"><a href="/Blog/设计模式/结构型模式/组合模式/">组合模式</a></li>
+                
+                    <li class="file"><a href="/Blog/设计模式/结构型模式/外观模式/">外观模式</a></li>
+                
+            </ul>
+        
+                    </li>
+                
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            行为型模式
+                        </a>
+                        
+            <ul class="unstyled" id="tree">
+                
+                    <li class="file"><a href="/Blog/设计模式/行为型模式/模板方法模式/">模板方法模式</a></li>
+                
+                    <li class="file"><a href="/Blog/设计模式/行为型模式/中介者模式/">中介者模式</a></li>
+                
+                    <li class="file"><a href="/Blog/设计模式/行为型模式/命令模式/">命令模式</a></li>
+                
+                    <li class="file"><a href="/Blog/设计模式/行为型模式/责任链模式/">责任链模式</a></li>
+                
+                    <li class="file"><a href="/Blog/设计模式/行为型模式/策略模式/">策略模式</a></li>
+                
+                    <li class="file"><a href="/Blog/设计模式/行为型模式/迭代器模式/">迭代器模式</a></li>
+                
+                    <li class="file"><a href="/Blog/设计模式/行为型模式/观察者模式/">观察者模式</a></li>
+                
+                    <li class="file"><a href="/Blog/设计模式/行为型模式/备忘录模式/">备忘录模式</a></li>
+                
+                    <li class="file"><a href="/Blog/设计模式/行为型模式/访问者模式/">访问者模式</a></li>
+                
+                    <li class="file"><a href="/Blog/设计模式/行为型模式/状态模式/">状态模式</a></li>
+                
+            </ul>
+        
+                    </li>
+                
+                    <li class="file"><a href="/Blog/设计模式/SOLID基本原则/">SOLID基本原则</a></li>
+                
+                    <li class="file"><a href="/Blog/设计模式/设计模式概览/">设计模式概览</a></li>
+                
+            </ul>
+        
+                    </li>
+                
+                    <li class="file"><a href="/Blog/index/">Welcome YingLong's Blog</a></li>
+                
+            </ul>
+        
+    </div>
+    <script>
+        $(document).ready(function () {
+            var iconFolderOpenClass = 'fa-folder-open';
+            var iconFolderCloseClass = 'fa-folder';
+            var iconAllExpandClass = 'fa-angle-double-down';
+            var iconAllPackClass = 'fa-angle-double-up';
+            // Handle directory-tree expansion:
+            // 左键单独展开目录
+            $(document).on('click', '#categories a[data-role="directory"]', function (event) {
+                event.preventDefault();
+
+                var icon = $(this).children('.fa');
+                var expanded = icon.hasClass(iconFolderOpenClass);
+                var subtree = $(this).siblings('ul');
+                icon.removeClass(iconFolderOpenClass).removeClass(iconFolderCloseClass);
+                if (expanded) {
+                    if (typeof subtree != 'undefined') {
+                        subtree.slideUp({duration: 100});
+                    }
+                    icon.addClass(iconFolderCloseClass);
+                } else {
+                    if (typeof subtree != 'undefined') {
+                        subtree.slideDown({duration: 100});
+                    }
+                    icon.addClass(iconFolderOpenClass);
+                }
+            });
+            // 右键展开下属所有目录
+            $('#categories a[data-role="directory"]').bind("contextmenu", function (event) {
+                event.preventDefault();
+
+                var icon = $(this).children('.fa');
+                var expanded = icon.hasClass(iconFolderOpenClass);
+                var listNode = $(this).siblings('ul');
+                var subtrees = $.merge(listNode.find('li ul'), listNode);
+                var icons = $.merge(listNode.find('.fa'), icon);
+                icons.removeClass(iconFolderOpenClass).removeClass(iconFolderCloseClass);
+                if (expanded) {
+                    subtrees.slideUp({duration: 100});
+                    icons.addClass(iconFolderCloseClass);
+                } else {
+                    subtrees.slideDown({duration: 100});
+                    icons.addClass(iconFolderOpenClass);
+                }
+            })
+            // 展开关闭所有目录按钮
+            $(document).on('click', '#allExpand', function (event) {
+                event.preventDefault();
+
+                var icon = $(this).children('.fa');
+                var expanded = icon.hasClass(iconAllExpandClass);
+                icon.removeClass(iconAllExpandClass).removeClass(iconAllPackClass);
+                if (expanded) {
+                    $('#sidebar .fa.fa-folder').removeClass('fa-folder').addClass('fa-folder-open')
+                    $('#categories li ul').slideDown({duration: 100});
+                    icon.addClass(iconAllPackClass);
+                } else {
+                    $('#sidebar .fa.fa-folder-open').removeClass('fa-folder-open').addClass('fa-folder')
+                    $('#categories li ul').slideUp({duration: 100});
+                    icon.addClass(iconAllExpandClass);
+                }
+            });
+        });
+    </script>
+
+    
+    <div id="toTop" class="fa fa-angle-up"></div>
+</aside>
+        
+        <section id="main"><article id="post-Java/VM/常量池" class="article article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+        
+            <header class="article-header">
+                
+                    <div class="article-meta">
+                        
+    <div class="article-category">
+        <i class="fa fa-folder"></i>
+        <a class="article-category-link" href="/categories/Java/">Java</a><i class="fa fa-angle-right"></i><a class="article-category-link" href="/categories/Java/VM/">VM</a>
+    </div>
+
+                        
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link" href="/tags/JVM/">JVM</a>
+    </div>
+
+                        
+    <div class="article-date">
+        <i class="fa fa-calendar"></i>
+        <a href="/Blog/Java/VM/常量池/">
+            <time datetime="2021-08-20T16:00:00.000Z" itemprop="datePublished">2021-08-21</time>
+        </a>
+    </div>
+
+
+                        
+                    </div>
+                
+                
+    
+        <h1 class="article-title" itemprop="name">
+            常量池
+        </h1>
+    
+
+            </header>
+        
+        
+        <div class="article-entry" itemprop="articleBody">
+            
+            
+                    
+            
+            
+                <h3 id="Class常量池与运行时常量池"><a href="#Class常量池与运行时常量池" class="headerlink" title="Class常量池与运行时常量池"></a>Class常量池与运行时常量池</h3><p><strong><code>Class</code>常量池</strong>可以理解为Class文件中的<strong>资源仓库</strong>，Class文件中除了包含类的版本、字段、方法、接口等描述信息外，还有一项信息就是<strong>常量池<code>Constant pool</code></strong>，用于存放<strong>编译期生</strong>成的各种<strong>字面量</strong>和<strong>符号引用</strong>。一个class文件的<strong>16进制</strong>大体结构如下：</p>
+<p><img src="../../../../../images/JVM/class文件16进制.png" alt="class文件16进制结构"></p>
+<p>对应的含义如下：</p>
+<p><img src="../../../../../images/JVM/class文件16进制含义.png" alt="class文件16进制含义"></p>
+<p>一般不会去人工解析这种16进制的字节码文件，我们一般可以通过<strong><code>javap</code>命令</strong>或一些字节码工具生成更可读的<code>JVM</code>字节码指令文件，如下所示，<strong><code>Constant pool</code></strong>即是class常量池信息，常量池中主要存放<strong>字面量</strong>和<strong>符号引用</strong>：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br></pre></td><td class="code"><pre><span class="line">Classfile /E:/SourceCode/JVM-Learn/target/classes/com/eleven/icode/jvm/unit/Math.class</span><br><span class="line">  Last modified <span class="number">2021</span>-<span class="number">8</span>-<span class="number">21</span>; size <span class="number">999</span> bytes</span><br><span class="line">  MD5 checksum <span class="number">333e6820383</span>da465bfe69370b8b00ae4</span><br><span class="line">  Compiled from <span class="string">"Math.java"</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">com</span>.<span class="title">eleven</span>.<span class="title">icode</span>.<span class="title">jvm</span>.<span class="title">unit</span>.<span class="title">Math</span></span></span><br><span class="line">  minor version: 0</span><br><span class="line">  major version: <span class="number">52</span></span><br><span class="line">  flags: ACC_PUBLIC, ACC_SUPER</span><br><span class="line">Constant pool:</span><br><span class="line">   #1 = Methodref          #11.#39        // java/lang/Object."&lt;init&gt;":()V</span><br><span class="line">   #2 = Class              #40            // com/eleven/icode/jvm/unit/Math</span><br><span class="line">   #3 = Methodref          #2.#39         // com/eleven/icode/jvm/unit/Math."&lt;init&gt;":()V</span><br><span class="line">   #4 = Methodref          #2.#41         // com/eleven/icode/jvm/unit/Math.compute:()I</span><br><span class="line">   #5 = Fieldref           #42.#43        // java/lang/System.out:Ljava/io/PrintStream;</span><br><span class="line">   #6 = String             #44            // test</span><br><span class="line">   #7 = Methodref          #45.#46        // java/io/PrintStream.println:(Ljava/lang/String;)V</span><br><span class="line">   #8 = Class              #47            // com/eleven/icode/jvm/entity/User</span><br><span class="line">   #9 = Methodref          #8.#39         // com/eleven/icode/jvm/entity/User."&lt;init&gt;":()V</span><br><span class="line">  #10 = Fieldref           #2.#48         // com/eleven/icode/jvm/unit/Math.user:Lcom/eleven/icode/jvm/entity/User;</span><br><span class="line">  #11 = Class              #49            // java/lang/Object</span><br><span class="line">  #12 = Utf8               initData</span><br><span class="line">  #13 = Utf8               I</span><br><span class="line">  #14 = Utf8               ConstantValue</span><br><span class="line">  #15 = Integer            666</span><br><span class="line">  #16 = Utf8               user</span><br><span class="line">  #17 = Utf8               Lcom/eleven/icode/jvm/entity/User;</span><br><span class="line">  #18 = Utf8               &lt;init&gt;</span><br><span class="line">  #19 = Utf8               ()V</span><br><span class="line">  #20 = Utf8               Code</span><br><span class="line">  #21 = Utf8               LineNumberTable</span><br><span class="line">  #22 = Utf8               LocalVariableTable</span><br><span class="line">  #23 = Utf8               this</span><br><span class="line">  #24 = Utf8               Lcom/eleven/icode/jvm/unit/Math;</span><br><span class="line">  #25 = Utf8               compute</span><br><span class="line">  #26 = Utf8               ()I</span><br><span class="line">  #27 = Utf8               a</span><br><span class="line">  #28 = Utf8               b</span><br><span class="line">  #29 = Utf8               c</span><br><span class="line">  #30 = Utf8               main</span><br><span class="line">  #31 = Utf8               ([Ljava/lang/String;)V</span><br><span class="line">  #32 = Utf8               args</span><br><span class="line">  #33 = Utf8               [Ljava/lang/String;</span><br><span class="line">  #34 = Utf8               math</span><br><span class="line">  #35 = Utf8               MethodParameters</span><br><span class="line">  #36 = Utf8               &lt;clinit&gt;</span><br><span class="line">  #37 = Utf8               SourceFile</span><br><span class="line">  #38 = Utf8               Math.java</span><br><span class="line">  #39 = NameAndType        #18:#19        // "&lt;init&gt;":()V</span><br><span class="line">  #40 = Utf8               com/eleven/icode/jvm/unit/Math</span><br><span class="line">  #41 = NameAndType        #25:#26        // compute:()I</span><br><span class="line">  #42 = Class              #50            // java/lang/System</span><br><span class="line">  #43 = NameAndType        #51:#52        // out:Ljava/io/PrintStream;</span><br><span class="line">  #44 = Utf8               test</span><br><span class="line">  #45 = Class              #53            // java/io/PrintStream</span><br><span class="line">  #46 = NameAndType        #54:#55        // println:(Ljava/lang/String;)V</span><br><span class="line">  #47 = Utf8               com/eleven/icode/jvm/entity/User</span><br><span class="line">  #48 = NameAndType        #16:#17        // user:Lcom/eleven/icode/jvm/entity/User;</span><br><span class="line">  #49 = Utf8               java/lang/Object</span><br><span class="line">  #50 = Utf8               java/lang/System</span><br><span class="line">  #51 = Utf8               out</span><br><span class="line">  #52 = Utf8               Ljava/io/PrintStream;</span><br><span class="line">  #53 = Utf8               java/io/PrintStream</span><br><span class="line">  #54 = Utf8               println</span><br><span class="line">  #55 = Utf8               (Ljava/lang/String;)V</span><br></pre></td></tr></table></figure>
+<h4 id="字面量"><a href="#字面量" class="headerlink" title="字面量"></a>字面量</h4><p>字面量就是<strong>指由字母、数字等构成的字符串或者数值常量</strong>，字面量<strong>只可以右值出现</strong>，所谓右值是指<strong>等号右边的值</strong>，如<strong><code>int a=1</code></strong>这里的a为左值，1为右值即字面量。</p>
+<h4 id="符号引用"><a href="#符号引用" class="headerlink" title="符号引用"></a>符号引用</h4><p>符号引用是编译原理中的概念，是相对于直接引用来说的。主要包括<strong>类和接口的全限定名</strong>、<strong>字段的名称和描述符</strong>、<strong>方法的名称和描述符</strong>三类常量；如<strong><code>int a=1</code></strong>中a就是字段名称，就是<strong>一种符号引用</strong>，还有Math类常量池里<strong><code>#24</code></strong>对应的<strong><code>Lcom/eleven/icode/jvm/unit/Math;</code></strong>就是<strong>类的全限定名</strong>，<code>main</code>和<code>compute</code>是<strong>方法名称</strong>，<strong><code>()</code></strong>是一种<code>UTF8</code>格式的<strong>描述符</strong>，<strong>这些都是符号引用</strong>；</p>
+<h3 id="运行时常量池"><a href="#运行时常量池" class="headerlink" title="运行时常量池"></a>运行时常量池</h3><p>这些<strong>常量池现在是静态信息</strong>，只有到<strong>运行时被加载到内存</strong>后，<strong>这些符号才有对应的内存地址信息，这些常量池一旦被装入内存就变成运行时常量池</strong>，对应的<strong>符号引用</strong>在程序<strong>加载</strong>或<strong>运行</strong>时会被转<strong>变为被加载到内存区域的代码的直接引用</strong>，也就是我们说的<strong>动态链接</strong>，如<strong><code>compute()</code></strong>这个<strong>符号引用</strong>在运行时会被<strong>转变为<code>compute()</code>方法具体代码在内存中的地址</strong>，主要<strong>通过对象头里的类型指针去转换直接引用</strong>。  </p>
+<h3 id="字符串常量池"><a href="#字符串常量池" class="headerlink" title="字符串常量池"></a>字符串常量池</h3><p>字符串的分配，和其他的对象分配一样，<strong>耗费高昂的时间与空间代价</strong>，作为<strong>最基础的数据类型</strong>，<strong>大量频繁</strong>的创建字符串，极大程度地影响程序的性能，JVM为了<strong>提高性能</strong>和<strong>减少内存开销</strong>，在<strong>实例化字符串常量的时候进行了一些优化为字符串开辟一个字符串常量池</strong>，类似于缓存区，<strong>创建字符串常量时，首先查询字符串常量池是否存在该字符串，存在该字符串，返回引用实例，不存在，实例化该字符串并放入池中</strong>。</p>
+<h4 id="直接赋值字符串"><a href="#直接赋值字符串" class="headerlink" title="直接赋值字符串"></a>直接赋值字符串</h4><p>如<strong><code>String param = &quot;eleven&quot;;</code></strong>  代码中，<code>param</code>指向常量池中的引用，这种方式创建的字符串对象，<strong>只会在常量池中</strong>，因为<strong><code>&quot;eleven&quot;</code></strong>这个<strong>字面量</strong>，创建对象<code>param</code>时，<strong><code>JVM</code>会先去常量池中通过<code>equals(key)</code>方法</strong>，判断是否有相同的对象若有，则直接返回该<strong>对象在常量池中的引用</strong>；若<strong>没有则会在常量池中创建一个新对象，再返回引用</strong>。  </p>
+<h4 id="new-String-方式"><a href="#new-String-方式" class="headerlink" title="new String() 方式"></a>new String() 方式</h4><p>如<strong><code>String name = new String(&quot;eleven&quot;);</code></strong>代码中，<code>name</code>指向<strong>内存中的对象引用</strong>，这种方式会保证<strong>字符串常量池</strong>和<strong>堆中</strong>都有这个对象，没有就创建，最后<strong>返回堆内存中的对象引用</strong>。因为有<strong><code>&quot;eleven&quot;</code></strong>这个<strong>字面量</strong>，故会<strong>先检查字符串常量池中是否存在字符串<code>&quot;eleven&quot;</code></strong>，若不存在，<strong>先在字符串常量池里创建</strong>一个字符串对象；再去<strong>内存中创建</strong>一个字符串对象<strong><code>&quot;eleven&quot;</code></strong>；存在的话，就<strong>直接去堆内存中创建</strong>一个字符串对象<strong><code>&quot;eleven&quot;</code></strong>；最后<strong>将内存中的引用返回</strong>。  </p>
+<h4 id="intern方法"><a href="#intern方法" class="headerlink" title="intern方法"></a>intern方法</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">String s1 = <span class="keyword">new</span> String(<span class="string">"zhuge"</span>);</span><br><span class="line">String s2 = s1.intern();</span><br><span class="line">System.out.println(s1 == s2); <span class="comment">//false</span></span><br></pre></td></tr></table></figure>
+<p>String中的<strong><code>intern</code>方法</strong>是一个<strong><code>native</code>方法</strong>，当调用intern方法时，<strong>用<code>equals(oject)</code>方法</strong>确定字符串常量池是否已经包含一个等于此String对象的字符串，若有则<strong>返回池中的字符串</strong>，否则<strong>将intern返回的引用指向当前字符串<code>s1</code></strong>，<code>jdk1.6</code>需要<strong>将s1复制到字符串常量池里</strong>。</p>
+<h4 id="字符串常量池位置"><a href="#字符串常量池位置" class="headerlink" title="字符串常量池位置"></a>字符串常量池位置</h4><p><strong><code>Jdk1.6</code>及之前</strong>：有永久代，<strong>运行时常量池在永久代</strong>，<strong>运行时常量池包含字符串常量池</strong><br><strong><code>Jdk1.7</code></strong>：有永久代，但已经逐步去永久代，<strong>字符串常量池从永久代里的运行时常量池分离到堆里</strong><br><strong><code>Jdk1.8</code>及之后</strong>： 无永久代，<strong>运行时常量池在元空间</strong>，<strong>字符串常量池里依然在堆里</strong>  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * jdk6：-Xms6M -Xmx6M -XX:PermSize=6M -XX:MaxPermSize=6M</span></span><br><span class="line"><span class="comment"> * jdk8：-Xms6M -Xmx6M -XX:MetaspaceSize=6M -XX:MaxMetaspaceSize=6M</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">RuntimeConstantPoolOOM</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        List&lt;String&gt; list = <span class="keyword">new</span> ArrayList&lt;&gt;();</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">100000000</span>; i++) &#123;</span><br><span class="line">            String str = String.valueOf(i).intern();</span><br><span class="line">            list.add(str);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>运行结果：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">jdk7及以上:</span><br><span class="line">Exception in thread &quot;main&quot; java.lang.OutOfMemoryError: Java heap space</span><br><span class="line">jdk6:</span><br><span class="line">Exception in thread &quot;main&quot; java.lang.OutOfMemoryError: PermGen space</span><br></pre></td></tr></table></figure>
+<h4 id="字符串常量池设计原理"><a href="#字符串常量池设计原理" class="headerlink" title="字符串常量池设计原理"></a>字符串常量池设计原理</h4><p>字符串常量池底层是<code>hotspot</code>的C++实现的，底层类似一个<strong><code>HashTable</code></strong>，保存的本质上是字符串对象的引用。如下代码创建了多少个对象：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">String s1 = <span class="keyword">new</span> String(<span class="string">"he"</span>) + <span class="keyword">new</span> String(<span class="string">"llo"</span>);</span><br><span class="line">String s2 = s1.intern();</span><br><span class="line">System.out.println(s1 == s2);</span><br></pre></td></tr></table></figure>
+<p>在<code>JDK 1.6</code>下输出是<code>false</code>，创建了 <strong>6 个</strong>对象，在<code>JDK 1.7</code>及以上的版本输出是<code>true</code>，创建了 <strong>5 个</strong>对象，这里没有考虑<code>GC</code>，但这些对象确实存在或存在过。产生这种变化的原因主要是，字符串常量池从永久代中脱离移入堆区的原因，<code>intern()</code>方法也相应发生了变化：  </p>
+<p>在<code>JDK 1.6</code>中，调用<strong><code>intern()</code>首先会在字符串池中寻找 equal() 相等的字符串</strong>，若<strong>字符串存在则返回该字符串在字符串常量池中的引用</strong>；若字符串不存在，虚拟机会<strong>重新在永久代上创建一个实例，将<code>StringTable</code>的一个表项指向这个新创建的实例</strong>。  </p>
+<p><img src="../../../../../images/JVM/jdk6字符串常量池原理.png" alt="jdk1.6字符串常量池原理"></p>
+<p><code>JDK 1.7</code>及以上版本中，由于字符串常量池不在永久代了，<strong>intern() 做了一些修改，更方便地利用堆中的对象</strong>。字符串存在时和<code>JDK 1.6</code>一样，<strong>字符串不存在时不再需要重新创建实例</strong>，可以<strong>直接指向堆上的实例</strong>。 </p>
+<p><img src="../../../../../images/JVM/jdk7字符串常量次原理.png" alt="jdk1.7字符串常量次原理"></p>
+<h3 id="实例分析"><a href="#实例分析" class="headerlink" title="实例分析"></a>实例分析</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">String s0 = <span class="string">"eleven"</span>;</span><br><span class="line">String s1 = <span class="keyword">new</span> String(<span class="string">"eleven"</span>);</span><br><span class="line">String s2 = <span class="string">"ele"</span> + <span class="keyword">new</span> String(<span class="string">"ven"</span>);</span><br><span class="line">System.out.println( s0==s1 ); <span class="comment">// false</span></span><br><span class="line">System.out.println( s0==s2 ); <span class="comment">// false</span></span><br><span class="line">System.out.println( s1==s2 ); <span class="comment">// false</span></span><br></pre></td></tr></table></figure>
+<p>用<code>new String()</code>创建的字符串<strong>不是常量</strong>，<strong>不能在编译期就确</strong>定，故new String()创建的字符串<strong>不放入常量池</strong>中，它们有自己的地址空间。s0还是常量池中”eleven”的引用，s1因为无法在编译期确定，所以是运行时创建的新对象”eleven”的引用，s2因为有后半部分new String(”ven”)故也无法在编译期确定，故也是一个新创建对象”eleven”的引用;</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">String a = <span class="string">"a1"</span>;</span><br><span class="line">String b = <span class="string">"a"</span> + <span class="number">1</span>;</span><br><span class="line">System.out.println(a == b); <span class="comment">// true</span></span><br><span class="line"></span><br><span class="line">String a = <span class="string">"atrue"</span>;</span><br><span class="line">String b = <span class="string">"a"</span> + <span class="string">"true"</span>;</span><br><span class="line">System.out.println(a == b); <span class="comment">// true</span></span><br><span class="line"></span><br><span class="line">String a = <span class="string">"a3.4"</span>;</span><br><span class="line">String b = <span class="string">"a"</span> + <span class="number">3.4</span>;</span><br><span class="line">System.out.println(a == b); <span class="comment">// true</span></span><br><span class="line"></span><br><span class="line">String a = <span class="string">"ab"</span>;</span><br><span class="line">String bb = <span class="string">"b"</span>;</span><br><span class="line">String b = <span class="string">"a"</span> + bb;</span><br><span class="line">System.out.println(a == b); <span class="comment">// false</span></span><br><span class="line"></span><br><span class="line">String a = <span class="string">"ab"</span>;</span><br><span class="line"><span class="keyword">final</span> String bb = getBB();</span><br><span class="line">String b = <span class="string">"a"</span> + bb;</span><br><span class="line">System.out.println(a == b); <span class="comment">// false</span></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">static</span> String <span class="title">getBB</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="string">"b"</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>JVM</code>对于<strong>字符串常量</strong>的<strong><code>+</code>号连接</strong>，将在程序<strong>编译期</strong>，JVM就将常量字符串的<strong><code>+</code>连接优化为连接后的值</strong>，拿<strong><code>&quot;a&quot; +1</code></strong>来说，经编译器优化后在class中就已经是a1。</p>
+<p><code>JVM</code>对于<strong>字符串引用</strong>，由于在字符串的<strong><code>+</code>连接</strong>中，<strong>有字符串引用存在</strong>，而<strong>引用的值在程序编译期是无法确定的</strong>，即<strong><code>&quot;a&quot; + bb</code></strong>无法被编译器优化，只有在程序<strong>运行期来动态分配并将连接后的新地址赋给b</strong>。</p>
+<p><code>JVM</code>对于字符串引用bb，它的值在<strong>编译期无法确定</strong>，只有在程序运行期调用方法后，将方法的返回值和”a”来<strong>动态连接</strong>并分配地址为b。</p>
+<h3 id="String是不可变的"><a href="#String是不可变的" class="headerlink" title="String是不可变的"></a>String是不可变的</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">String s = <span class="string">"a"</span> + <span class="string">"b"</span> + <span class="string">"c"</span>;</span><br><span class="line">String a = <span class="string">"a"</span>;</span><br><span class="line">String b = <span class="string">"b"</span>;</span><br><span class="line">String c = <span class="string">"c"</span>;</span><br><span class="line">String s1 = a + b + c;</span><br></pre></td></tr></table></figure>
+<p>由上面的例子可知<strong>s就等价于<code>String s = &quot;abc&quot;</code></strong>，s1就不一样了，通过观察其JVM指令码发现s1的”+”操作会变成如下操作：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">String s1 = (<span class="keyword">new</span> StringBuilder()).append(a).append(b).append(c).toString()</span><br></pre></td></tr></table></figure>
+<p><strong>字符串常量池</strong>中会存在<strong>计算机</strong>和<strong>技术</strong>，堆内存中存储的是<code>str</code>引用的对象<strong>计算机技术</strong>，由于<code>StringBuilder</code>的<code>toString</code>方法返回的是一个<code>new String()</code>对象，该对象才是真正返回的对象引用，没有出现<strong>计算机技术</strong>字面量，在常量池中不会生成<strong>计算机技术</strong>对象，故<strong><code>str.intern()</code></strong>返回的也是对象在堆中的引用。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">String str = <span class="keyword">new</span> StringBuilder(<span class="string">"计算机"</span>).append(<span class="string">"技术"</span>).toString();</span><br><span class="line">System.out.println(str == str.intern()); <span class="comment">// true</span></span><br></pre></td></tr></table></figure>
+<p>下面的例子和上面的类似，但唯一区别在于<code>java</code>是关键字，在<code>JVM</code>初始化相关类里肯定早就放入字符串常量池中，故<strong><code>str.intern()</code></strong>返回的是常量池中对象。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">String str = <span class="keyword">new</span> StringBuilder(<span class="string">"ja"</span>).append(<span class="string">"va"</span>).toString();</span><br><span class="line">System.out.println(str == str.intern()); <span class="comment">// false</span></span><br></pre></td></tr></table></figure>
+<p>下面的例子和上面的类似，但唯一区别在于这里的<code>test</code>是字面量，故会在常量池中创建该对象，故<strong><code>str.intern()</code></strong>返回的是常量池中对象。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">String str = <span class="keyword">new</span> String(<span class="string">"test"</span>);</span><br><span class="line">System.out.println(str == str.intern());  <span class="comment">// false</span></span><br></pre></td></tr></table></figure>
+<h3 id="八种基本类型的包装类和对象池"><a href="#八种基本类型的包装类和对象池" class="headerlink" title="八种基本类型的包装类和对象池"></a>八种基本类型的包装类和对象池</h3><p><code>java</code>中<strong>基本类型</strong>的<strong>包装类</strong>的大部分在堆上都实现了<strong>对象池技术</strong>，这些类是<strong><code>Byte,Short,Integer,Long,Character,Boolean</code></strong>,另外两种<strong>浮点数类型的包装类则没有实现</strong>。另外<strong><code>Byte,Short,Integer,Long,Character</code></strong>这5种整型的包装类也只是在<strong>对应值大于等于<code>-128</code>小于等于<code>127</code>时才可使用对象池</strong>，也即对象不负责创建和管理大于127的这些类的对象。因为一般这种比较小的数用到的概率相对较大</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Test</span> </span>&#123;</span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        <span class="comment">//5种整形的包装类Byte,Short,Integer,Long,Character的对象，</span></span><br><span class="line">        <span class="comment">//在值小于127时可以使用对象池</span></span><br><span class="line">        Integer i1 = <span class="number">127</span>; <span class="comment">//这种调用底层实际是执行的Integer.valueOf(127)，里面用到了IntegerCache对象池</span></span><br><span class="line">        Integer i2 = <span class="number">127</span>;</span><br><span class="line">        System.out.println(i1 == i2);<span class="comment">//输出true</span></span><br><span class="line">        <span class="comment">//值大于127时，不会从对象池中取对象</span></span><br><span class="line">        Integer i3 = <span class="number">128</span>;</span><br><span class="line">        Integer i4 = <span class="number">128</span>;</span><br><span class="line">        System.out.println(i3 == i4);<span class="comment">//输出false</span></span><br><span class="line">        <span class="comment">//用new关键词新生成对象不会使用对象池</span></span><br><span class="line">        Integer i5 = <span class="keyword">new</span> Integer(<span class="number">127</span>);</span><br><span class="line">        Integer i6 = <span class="keyword">new</span> Integer(<span class="number">127</span>);</span><br><span class="line">        System.out.println(i5 == i6);<span class="comment">//输出false</span></span><br><span class="line">        <span class="comment">//Boolean类也实现了对象池技术</span></span><br><span class="line">        Boolean bool1 = <span class="keyword">true</span>;</span><br><span class="line">        Boolean bool2 = <span class="keyword">true</span>;</span><br><span class="line">        System.out.println(bool1 == bool2);<span class="comment">//输出true</span></span><br><span class="line">        <span class="comment">//浮点类型的包装类没有实现对象池技术</span></span><br><span class="line">        Double d1 = <span class="number">1.0</span>;</span><br><span class="line">        Double d2 = <span class="number">1.0</span>;</span><br><span class="line">        System.out.println(d1 == d2);<span class="comment">//输出false</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>如一下源码所示：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">LongCache</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="title">LongCache</span><span class="params">()</span></span>&#123;&#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">static</span> <span class="keyword">final</span> Long cache[] = <span class="keyword">new</span> Long[-(-<span class="number">128</span>) + <span class="number">127</span> + <span class="number">1</span>];</span><br><span class="line"></span><br><span class="line">    <span class="keyword">static</span> &#123;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; cache.length; i++)</span><br><span class="line">            cache[i] = <span class="keyword">new</span> Long(i - <span class="number">128</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Integer <span class="title">valueOf</span><span class="params">(<span class="keyword">int</span> i)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (i &gt;= IntegerCache.low &amp;&amp; i &lt;= IntegerCache.high)</span><br><span class="line">        <span class="keyword">return</span> IntegerCache.cache[i + (-IntegerCache.low)];</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> Integer(i);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">ByteCache</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="title">ByteCache</span><span class="params">()</span></span>&#123;&#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">static</span> <span class="keyword">final</span> Byte cache[] = <span class="keyword">new</span> Byte[-(-<span class="number">128</span>) + <span class="number">127</span> + <span class="number">1</span>];</span><br><span class="line"></span><br><span class="line">    <span class="keyword">static</span> &#123;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; cache.length; i++)</span><br><span class="line">            cache[i] = <span class="keyword">new</span> Byte((<span class="keyword">byte</span>)(i - <span class="number">128</span>));</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">ShortCache</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="title">ShortCache</span><span class="params">()</span></span>&#123;&#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">static</span> <span class="keyword">final</span> Short cache[] = <span class="keyword">new</span> Short[-(-<span class="number">128</span>) + <span class="number">127</span> + <span class="number">1</span>];</span><br><span class="line"></span><br><span class="line">    <span class="keyword">static</span> &#123;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; cache.length; i++)</span><br><span class="line">            cache[i] = <span class="keyword">new</span> Short((<span class="keyword">short</span>)(i - <span class="number">128</span>));</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">CharacterCache</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="title">CharacterCache</span><span class="params">()</span></span>&#123;&#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">static</span> <span class="keyword">final</span> Character cache[] = <span class="keyword">new</span> Character[<span class="number">127</span> + <span class="number">1</span>];</span><br><span class="line"></span><br><span class="line">    <span class="keyword">static</span> &#123;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; cache.length; i++)</span><br><span class="line">            cache[i] = <span class="keyword">new</span> Character((<span class="keyword">char</span>)i);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+        </div>
+        
+    <footer class="article-footer">
+    </footer>
+    </div>
+</article>
+
+
+    
+    <nav id="article-nav">
+        
+            <a href="/Blog/Java/VM/JVM调优工具/" id="article-nav-newer" class="article-nav-link-wrap">
+                <strong class="article-nav-caption">Newer</strong>
+                <div class="article-nav-title">
+                    
+                        JVM调优工具
+                    
+                </div>
+            </a>
+        
+        
+            <a href="/Blog/Java/VM/JVM调优思路/" id="article-nav-older" class="article-nav-link-wrap">
+                <strong class="article-nav-caption">Older</strong>
+                <div class="article-nav-title">JVM调优思路</div>
+            </a>
+        
+    </nav>
+
+
+
+
+
+    
+    
+
+
+
+
+    <!-- baidu url auto push script -->
+    <script type="text/javascript">
+        !function () {
+            var e = /([http|https]:\/\/[a-zA-Z0-9\_\.]+\.baidu\.com)/gi, r = window.location.href,
+                o = document.referrer;
+            if (!e.test(r)) {
+                var n = "//api.share.baidu.com/s.gif";
+                o ? (n += "?r=" + encodeURIComponent(document.referrer), r && (n += "&l=" + r)) : r && (n += "?l=" + r);
+                var t = new Image;
+                t.src = n
+            }
+        }(window);
+    </script>
+</section>
+    </div>
+    <footer id="footer">
+    <div class="outer">
+        <div id="footer-info" class="inner">
+            YaoYingLong &copy; 2021
+            <!-- <a rel="license" href="http://creativecommons.org/licenses/by-nc-nd/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-nc-nd/4.0/80x15.png" /></a> -->
+            <br> Powered by <a href="http://hexo.io/" target="_blank" rel="external nofollow noopener noreferrer">Hexo</a>. Theme - <a href="https://github.com/zthxxx/hexo-theme-Wikitten" rel="external nofollow noopener noreferrer" target="_blank">wikitten</a>
+        </div>
+    </div>
+</footer>
+    
+
+    
+        <script src="/libs/lightgallery/js/lightgallery.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-thumbnail.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-pager.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-autoplay.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-fullscreen.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-zoom.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-hash.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-share.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-video.min.js"></script>
+    
+    
+        <script src="/libs/justified-gallery/jquery.justifiedGallery.min.js"></script>
+    
+    
+        <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [ ["$","$"], ["\\(","\\)"] ],
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
+            processEscapes: true,
+            TeX: {
+                equationNumbers: {
+                  autoNumber: 'AMS'
+                }
+            }
+        }
+    });
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax();
+        for (var i = 0; i < all.length; ++i)
+            all[i].SourceElement().parentNode.className += ' has-jax';
+    });
+
+
+</script>
+<script async src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+
+
+
+<!-- Custom Scripts -->
+<script src="/js/main.js"></script>
+
+</div>
+</body>

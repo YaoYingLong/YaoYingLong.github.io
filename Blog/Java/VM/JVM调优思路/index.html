@@ -21,7 +21,7 @@
 <meta property="og:description" content="用jstat -gc PID命令可以计算出一些关键数据，有了这些数据就可以采用一些优化思路，先给系统设置一些初始性的JVM参数，比如堆内存大小，年轻代大小，Eden和Survivor比例，老年代大小，大对象的阈值，大龄对象进入老年代的阈值等。 优化思路其实简单来说就是尽量让每次Young GC后存活的对象小于Survivor区域的50%，都留存在年轻代里，尽量别让对象进入老年代。尽量减少Full">
 <meta property="og:locale" content="en">
 <meta property="og:image" content="https://yaoyinglong.github.io/images/JVM/老年代空间分匹配担保机制.png">
-<meta property="og:updated_time" content="2021-08-20T08:36:53.482Z">
+<meta property="og:updated_time" content="2021-08-21T13:26:09.405Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="JVM调优思路">
 <meta name="twitter:description" content="用jstat -gc PID命令可以计算出一些关键数据，有了这些数据就可以采用一些优化思路，先给系统设置一些初始性的JVM参数，比如堆内存大小，年轻代大小，Eden和Survivor比例，老年代大小，大对象的阈值，大龄对象进入老年代的阈值等。 优化思路其实简单来说就是尽量让每次Young GC后存活的对象小于Survivor区域的50%，都留存在年轻代里，尽量别让对象进入老年代。尽量减少Full">
@@ -277,6 +277,8 @@
                     <li class="file active"><a href="/Blog/Java/VM/JVM调优思路/">JVM调优思路</a></li>
                 
                     <li class="file"><a href="/Blog/Java/VM/JVM调优工具/">JVM调优工具</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/VM/常量池/">常量池</a></li>
                 
             </ul>
         
@@ -831,6 +833,7 @@
             
                 <p>用<strong><code>jstat -gc PID</code></strong>命令可以计算出一些关键数据，有了这些数据就可以采用一些优化思路，先给系统设置一些初始性的<code>JVM</code>参数，比如<strong>堆内存大小</strong>，<strong>年轻代大小</strong>，<strong>Eden和Survivor比例</strong>，<strong>老年代大小</strong>，<strong>大对象的阈值</strong>，<strong>大龄对象进入老年代的阈值</strong>等。</p>
 <p>优化思路其实简单来说就是<strong>尽量让每次<code>Young GC</code>后存活的对象小于<code>Survivor</code>区域的<code>50%</code></strong>，都留存在年轻代里，<strong>尽量别让对象进入老年代。尽量减少<code>Full GC</code>的频率，避免频繁<code>Full GC</code>对<code>JVM</code>性能的影响</strong>。</p>
+<h3 id="JVM参数汇总查看命令"><a href="#JVM参数汇总查看命令" class="headerlink" title="JVM参数汇总查看命令"></a>JVM参数汇总查看命令</h3><p><strong><code>java -XX:+PrintFlagsInitial</code></strong>：打印出<strong>所有参数选项的默认值</strong><br><strong><code>java -XX:+PrintFlagsFinal</code></strong>：打印出<strong>所有参数选项在运行程序时生效的值</strong>  </p>
 <h3 id="对象进入老年代的触发条件"><a href="#对象进入老年代的触发条件" class="headerlink" title="对象进入老年代的触发条件"></a>对象进入老年代的触发条件</h3><ul>
 <li>Eden区没有足够空间进行分配，进行一次<code>Minor GC</code>，若survivor空间不足以放下剩余存活对象，则把<strong>新生代的对象提前转移到老年代中</strong>去，若老年代空间不足，则触发<code>Full GC</code></li>
 <li>设置了<strong>大对象进入老年代的阈值</strong>，<strong>若对象超过设置大小会直接进入老年代</strong>，<strong><code>-XX:PretenureSizeThreshold</code></strong>单位字节，只在<strong><code>Serial</code></strong>和<strong><code>ParNew</code></strong>两个收集器下有效</li>
@@ -869,10 +872,19 @@
     
     <nav id="article-nav">
         
+            <a href="/Blog/Java/VM/常量池/" id="article-nav-newer" class="article-nav-link-wrap">
+                <strong class="article-nav-caption">Newer</strong>
+                <div class="article-nav-title">
+                    
+                        常量池
+                    
+                </div>
+            </a>
         
-            <a href="/Blog/Java/VM/JVM调优工具/" id="article-nav-older" class="article-nav-link-wrap">
+        
+            <a href="/Blog/Java/JVM内存参数设置/" id="article-nav-older" class="article-nav-link-wrap">
                 <strong class="article-nav-caption">Older</strong>
-                <div class="article-nav-title">JVM调优工具</div>
+                <div class="article-nav-title">JVM内存参数设置</div>
             </a>
         
     </nav>
