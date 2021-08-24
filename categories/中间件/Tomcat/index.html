@@ -4,30 +4,21 @@
     <meta charset="utf-8">
     
     <title>
-        Tomcat工作原理 |
+        Category: Tomcat |
         
         YingLong</title>
     
     
-        <meta name="keywords" content="Tomcat">
+        <meta name="keywords" content="YingLong">
     
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-    <meta name="description" content="Tomcat 的总体结构：  Connector 和 Container 是Tomcat 两个核心组件。Connector 主要负责对外交流 ，Container 主要处理 Connector 接受的请求，主要是处理内部事务 。Service 只是在 Connector 和 Container 外面多包一层，把它们组装在一起，向外面提供服务，一个 Service 可以设置多个 Connector，">
-<meta name="keywords" content="Tomcat">
-<meta property="og:type" content="article">
-<meta property="og:title" content="Tomcat工作原理">
-<meta property="og:url" content="https://yaoyinglong.github.io/Blog/中间件/Tomcat工作原理/index.html">
+    <meta property="og:type" content="website">
+<meta property="og:title" content="YingLong">
+<meta property="og:url" content="https://yaoyinglong.github.io/categories/中间件/Tomcat/index.html">
 <meta property="og:site_name" content="YingLong">
-<meta property="og:description" content="Tomcat 的总体结构：  Connector 和 Container 是Tomcat 两个核心组件。Connector 主要负责对外交流 ，Container 主要处理 Connector 接受的请求，主要是处理内部事务 。Service 只是在 Connector 和 Container 外面多包一层，把它们组装在一起，向外面提供服务，一个 Service 可以设置多个 Connector，">
 <meta property="og:locale" content="en">
-<meta property="og:image" content="https://yaoyinglong.github.io/images/框架/Tomcat总体结构图.gif">
-<meta property="og:image" content="https://yaoyinglong.github.io/images/框架/Tomcat%20NIO处理流程图.png">
-<meta property="og:image" content="https://yaoyinglong.github.io/images/框架/300-sync-false-mbean.png">
-<meta property="og:updated_time" content="2019-04-10T02:26:34.446Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Tomcat工作原理">
-<meta name="twitter:description" content="Tomcat 的总体结构：  Connector 和 Container 是Tomcat 两个核心组件。Connector 主要负责对外交流 ，Container 主要处理 Connector 接受的请求，主要是处理内部事务 。Service 只是在 Connector 和 Container 外面多包一层，把它们组装在一起，向外面提供服务，一个 Service 可以设置多个 Connector，">
-<meta name="twitter:image" content="https://yaoyinglong.github.io/images/框架/Tomcat总体结构图.gif">
+<meta name="twitter:title" content="YingLong">
     
 
     
@@ -469,9 +460,9 @@
         
                     </li>
                 
-                    <li class="directory open">
+                    <li class="directory">
                         <a href="#" data-role="directory">
-                            <i class="fa fa-folder-open"></i>
+                            <i class="fa fa-folder"></i>
                             &nbsp;
                             中间件
                         </a>
@@ -511,6 +502,23 @@
                         <a href="#" data-role="directory">
                             <i class="fa fa-folder"></i>
                             &nbsp;
+                            Tomcat
+                        </a>
+                        
+            <ul class="unstyled" id="tree">
+                
+                    <li class="file"><a href="/Blog/中间件/Tomcat/Tomcat工作原理/">Tomcat工作原理</a></li>
+                
+                    <li class="file"><a href="/Blog/中间件/Tomcat/Tomcat整体架构及处理请求流程/">Tomcat整体架构及处理请求流程</a></li>
+                
+            </ul>
+        
+                    </li>
+                
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
                             常见问题
                         </a>
                         
@@ -527,8 +535,6 @@
                     <li class="file"><a href="/Blog/中间件/Redis分布式锁实现/">Redis分布式锁实现</a></li>
                 
                     <li class="file"><a href="/Blog/中间件/Redis总结/">Redis总结</a></li>
-                
-                    <li class="file active"><a href="/Blog/中间件/Tomcat工作原理/">Tomcat工作原理</a></li>
                 
             </ul>
         
@@ -786,292 +792,86 @@
     <div id="toTop" class="fa fa-angle-up"></div>
 </aside>
         
-        <section id="main"><article id="post-中间件/Tomcat工作原理" class="article article-type-post" itemscope itemprop="blogPost">
-    <div class="article-inner">
-        
-        
-            <header class="article-header">
+        <section id="main">
+<div class="timeline timeline-wrap">
+    <div class="timeline-row timeline-row-major">
+        <span class="node"><i class="fa fa-folder"></i></span>
+        <h1 class="title">Tomcat</h1>
+    </div>
+    
+        <div class="timeline-row">
+            <span class="node"></span>
+            <div class="content">
                 
-                    <div class="article-meta">
-                        
-    <div class="article-category">
-        <i class="fa fa-folder"></i>
-        <a class="article-category-link" href="/categories/中间件/">中间件</a>
+    
+        <h1 itemprop="name">
+            <a class="timeline-article-title" href="/Blog/中间件/Tomcat/Tomcat整体架构及处理请求流程/">Tomcat整体架构及处理请求流程</a>
+        </h1>
+    
+
+                <div class="article-meta">
+                    
+    <div class="article-date">
+        <i class="fa fa-calendar"></i>
+        <a href="/Blog/中间件/Tomcat/Tomcat整体架构及处理请求流程/">
+            <time datetime="2021-08-22T16:00:00.000Z" itemprop="datePublished">2021-08-23</time>
+        </a>
     </div>
 
-                        
+
+                    
+    <div class="article-category">
+        <i class="fa fa-folder"></i>
+        <a class="article-category-link" href="/categories/中间件/">中间件</a><i class="fa fa-angle-right"></i><a class="article-category-link" href="/categories/中间件/Tomcat/">Tomcat</a>
+    </div>
+
+                    
     <div class="article-tag">
         <i class="fa fa-tag"></i>
         <a class="tag-link" href="/tags/Tomcat/">Tomcat</a>
     </div>
 
-                        
+                </div>
+            </div>
+        </div>
+    
+        <div class="timeline-row">
+            <span class="node"></span>
+            <div class="content">
+                
+    
+        <h1 itemprop="name">
+            <a class="timeline-article-title" href="/Blog/中间件/Tomcat/Tomcat工作原理/">Tomcat工作原理</a>
+        </h1>
+    
+
+                <div class="article-meta">
+                    
     <div class="article-date">
         <i class="fa fa-calendar"></i>
-        <a href="/Blog/中间件/Tomcat工作原理/">
+        <a href="/Blog/中间件/Tomcat/Tomcat工作原理/">
             <time datetime="2018-08-01T16:00:00.000Z" itemprop="datePublished">2018-08-02</time>
         </a>
     </div>
 
 
-                        
-                    </div>
-                
-                
-    
-        <h1 class="article-title" itemprop="name">
-            Tomcat工作原理
-        </h1>
-    
-
-            </header>
-        
-        
-        <div class="article-entry" itemprop="articleBody">
-            
-            
                     
-            
-            
-                <p>Tomcat 的总体结构：</p>
-<p><img src="../../../../images/框架/Tomcat总体结构图.gif" alt="Tomcat总体结构图"></p>
-<p><code>Connector</code> 和 <code>Container</code> 是Tomcat 两个核心组件。<strong>Connector 主要负责对外交流</strong> ，<strong>Container 主要处理 Connector 接受的请求，主要是处理内部事务</strong> 。<strong>Service 只是在 Connector 和 Container 外面多包一层</strong>，把它们组装在一起，向外面提供服务，<strong>一个 Service 可以设置多个 Connector，但是只能有一个 Container 容器</strong>。 </p>
-<p>在使用tomcat时，经常会遇到连接数、线程数之类的配置问题 ，在此之前必须先了解Tomcat的连接器<code>Connector</code>。</p>
-<p>Connector的主要功能是<strong>接收客户端发送的TCP连接请求</strong>，创建Request和Response对象用于和请求端交换数据；然后<strong>产生一个线程来处理这个请求并把产生的 Request 和 Response 对象传给处理这个请求的线程，处理这个请求的线程就是 Container 组件要做的事</strong>了。 </p>
-<p>可以说，Servlet容器处理请求，是需要Connector进行调度和控制的，<strong>Connector是Tomcat处理请求的主干</strong>，因此Connector的配置和使用对Tomcat的<strong>性能</strong>有着重要的影响 。</p>
-<p>Connector在处理HTTP请求时，会使用不同的protocol。 <strong>典型的protocol包括BIO、NIO和APR</strong> （Tomcat7中支持这3种，Tomcat8增加了对NIO2的支持，而到了Tomcat8.5和Tomcat9.0，则去掉了对BIO的支持）BIO是Blocking IO，顾名思义是<strong>阻塞的IO</strong>；NIO是Non-blocking IO，则是<strong>非阻塞的IO</strong>。而APR是Apache Portable Runtime，<strong>是Apache可移植运行库，利用本地库可以实现高可扩展性、高性能</strong>；<strong>Apr是在Tomcat上运行高并发应用的首选模式，但是需要安装apr、apr-utils、tomcat-native等包</strong>。 </p>
-<p>Connector使用哪种protocol，可以通过<strong><code>connector</code></strong>元素中的protocol属性进行指定 ，指定的protocol取值及对应的协议如下： </p>
-<ul>
-<li>HTTP/1.1：默认值，使用的协议与Tomcat版本有关</li>
-<li>org.apache.coyote.http11.Http11Protocol：BIO</li>
-<li>org.apache.coyote.http11.Http11NioProtocol：NIO</li>
-<li>org.apache.coyote.http11.Http11Nio2Protocol：NIO2</li>
-<li>org.apache.coyote.http11.Http11AprProtocol：APR</li>
-</ul>
-<p><strong>Tomcat7自动选取使用BIO或APR</strong>（如果找到APR需要的本地库，则使用APR，否则使用BIO） ，<strong>Tomcat8自动选取使用NIO或APR</strong>（如果找到APR需要的本地库，则使用APR，否则使用NIO），在SpringBoot中可以通过如下方式制定Protocol：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Bean</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> EmbeddedServletContainerFactory <span class="title">embeddedServletContainerFactory</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    TomcatEmbeddedServletContainerFactory tomcatEmbeddedServletContainerFactory = </span><br><span class="line">        <span class="keyword">new</span> TomcatEmbeddedServletContainerFactory();</span><br><span class="line">    tomcatEmbeddedServletContainerFactory</span><br><span class="line">        .setProtocol(<span class="string">"org.apache.coyote.http11.Http11Nio2Protocol"</span>);</span><br><span class="line">    <span class="keyword">return</span> tomcatEmbeddedServletContainerFactory;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h3 id="BIO与NIO"><a href="#BIO与NIO" class="headerlink" title="BIO与NIO"></a>BIO与NIO</h3><p><strong>无论是BIO，还是NIO，Connector处理请求的大致流程是一样</strong>的：</p>
-<p>当客户端向服务器发送请求时，如果客户端与OS完成<strong>三次握手建立了连接</strong>，则OS将该连接<strong>放入accept队列</strong>，<strong>Connector在accept队列中接收连接，在连接中获取请求的数据生成request</strong>；调用servlet容器处理请求；返回response。</p>
-<p>在BIO实现的Connector中，处理请求的主要实体是<strong><code>JIoEndpoint</code></strong>对象。<strong><code>JIoEndpoint</code>维护了<code>Acceptor</code>和<code>Worker</code></strong>：<strong>Acceptor接收socket，然后从Worker线程池中找出空闲的线程处理socket，如果worker线程池没有空闲线程，则Acceptor将阻塞</strong>。其中<strong>Worker是Tomcat自带的线程池</strong>，如果通过<strong><code>Executor</code></strong>配置了其他线程池，原理与Worker类似。</p>
-<p>在NIO实现的Connector中，处理请求的主要实体是<strong><code>NIoEndpoint</code></strong>对象。<strong>NIoEndpoint中除了包含Acceptor和Worker外，还是用了Poller</strong>，处理流程如下：</p>
-<p><img src="../../../../images/框架/Tomcat NIO处理流程图.png" alt="Tomcat NIO处理流程图"></p>
-<p><strong>Acceptor接收socket后，不是直接使用Worker中的线程处理请求，而是先将请求发送给了Poller，而Poller是实现NIO的关键</strong>。<strong>Acceptor向Poller发送请求通过队列实现，使用了典型的生产者-消费者模式</strong>。在Poller中，维护了一个<strong><code>Selector</code></strong>对象；<strong>当Poller从队列中取出socket后，注册到该Selector中；然后通过遍历Selector，找出其中可读的socket，并使用Worker中的线程处理相应请求</strong>。与BIO类似，Worker也可以被自定义的线程池代替。</p>
-<p>通过上述过程可以看出，在NIoEndpoint处理请求的过程中，无论是Acceptor接收socket，还是线程处理请求，使用的仍然是阻塞方式；但在“读取socket并交给Worker中的线程”的这个过程中，使用非阻塞的NIO实现，这是NIO模式与BIO模式的最主要区别。</p>
-<h3 id="关键参数acceptCount、maxConnections、maxThreads"><a href="#关键参数acceptCount、maxConnections、maxThreads" class="headerlink" title="关键参数acceptCount、maxConnections、maxThreads"></a>关键参数acceptCount、maxConnections、maxThreads</h3><h4 id="acceptCount"><a href="#acceptCount" class="headerlink" title="acceptCount"></a>acceptCount</h4><p><strong><code>accept</code>队列的长度；当accept队列中连接的个数达到<code>acceptCount</code>时，队列满，进来的请求一律被拒绝。默认值是100。</strong> </p>
-<h4 id="maxConnections"><a href="#maxConnections" class="headerlink" title="maxConnections"></a>maxConnections</h4><p>Tomcat在<strong>任意时刻接收和处理的最大连接数</strong>。当Tomcat接收的连接数<strong>达到maxConnections时</strong>，<strong>Acceptor线程不会读取accept队列中的连接；这时accept队列中的线程会一直阻塞着，直到Tomcat接收的连接数小于maxConnections</strong>。如果设置为-1，则连接数不受限制。 </p>
-<p><strong>虽然tomcat同时可以处理的连接数目是maxConnections，但服务器中可以同时接收的连接数为maxConnections + acceptCount</strong>  </p>
-<p>默认值与连接器使用的协议有关：<strong>NIO的默认值是10000</strong>，APR/native的默认值是8192，而<strong>BIO的默认值为maxThreads</strong>（如果配置了Executor，则默认值是Executor的maxThreads）。 </p>
-<h4 id="maxThreads"><a href="#maxThreads" class="headerlink" title="maxThreads"></a>maxThreads</h4><p><strong>请求处理线程的最大数量，Tomcat7和8默认值都是200</strong>。如果该Connector绑定了Executor，这个值会被忽略，因为该Connector将使用绑定的Executor，而不是内置的线程池来执行任务。 </p>
-<h3 id="实测数据"><a href="#实测数据" class="headerlink" title="实测数据"></a>实测数据</h3><p>下面是对这几个参数的实测数据，测试的是同一个接口，接口固定sleep 10秒，最后两列是接口的平均响应时间（这里说所的同步异步是指在<strong>Controller层</strong>中接口是否使用<strong>Servlet3.0</strong>提供的异步HTTP请求）：</p>
-<table>
-<thead>
-<tr>
-<th>acceptCount</th>
-<th>maxConnections</th>
-<th>maxThreads</th>
-<th>并发</th>
-<th>同时处理线程数</th>
-<th>同步结果</th>
-<th>异步结果</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>1</td>
-<td>9</td>
-<td>1</td>
-<td>10</td>
-<td>1</td>
-<td>55263</td>
-<td>11130</td>
-</tr>
-<tr>
-<td>1</td>
-<td>9</td>
-<td>2</td>
-<td>10</td>
-<td>2</td>
-<td>30044</td>
-<td>11611</td>
-</tr>
-<tr>
-<td>1</td>
-<td>9</td>
-<td>3</td>
-<td>10</td>
-<td>3</td>
-<td>22329</td>
-<td>11207</td>
-</tr>
-<tr>
-<td>1</td>
-<td>9</td>
-<td>4</td>
-<td>10</td>
-<td>4</td>
-<td>18027</td>
-<td>11303</td>
-</tr>
-<tr>
-<td>1</td>
-<td>9</td>
-<td>5</td>
-<td>10</td>
-<td>5</td>
-<td>15412</td>
-<td>11111</td>
-</tr>
-<tr>
-<td>9</td>
-<td>1</td>
-<td>1</td>
-<td>10</td>
-<td>1线程1请求</td>
-<td>55087</td>
-<td>55324</td>
-</tr>
-<tr>
-<td>9</td>
-<td>1</td>
-<td>2</td>
-<td>10</td>
-<td>2线程1请求</td>
-<td>50261</td>
-<td>55151</td>
-</tr>
-<tr>
-<td>9</td>
-<td>1</td>
-<td>3</td>
-<td>10</td>
-<td>3线程1请求</td>
-<td>55082</td>
-<td>45471</td>
-</tr>
-<tr>
-<td>9</td>
-<td>1</td>
-<td>4</td>
-<td>10</td>
-<td>4线程1请求</td>
-<td>55276</td>
-<td>55156</td>
-</tr>
-<tr>
-<td>9</td>
-<td>1</td>
-<td>5</td>
-<td>10</td>
-<td>5线程1请求</td>
-<td>55074</td>
-<td>55314</td>
-</tr>
-<tr>
-<td>9</td>
-<td>3</td>
-<td>1</td>
-<td>10</td>
-<td>同步1，异步1线程3请求</td>
-<td>55289</td>
-<td>22082</td>
-</tr>
-<tr>
-<td>9</td>
-<td>3</td>
-<td>2</td>
-<td>10</td>
-<td>同步2，异步2线程3请求</td>
-<td>30046</td>
-<td>22266</td>
-</tr>
-<tr>
-<td>9</td>
-<td>3</td>
-<td>3</td>
-<td>10</td>
-<td>3线程3请求</td>
-<td>22235</td>
-<td>22089</td>
-</tr>
-<tr>
-<td>9</td>
-<td>3</td>
-<td>4</td>
-<td>10</td>
-<td>4线程3请求</td>
-<td>22292</td>
-<td>22034</td>
-</tr>
-<tr>
-<td>9</td>
-<td>3</td>
-<td>5</td>
-<td>10</td>
-<td>5线程3请求</td>
-<td>22249</td>
-<td>22083</td>
-</tr>
-</tbody>
-</table>
-<p>以上测试出的结果，可以很明显的看出当maxConnections设置为1时，accept队列中的线程会一直阻塞着，通过控制台也可以很明显得看出不论时同步还是异步请求，不论maxThreads设置为几个，处理请求的线程始终为一个。由此可看出<strong><code>tomcat</code>中能够同时被处理的请求数是<code>maxThreads</code>和<code>maxConnections</code>中的较小者</strong>。</p>
-<p>当<strong>正在被处理的请求数量达到maxConnections时</strong>，再过来的请求<strong>会被接受（TCP连接建立成功）</strong>，但是没有被处理，<strong>被阻塞到serversocket</strong>上，接受并<strong>被阻塞的<code>socket</code>请求数的最大值为<code>acceptCount</code></strong>；当阻塞达到acceptCount的最大数目时，在发送过来的请求会建立连接refuse，对客户端而言，返回连接被拒绝的错误。</p>
-<p><strong>tomcat能接受的最大请求数量为maxConnections，加上acceptCount的数量</strong>，其中maxThreads和maxConnections中的较小者是正在被处理的请求数量，acceptCount为等待被处理的请求数量，超过这两者之和的请求会被拒绝。 </p>
-<p>对数据进行了Mbean监控发现，<strong>并发请求进来时先使用maxConnections缓冲队列，当maxConnections队列满了后，再使用acceptCount队列</strong>，当acceptCount队列满了后，则多的请求全部拒绝。</p>
-<p>该使用的Tomcat配置如下，使用Jmeter做并发测试工具，并发量为300：</p>
-<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">tomcat:</span></span><br><span class="line"><span class="attr">  max-threads:</span> <span class="number">200</span></span><br><span class="line"><span class="attr">  accept-count:</span> <span class="number">100</span></span><br><span class="line"><span class="attr">  max-connections:</span> <span class="number">10000</span></span><br></pre></td></tr></table></figure>
-<p><img src="../../../../images/框架/300-sync-false-mbean.png" alt="300-sync-false-mbean"></p>
-
-        </div>
-        
-    <footer class="article-footer">
-    </footer>
+    <div class="article-category">
+        <i class="fa fa-folder"></i>
+        <a class="article-category-link" href="/categories/中间件/">中间件</a><i class="fa fa-angle-right"></i><a class="article-category-link" href="/categories/中间件/Tomcat/">Tomcat</a>
     </div>
-</article>
 
+                    
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link" href="/tags/Tomcat/">Tomcat</a>
+    </div>
 
-    
-    <nav id="article-nav">
-        
-            <a href="/Blog/中间件/Spring/SpringMvc异步/" id="article-nav-newer" class="article-nav-link-wrap">
-                <strong class="article-nav-caption">Newer</strong>
-                <div class="article-nav-title">
-                    
-                        SpringMvc异步原理及实现
-                    
                 </div>
-            </a>
-        
-        
-            <a href="/Blog/中间件/Spring/Spring Gzip压缩/" id="article-nav-older" class="article-nav-link-wrap">
-                <strong class="article-nav-caption">Older</strong>
-                <div class="article-nav-title">Spring Gzip压缩</div>
-            </a>
-        
-    </nav>
-
-
-
-
-
+            </div>
+        </div>
     
-    
-
-
-
-
-    <!-- baidu url auto push script -->
-    <script type="text/javascript">
-        !function () {
-            var e = /([http|https]:\/\/[a-zA-Z0-9\_\.]+\.baidu\.com)/gi, r = window.location.href,
-                o = document.referrer;
-            if (!e.test(r)) {
-                var n = "//api.share.baidu.com/s.gif";
-                o ? (n += "?r=" + encodeURIComponent(document.referrer), r && (n += "&l=" + r)) : r && (n += "?l=" + r);
-                var t = new Image;
-                t.src = n
-            }
-        }(window);
-    </script>
+</div>
 </section>
     </div>
     <footer id="footer">
