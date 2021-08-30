@@ -12,18 +12,25 @@
         <meta name="keywords" content="MySQL">
     
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-    <meta name="description" content="MySQL的索引使用的是B+树而不是使用的B树，因为B树不管叶子节点还是非叶子节点，都会保存数据，这样导致在非叶子节点中能保存的指针数量变少，指针少的情况下要保存大量数据，只能增加树的高度，而在查找数据时一次页的查找代表一次IO，导致IO操作变多，查询性能变低；">
+    <meta name="description" content="索引是帮助MySQL高效获取数据的排好序的数据结构。索引的数据结构：二叉树、红黑树、Hash表、B-Tree； MySQL的索引使用的是B+树而不是使用的B树，因为B树不管叶子节点还是非叶子节点，都会保存数据，这样导致在非叶子节点中能保存的指针数量变少，指针少的情况下要保存大量数据，只能增加树的高度，而在查找数据时一次页的查找代表一次IO，导致IO操作变多，查询性能变低； Hash对索引的key进">
 <meta name="keywords" content="MySQL">
 <meta property="og:type" content="article">
 <meta property="og:title" content="索引的原理与使用">
 <meta property="og:url" content="https://yaoyinglong.github.io/Blog/DB/索引的原理与使用/index.html">
 <meta property="og:site_name" content="YingLong">
-<meta property="og:description" content="MySQL的索引使用的是B+树而不是使用的B树，因为B树不管叶子节点还是非叶子节点，都会保存数据，这样导致在非叶子节点中能保存的指针数量变少，指针少的情况下要保存大量数据，只能增加树的高度，而在查找数据时一次页的查找代表一次IO，导致IO操作变多，查询性能变低；">
+<meta property="og:description" content="索引是帮助MySQL高效获取数据的排好序的数据结构。索引的数据结构：二叉树、红黑树、Hash表、B-Tree； MySQL的索引使用的是B+树而不是使用的B树，因为B树不管叶子节点还是非叶子节点，都会保存数据，这样导致在非叶子节点中能保存的指针数量变少，指针少的情况下要保存大量数据，只能增加树的高度，而在查找数据时一次页的查找代表一次IO，导致IO操作变多，查询性能变低； Hash对索引的key进">
 <meta property="og:locale" content="en">
-<meta property="og:updated_time" content="2021-06-18T07:32:35.460Z">
+<meta property="og:image" content="https://yaoyinglong.github.io/images/DB/B-Tree数据结构.png">
+<meta property="og:image" content="https://yaoyinglong.github.io/images/DB/B+Tree数据结构.png">
+<meta property="og:image" content="https://yaoyinglong.github.io/images/DB/联合索引最左前缀原理.png">
+<meta property="og:image" content="https://yaoyinglong.github.io/images/DB/MylSAM存储引擎索引实现.png">
+<meta property="og:image" content="https://yaoyinglong.github.io/images/DB/InnoDB存储引擎索引实现.png">
+<meta property="og:image" content="https://yaoyinglong.github.io/images/DB/InnoDB二级索引结构.png">
+<meta property="og:updated_time" content="2021-08-30T02:05:55.319Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="索引的原理与使用">
-<meta name="twitter:description" content="MySQL的索引使用的是B+树而不是使用的B树，因为B树不管叶子节点还是非叶子节点，都会保存数据，这样导致在非叶子节点中能保存的指针数量变少，指针少的情况下要保存大量数据，只能增加树的高度，而在查找数据时一次页的查找代表一次IO，导致IO操作变多，查询性能变低；">
+<meta name="twitter:description" content="索引是帮助MySQL高效获取数据的排好序的数据结构。索引的数据结构：二叉树、红黑树、Hash表、B-Tree； MySQL的索引使用的是B+树而不是使用的B树，因为B树不管叶子节点还是非叶子节点，都会保存数据，这样导致在非叶子节点中能保存的指针数量变少，指针少的情况下要保存大量数据，只能增加树的高度，而在查找数据时一次页的查找代表一次IO，导致IO操作变多，查询性能变低； Hash对索引的key进">
+<meta name="twitter:image" content="https://yaoyinglong.github.io/images/DB/B-Tree数据结构.png">
     
 
     
@@ -161,9 +168,9 @@
         
             <ul class="unstyled" id="tree">
                 
-                    <li class="directory">
+                    <li class="directory open">
                         <a href="#" data-role="directory">
-                            <i class="fa fa-folder"></i>
+                            <i class="fa fa-folder-open"></i>
                             &nbsp;
                             DB
                         </a>
@@ -174,7 +181,13 @@
                 
                     <li class="file"><a href="/Blog/DB/MySQL常用SQL总结/">MySQL常用SQL总结</a></li>
                 
+                    <li class="file active"><a href="/Blog/DB/索引的原理与使用/">索引的原理与使用</a></li>
+                
                     <li class="file"><a href="/Blog/DB/分库分表/">分库分表</a></li>
+                
+                    <li class="file"><a href="/Blog/DB/索引优化/">索引优化</a></li>
+                
+                    <li class="file"><a href="/Blog/DB/Explain工具/">Explain工具</a></li>
                 
             </ul>
         
@@ -514,7 +527,17 @@
                 
                     <li class="file"><a href="/Blog/中间件/Tomcat/Tomcat工作原理/">Tomcat工作原理</a></li>
                 
-                    <li class="file"><a href="/Blog/中间件/Tomcat/Tomcat整体架构及处理请求流程/">Tomcat整体架构及处理请求流程</a></li>
+                    <li class="file"><a href="/Blog/中间件/Tomcat/Tomcat整体架构/">Tomcat整体架构</a></li>
+                
+                    <li class="file"><a href="/Blog/中间件/Tomcat/Tomcat中BIO和NIO底层原理实现对比/">Tomcat中BIO和NIO底层原理实现对比</a></li>
+                
+                    <li class="file"><a href="/Blog/中间件/Tomcat/Tomcat启动过程/">Tomcat启动过程</a></li>
+                
+                    <li class="file"><a href="/Blog/中间件/Tomcat/Tomcat处理请求过程/">Tomcat处理请求过程</a></li>
+                
+                    <li class="file"><a href="/Blog/中间件/Tomcat/Tomcat处理响应过程/">Tomcat处理响应过程</a></li>
+                
+                    <li class="file"><a href="/Blog/中间件/Tomcat/Tomcat热部署热加载/">Tomcat热部署热加载</a></li>
                 
             </ul>
         
@@ -807,7 +830,7 @@
                         
     <div class="article-category">
         <i class="fa fa-folder"></i>
-        <a class="article-category-link" href="/categories/hide/">hide</a>
+        <a class="article-category-link" href="/categories/DB/">DB</a>
     </div>
 
                         
@@ -820,7 +843,7 @@
     <div class="article-date">
         <i class="fa fa-calendar"></i>
         <a href="/Blog/DB/索引的原理与使用/">
-            <time datetime="2019-09-04T16:00:00.000Z" itemprop="datePublished">2019-09-05</time>
+            <time datetime="2021-08-29T16:00:00.000Z" itemprop="datePublished">2021-08-30</time>
         </a>
     </div>
 
@@ -844,7 +867,28 @@
                     
             
             
-                <p><code>MySQL</code>的索引使用的是<strong><code>B+</code></strong>树而不是使用的<code>B</code>树，因为<strong><code>B</code>树不管叶子节点还是非叶子节点，都会保存数据</strong>，这样导致在非叶子节点中能保存的<strong>指针数量变少</strong>，指针少的情况下要保存大量数据，只能<strong>增加树的高度</strong>，而在<strong>查找数据时一次页的查找代表一次<code>IO</code></strong>，导致IO操作变多，查询性能变低；</p>
+                <p><strong>索引</strong>是<strong>帮助<code>MySQL</code>高效获取数据</strong>的<strong>排好序</strong>的<strong>数据结构</strong>。索引的数据结构：二叉树、红黑树、Hash表、B-Tree；</p>
+<p><code>MySQL</code>的索引使用的是<strong><code>B+</code></strong>树而不是使用的<code>B</code>树，因为<strong><code>B</code>树不管叶子节点还是非叶子节点，都会保存数据</strong>，这样导致在非叶子节点中能保存的<strong>指针数量变少</strong>，指针少的情况下要保存大量数据，只能<strong>增加树的高度</strong>，而在<strong>查找数据时一次页的查找代表一次<code>IO</code></strong>，导致IO操作变多，查询性能变低；</p>
+<h3 id="Hash"><a href="#Hash" class="headerlink" title="Hash"></a>Hash</h3><p>对索引的key进行一次hash计算就可以定位出数据存储的位置，很多时候Hash索引要比B+ 树索引更高效，仅能满足<strong><code>=</code></strong>，<strong><code>IN</code></strong>，<strong>不支持范围查询</strong>，<strong>hash冲突问题</strong></p>
+<h3 id="B-Tree"><a href="#B-Tree" class="headerlink" title="B-Tree"></a>B-Tree</h3><p><strong>叶子节点</strong>具有<strong>相同的深度</strong>，叶子节点的<strong>指针为空</strong>，所有<strong>索引元素不重复</strong>，节点中的<strong>数据索引从左到右依次递增排列</strong></p>
+<p><img src="../../../../images/DB/B-Tree数据结构.png" alt="B-Tree数据结构"></p>
+<h3 id="B-Tree-1"><a href="#B-Tree-1" class="headerlink" title="B+Tree"></a>B+Tree</h3><p><strong>非叶子节点不存储数据</strong>，<strong>只存储索引</strong>即冗余，可以放更多的索引，<strong>叶子节点包含所有索引字段</strong>，<strong>叶子节点用指针连接</strong>，方便范围查询，提高区间访问的性能。<strong>冗余索引的构建时，是提取叶子节点中索引最小的索引</strong>。</p>
+<p><img src="../../../../images/DB/B+Tree数据结构.png" alt="B+Tree数据结构"></p>
+<p>MySQL文件页大小为<code>16K</code>，假设一行数据大小为1K，一页就能存16条数据，也就是一个叶子节点能存16条数据；再看非叶子节点，假设主键ID为<code>bigint</code>类型，那么长度为<code>8B</code>，<strong>指针大小</strong>在<code>Innodb</code>源码中为<code>6B</code>，<strong>一共就是<code>14B</code></strong>，一页里就可以存储<strong><code>16K/14=1170</code></strong>个(主键+指针)，一颗<strong>高度为2的B+树</strong>能存储的数据为：<strong><code>1170*16=18720</code></strong>条，一颗<strong>高度为3的B+树</strong>能存储的数据为：<code>1170 * 1170 * 16 = 21902400</code>（千万级条）</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SHOW</span> <span class="keyword">GLOBAL</span> <span class="keyword">STATUS</span> <span class="keyword">like</span> <span class="string">'Innodb_page_size’;</span></span><br></pre></td></tr></table></figure>
+<h3 id="聚集索引"><a href="#聚集索引" class="headerlink" title="聚集索引"></a>聚集索引</h3><p><strong>聚集索引</strong>即<strong>叶节点包含了完整的数据记录</strong>，每个InnoDB表<strong>有且仅有一个主键索引即聚集索引</strong>，<strong>二级索引等都是非聚集索引</strong>，需要回表，再去查询聚集索引从而找到具体的数据。</p>
+<p>单从索引查询效率来说，<strong>聚集索引</strong>比<strong>非聚集索引</strong>要快。</p>
+<h3 id="非聚集索引"><a href="#非聚集索引" class="headerlink" title="非聚集索引"></a>非聚集索引</h3><h3 id="联合索引"><a href="#联合索引" class="headerlink" title="联合索引"></a>联合索引</h3><p><img src="../../../../images/DB/联合索引最左前缀原理.png" alt="联合主键数据结构"></p>
+<p>例：<strong><code>where age = 30 and position = &#39;dev&#39;</code></strong>该语句是不能用到索引的，因为虽然在某一个页里面age和position是排好序的，但跳过name在不同的页相比较age和position是乱序的。</p>
+<h3 id="MylSAM存储引擎"><a href="#MylSAM存储引擎" class="headerlink" title="MylSAM存储引擎"></a>MylSAM存储引擎</h3><p>MylSAM索引文件和数据文件是分离的，即索引是非聚集索引（非聚蔟索引）</p>
+<p><img src="../../../../images/DB/MylSAM存储引擎索引实现.png" alt="MylSAM存储引擎索引实现"></p>
+<h3 id="InnoDB存储引擎"><a href="#InnoDB存储引擎" class="headerlink" title="InnoDB存储引擎"></a>InnoDB存储引擎</h3><p>文件系统的<strong>最小单元是块</strong>，一个块的大小是<strong><code>4K</code></strong>，在文件系统中即使一个文件只有<strong>一个字节</strong>，但也不得不占<strong><code>4KB</code></strong>的磁盘空间。</p>
+<p><code>InnoDB</code>存储引擎的<strong>最小存储单元是<code>Page</code>页</strong>，页可用于存<strong>放数据</strong>也可用于存放<strong>键值<code>+</code>指针</strong>，指针大小在<code>InnoDB</code>源码中设置为<strong><code>6</code>字节</strong>，在<code>B+</code>树中<strong>叶子节点存放数据</strong>，<strong>非叶子节点存放键值<code>+</code>指针</strong>，默认一个页的大小是<strong><code>16382</code></strong>即<strong><code>16K</code></strong>。<code>InnoDB</code>的所有数据文件后缀为<strong><code>ibd</code></strong>，其大小始终都是<strong><code>16K</code>的整倍数</strong>。数据表中的数据都是存储在页中，若一行数据大小为<code>1K</code>，则一页可存放16行这样的数据。InnoDB索引文件和数据文件是一个文件，表数据文件本身就是按B+Tree组织的一个索引结构文件。</p>
+<p><img src="../../../../images/DB/InnoDB存储引擎索引实现.png" alt="InnoDB存储引擎索引实现"></p>
+<p>一个页中不可能所有空间都用于存放数据，它还会存放一些少量的其他字段比如<code>page level</code>，<code>index number</code>等等。</p>
+<h5 id="为什么建议InnoDB表必须建主键，并且推荐使用整型的自增主键？"><a href="#为什么建议InnoDB表必须建主键，并且推荐使用整型的自增主键？" class="headerlink" title="为什么建议InnoDB表必须建主键，并且推荐使用整型的自增主键？"></a>为什么建议<code>InnoDB</code>表必须建主键，并且推荐使用整型的<strong>自增</strong>主键？</h5><p>若<code>InnoDB</code>表没有设置主键，<code>MySQL</code>会从数据表中选择一列数据都不相等的列作为主键索引，若找不到这样的列，<code>MySQL</code>会创建一个隐藏列来作为主键索引。使用整型作为主键在做比较时效率高很多。之所以用自增主键，若插入数据的主键是无序的，插入时需要对数据索引做平衡之类的操作，插入效率变低</p>
+<h5 id="为什么非主键索引结构叶子节点存储的是主键的索引值？"><a href="#为什么非主键索引结构叶子节点存储的是主键的索引值？" class="headerlink" title="为什么非主键索引结构叶子节点存储的是主键的索引值？"></a>为什么非主键索引结构叶子节点存储的是主键的索引值？</h5><p>一致性和节省存储空间</p>
+<h5 id="InnoDB二级索引结构"><a href="#InnoDB二级索引结构" class="headerlink" title="InnoDB二级索引结构"></a>InnoDB二级索引结构</h5><p><img src="../../../../images/DB/InnoDB二级索引结构.png" alt="InnoDB二级索引结构"></p>
 
         </div>
         
@@ -855,6 +899,25 @@
 
 
     
+    <nav id="article-nav">
+        
+            <a href="/Blog/DB/Explain工具/" id="article-nav-newer" class="article-nav-link-wrap">
+                <strong class="article-nav-caption">Newer</strong>
+                <div class="article-nav-title">
+                    
+                        Explain工具
+                    
+                </div>
+            </a>
+        
+        
+            <a href="/Blog/DB/索引优化/" id="article-nav-older" class="article-nav-link-wrap">
+                <strong class="article-nav-caption">Older</strong>
+                <div class="article-nav-title">索引优化</div>
+            </a>
+        
+    </nav>
+
 
 
 
