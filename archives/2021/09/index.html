@@ -4,26 +4,21 @@
     <meta charset="utf-8">
     
     <title>
-        MySQL锁机制 |
+        Archive: 2021/9 |
         
         YingLong</title>
     
     
-        <meta name="keywords" content="MySQL">
+        <meta name="keywords" content="YingLong">
     
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-    <meta name="description" content="表级锁行级锁页面锁">
-<meta name="keywords" content="MySQL">
-<meta property="og:type" content="article">
-<meta property="og:title" content="MySQL锁机制">
-<meta property="og:url" content="https://yaoyinglong.github.io/Blog/DB/MySQL锁机制/index.html">
+    <meta property="og:type" content="website">
+<meta property="og:title" content="YingLong">
+<meta property="og:url" content="https://yaoyinglong.github.io/archives/2021/09/index.html">
 <meta property="og:site_name" content="YingLong">
-<meta property="og:description" content="表级锁行级锁页面锁">
 <meta property="og:locale" content="en">
-<meta property="og:updated_time" content="2021-06-18T07:40:09.941Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="MySQL锁机制">
-<meta name="twitter:description" content="表级锁行级锁页面锁">
+<meta name="twitter:title" content="YingLong">
     
 
     
@@ -178,9 +173,17 @@
                 
                     <li class="file"><a href="/Blog/DB/分库分表/">分库分表</a></li>
                 
-                    <li class="file"><a href="/Blog/DB/索引优化/">索引优化</a></li>
-                
                     <li class="file"><a href="/Blog/DB/Explain工具/">Explain工具</a></li>
+                
+                    <li class="file"><a href="/Blog/DB/MySQL内部组件结构/">MySQL内部组件结构</a></li>
+                
+                    <li class="file"><a href="/Blog/DB/索引优化一/">索引优化一</a></li>
+                
+                    <li class="file"><a href="/Blog/DB/MySQL事务隔离级别与锁机制/">MySQL事务隔离级别与锁机制</a></li>
+                
+                    <li class="file"><a href="/Blog/DB/索引优化三/">索引优化三</a></li>
+                
+                    <li class="file"><a href="/Blog/DB/索引优化二/">索引优化二</a></li>
                 
             </ul>
         
@@ -813,100 +816,109 @@
     <div id="toTop" class="fa fa-angle-up"></div>
 </aside>
         
-        <section id="main"><article id="post-DB/MySQL锁机制" class="article article-type-post" itemscope itemprop="blogPost">
-    <div class="article-inner">
-        
-        
-            <header class="article-header">
-                
-                    <div class="article-meta">
-                        
-    <div class="article-category">
-        <i class="fa fa-folder"></i>
-        <a class="article-category-link" href="/categories/hide/">hide</a>
+        <section id="main"><div class="timeline timeline-wrap">
+    
+    <div class="timeline-row timeline-row-major">
+        <span class="node"><i class="fa fa-calendar-o"></i></span>
+        <h1 class="title">
+            <a href="/archives/">总篇数</a>
+            <span class="archive-list-count">1</span>
+        </h1>
+    </div>
+    
+    <div class="timeline-row timeline-row-major">
+        <span class="node"><i class="fa fa-calendar-o"></i></span>
+        <h1 class="title">
+            <a href="/archives/2021/">2021</a>
+            <span class="archive-list-count">2</span>
+        </h1>
+    </div>
+    
+    <div class="timeline-row timeline-row-major">
+        <span class="node"><i class="fa fa-calendar"></i></span>
+        <h1 class="title">
+            <a href="/archives/2021/09/">2021-09</a>
+            <span class="archive-list-count">2</span>
+        </h1>
+    </div>
+    
+    <div class="timeline-row">
+        <span class="node"></span>
+        <div class="content">
+            
+    
+        <h1 itemprop="name">
+            <a class="timeline-article-title" href="/Blog/DB/MySQL事务隔离级别与锁机制/">MySQL事务隔离级别与锁机制</a>
+        </h1>
+    
+
+            
+                <div class="article-meta">
+                    
+    <div class="article-date">
+        <i class="fa fa-calendar"></i>
+        <a href="/Blog/DB/MySQL事务隔离级别与锁机制/">
+            <time datetime="2021-08-31T16:00:00.000Z" itemprop="datePublished">2021-09-01</time>
+        </a>
     </div>
 
-                        
+
+                    
+    <div class="article-category">
+        <i class="fa fa-folder"></i>
+        <a class="article-category-link" href="/categories/DB/">DB</a>
+    </div>
+
+                    
     <div class="article-tag">
         <i class="fa fa-tag"></i>
         <a class="tag-link" href="/tags/MySQL/">MySQL</a>
     </div>
 
-                        
+                </div>
+            
+        </div>
+    </div>
+    
+    <div class="timeline-row">
+        <span class="node"></span>
+        <div class="content">
+            
+    
+        <h1 itemprop="name">
+            <a class="timeline-article-title" href="/Blog/DB/索引优化三/">索引优化三</a>
+        </h1>
+    
+
+            
+                <div class="article-meta">
+                    
     <div class="article-date">
         <i class="fa fa-calendar"></i>
-        <a href="/Blog/DB/MySQL锁机制/">
-            <time datetime="2021-06-17T16:00:00.000Z" itemprop="datePublished">2021-06-18</time>
+        <a href="/Blog/DB/索引优化三/">
+            <time datetime="2021-08-31T16:00:00.000Z" itemprop="datePublished">2021-09-01</time>
         </a>
     </div>
 
 
-                        
-                    </div>
-                
-                
-    
-        <h1 class="article-title" itemprop="name">
-            MySQL锁机制
-        </h1>
-    
-
-            </header>
-        
-        
-        <div class="article-entry" itemprop="articleBody">
-            
-            
                     
-            
-            
-                <h3 id="表级锁"><a href="#表级锁" class="headerlink" title="表级锁"></a>表级锁</h3><h3 id="行级锁"><a href="#行级锁" class="headerlink" title="行级锁"></a>行级锁</h3><h3 id="页面锁"><a href="#页面锁" class="headerlink" title="页面锁"></a>页面锁</h3>
-        </div>
-        
-    <footer class="article-footer">
-    </footer>
+    <div class="article-category">
+        <i class="fa fa-folder"></i>
+        <a class="article-category-link" href="/categories/DB/">DB</a>
     </div>
-</article>
 
+                    
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link" href="/tags/MySQL/">MySQL</a>
+    </div>
 
-    
-    <nav id="article-nav">
-        
-            <a href="/Blog/DB/MySQL基础/" id="article-nav-newer" class="article-nav-link-wrap">
-                <strong class="article-nav-caption">Newer</strong>
-                <div class="article-nav-title">
-                    
-                        MySQL基础
-                    
                 </div>
-            </a>
-        
-        
-    </nav>
-
-
-
-
-
+            
+        </div>
+    </div>
     
-    
-
-
-
-
-    <!-- baidu url auto push script -->
-    <script type="text/javascript">
-        !function () {
-            var e = /([http|https]:\/\/[a-zA-Z0-9\_\.]+\.baidu\.com)/gi, r = window.location.href,
-                o = document.referrer;
-            if (!e.test(r)) {
-                var n = "//api.share.baidu.com/s.gif";
-                o ? (n += "?r=" + encodeURIComponent(document.referrer), r && (n += "&l=" + r)) : r && (n += "?l=" + r);
-                var t = new Image;
-                t.src = n
-            }
-        }(window);
-    </script>
+</div>
 </section>
     </div>
     <footer id="footer">

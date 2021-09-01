@@ -26,7 +26,7 @@
 <meta property="og:image" content="https://yaoyinglong.github.io/images/DB/MylSAM存储引擎索引实现.png">
 <meta property="og:image" content="https://yaoyinglong.github.io/images/DB/InnoDB存储引擎索引实现.png">
 <meta property="og:image" content="https://yaoyinglong.github.io/images/DB/InnoDB二级索引结构.png">
-<meta property="og:updated_time" content="2021-08-30T02:05:55.319Z">
+<meta property="og:updated_time" content="2021-09-01T10:23:01.753Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="索引的原理与使用">
 <meta name="twitter:description" content="索引是帮助MySQL高效获取数据的排好序的数据结构。索引的数据结构：二叉树、红黑树、Hash表、B-Tree； MySQL的索引使用的是B+树而不是使用的B树，因为B树不管叶子节点还是非叶子节点，都会保存数据，这样导致在非叶子节点中能保存的指针数量变少，指针少的情况下要保存大量数据，只能增加树的高度，而在查找数据时一次页的查找代表一次IO，导致IO操作变多，查询性能变低； Hash对索引的key进">
@@ -185,9 +185,17 @@
                 
                     <li class="file"><a href="/Blog/DB/分库分表/">分库分表</a></li>
                 
-                    <li class="file"><a href="/Blog/DB/索引优化/">索引优化</a></li>
-                
                     <li class="file"><a href="/Blog/DB/Explain工具/">Explain工具</a></li>
+                
+                    <li class="file"><a href="/Blog/DB/MySQL内部组件结构/">MySQL内部组件结构</a></li>
+                
+                    <li class="file"><a href="/Blog/DB/索引优化一/">索引优化一</a></li>
+                
+                    <li class="file"><a href="/Blog/DB/MySQL事务隔离级别与锁机制/">MySQL事务隔离级别与锁机制</a></li>
+                
+                    <li class="file"><a href="/Blog/DB/索引优化三/">索引优化三</a></li>
+                
+                    <li class="file"><a href="/Blog/DB/索引优化二/">索引优化二</a></li>
                 
             </ul>
         
@@ -886,8 +894,8 @@
 <p><code>InnoDB</code>存储引擎的<strong>最小存储单元是<code>Page</code>页</strong>，页可用于存<strong>放数据</strong>也可用于存放<strong>键值<code>+</code>指针</strong>，指针大小在<code>InnoDB</code>源码中设置为<strong><code>6</code>字节</strong>，在<code>B+</code>树中<strong>叶子节点存放数据</strong>，<strong>非叶子节点存放键值<code>+</code>指针</strong>，默认一个页的大小是<strong><code>16382</code></strong>即<strong><code>16K</code></strong>。<code>InnoDB</code>的所有数据文件后缀为<strong><code>ibd</code></strong>，其大小始终都是<strong><code>16K</code>的整倍数</strong>。数据表中的数据都是存储在页中，若一行数据大小为<code>1K</code>，则一页可存放16行这样的数据。InnoDB索引文件和数据文件是一个文件，表数据文件本身就是按B+Tree组织的一个索引结构文件。</p>
 <p><img src="../../../../images/DB/InnoDB存储引擎索引实现.png" alt="InnoDB存储引擎索引实现"></p>
 <p>一个页中不可能所有空间都用于存放数据，它还会存放一些少量的其他字段比如<code>page level</code>，<code>index number</code>等等。</p>
-<h5 id="为什么建议InnoDB表必须建主键，并且推荐使用整型的自增主键？"><a href="#为什么建议InnoDB表必须建主键，并且推荐使用整型的自增主键？" class="headerlink" title="为什么建议InnoDB表必须建主键，并且推荐使用整型的自增主键？"></a>为什么建议<code>InnoDB</code>表必须建主键，并且推荐使用整型的<strong>自增</strong>主键？</h5><p>若<code>InnoDB</code>表没有设置主键，<code>MySQL</code>会从数据表中选择一列数据都不相等的列作为主键索引，若找不到这样的列，<code>MySQL</code>会创建一个隐藏列来作为主键索引。使用整型作为主键在做比较时效率高很多。之所以用自增主键，若插入数据的主键是无序的，插入时需要对数据索引做平衡之类的操作，插入效率变低</p>
-<h5 id="为什么非主键索引结构叶子节点存储的是主键的索引值？"><a href="#为什么非主键索引结构叶子节点存储的是主键的索引值？" class="headerlink" title="为什么非主键索引结构叶子节点存储的是主键的索引值？"></a>为什么非主键索引结构叶子节点存储的是主键的索引值？</h5><p>一致性和节省存储空间</p>
+<h5 id="为什么建议InnoDB表必须建主键，并且推荐使用整型的自增主键？"><a href="#为什么建议InnoDB表必须建主键，并且推荐使用整型的自增主键？" class="headerlink" title="为什么建议InnoDB表必须建主键，并且推荐使用整型的自增主键？"></a>为什么建议<code>InnoDB</code>表必须建主键，并且推荐使用整型的<strong>自增</strong>主键？</h5><p>若<code>InnoDB</code>表没有设置主键，<code>MySQL</code>会从数据表中<strong>选择一列数据都不相等的列作为主键索引</strong>，若找不到这样的列，<code>MySQL</code>会创建一个<strong>隐藏列来作为主键索引</strong>。使用整型作为主键在做比较时效率高很多。之所以用自增主键，<strong>若插入数据的主键是无序的，插入时需要对数据索引做平衡之类的操作，插入效率变低</strong>。</p>
+<h5 id="为什么非主键索引结构叶子节点存储的是主键的索引值？"><a href="#为什么非主键索引结构叶子节点存储的是主键的索引值？" class="headerlink" title="为什么非主键索引结构叶子节点存储的是主键的索引值？"></a>为什么非主键索引结构叶子节点存储的是主键的索引值？</h5><p><strong>一致性和节省存储空间</strong></p>
 <h5 id="InnoDB二级索引结构"><a href="#InnoDB二级索引结构" class="headerlink" title="InnoDB二级索引结构"></a>InnoDB二级索引结构</h5><p><img src="../../../../images/DB/InnoDB二级索引结构.png" alt="InnoDB二级索引结构"></p>
 
         </div>
@@ -901,19 +909,19 @@
     
     <nav id="article-nav">
         
-            <a href="/Blog/DB/Explain工具/" id="article-nav-newer" class="article-nav-link-wrap">
+            <a href="/Blog/DB/索引优化二/" id="article-nav-newer" class="article-nav-link-wrap">
                 <strong class="article-nav-caption">Newer</strong>
                 <div class="article-nav-title">
                     
-                        Explain工具
+                        索引优化二
                     
                 </div>
             </a>
         
         
-            <a href="/Blog/DB/索引优化/" id="article-nav-older" class="article-nav-link-wrap">
+            <a href="/Blog/DB/索引优化一/" id="article-nav-older" class="article-nav-link-wrap">
                 <strong class="article-nav-caption">Older</strong>
-                <div class="article-nav-title">索引优化</div>
+                <div class="article-nav-title">索引优化一</div>
             </a>
         
     </nav>

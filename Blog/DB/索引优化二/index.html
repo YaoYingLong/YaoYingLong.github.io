@@ -1,0 +1,1102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta name="generator" content="Hexo 3.8.0">
+    <meta charset="utf-8">
+    
+    <title>
+        索引优化二 |
+        
+        YingLong</title>
+    
+    
+        <meta name="keywords" content="MySQL">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="description" content="索引设计原则代码先行，索引后上建完表不要立马就建立索引，一般应等主体业务功能开发完毕，把涉及到该表相关sql都要拿出来分析之后再建立索引。 联合索引尽量覆盖条件可设计一个或两三个联合索引，尽量少建单值索引，让每一个联合索引都尽量去包含sql语句里的where、order by、group by的字段，还要确保这些联合索引的字段顺序尽量满足sql查询的最左前缀原则。 不要在小基数字段上建立索引索引基">
+<meta name="keywords" content="MySQL">
+<meta property="og:type" content="article">
+<meta property="og:title" content="索引优化二">
+<meta property="og:url" content="https://yaoyinglong.github.io/Blog/DB/索引优化二/index.html">
+<meta property="og:site_name" content="YingLong">
+<meta property="og:description" content="索引设计原则代码先行，索引后上建完表不要立马就建立索引，一般应等主体业务功能开发完毕，把涉及到该表相关sql都要拿出来分析之后再建立索引。 联合索引尽量覆盖条件可设计一个或两三个联合索引，尽量少建单值索引，让每一个联合索引都尽量去包含sql语句里的where、order by、group by的字段，还要确保这些联合索引的字段顺序尽量满足sql查询的最左前缀原则。 不要在小基数字段上建立索引索引基">
+<meta property="og:locale" content="en">
+<meta property="og:image" content="https://yaoyinglong.github.io/images/DB/index_opt_range_invalid_1.png">
+<meta property="og:image" content="https://yaoyinglong.github.io/images/DB/index_opt_range_valid_2.png">
+<meta property="og:image" content="https://yaoyinglong.github.io/images/DB/index_opt_range_valid_3.png">
+<meta property="og:image" content="https://yaoyinglong.github.io/images/DB/index_opt_range_valid_4.png">
+<meta property="og:image" content="https://yaoyinglong.github.io/images/DB/index_opt_range_in_or_valid_5.png">
+<meta property="og:image" content="https://yaoyinglong.github.io/images/DB/index_opt_range_in_or_invalid_6.png">
+<meta property="og:image" content="https://yaoyinglong.github.io/images/DB/index_opt_range_like_valid_7.png">
+<meta property="og:image" content="https://yaoyinglong.github.io/images/DB/index_opt_range_like_invalid_8.png">
+<meta property="og:image" content="https://yaoyinglong.github.io/images/DB/index_opt_order_by_invalid_12.png">
+<meta property="og:image" content="https://yaoyinglong.github.io/images/DB/index_opt_order_by_invalid_13.png">
+<meta property="og:image" content="https://yaoyinglong.github.io/images/DB/index_opt_order_by_valid_14.png">
+<meta property="og:image" content="https://yaoyinglong.github.io/images/DB/index_opt_order_by_invalid_15.png">
+<meta property="og:image" content="https://yaoyinglong.github.io/images/DB/index_opt_order_by_valid_16.png">
+<meta property="og:image" content="https://yaoyinglong.github.io/images/DB/index_opt_order_by_invalid_17.png">
+<meta property="og:image" content="https://yaoyinglong.github.io/images/DB/index_opt_order_by_invalid_18.png">
+<meta property="og:image" content="https://yaoyinglong.github.io/images/DB/index_opt_order_by_invalid_19.png">
+<meta property="og:image" content="https://yaoyinglong.github.io/images/DB/index_opt_order_by_valid_20.png">
+<meta property="og:image" content="https://yaoyinglong.github.io/images/DB/index_opt_range_invalid_9.png">
+<meta property="og:image" content="https://yaoyinglong.github.io/images/DB/index_opt_range_valid_10.png">
+<meta property="og:image" content="https://yaoyinglong.github.io/images/DB/index_opt_range_valid_11.png">
+<meta property="og:updated_time" content="2021-09-01T06:24:12.813Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="索引优化二">
+<meta name="twitter:description" content="索引设计原则代码先行，索引后上建完表不要立马就建立索引，一般应等主体业务功能开发完毕，把涉及到该表相关sql都要拿出来分析之后再建立索引。 联合索引尽量覆盖条件可设计一个或两三个联合索引，尽量少建单值索引，让每一个联合索引都尽量去包含sql语句里的where、order by、group by的字段，还要确保这些联合索引的字段顺序尽量满足sql查询的最左前缀原则。 不要在小基数字段上建立索引索引基">
+<meta name="twitter:image" content="https://yaoyinglong.github.io/images/DB/index_opt_range_invalid_1.png">
+    
+
+    
+
+    
+        <link rel="icon" href="/favicon.ico">
+    
+
+    <link rel="stylesheet" href="/libs/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/libs/open-sans/styles.css">
+    <link rel="stylesheet" href="/libs/source-code-pro/styles.css">
+
+    <link rel="stylesheet" href="/css/style.css">
+    <script src="/libs/jquery/2.1.3/jquery.min.js"></script>
+    <script src="/libs/jquery/plugins/cookie/1.4.1/jquery.cookie.js"></script>
+    
+    
+        <link rel="stylesheet" href="/libs/lightgallery/css/lightgallery.min.css">
+    
+    
+        <link rel="stylesheet" href="/libs/justified-gallery/justifiedGallery.min.css">
+    
+    
+    
+    
+
+
+</head>
+</html>
+<body>
+<div id="container">
+    <header id="header">
+    <div id="header-main" class="header-inner">
+        <div class="outer">
+            <a href="/" id="logo">
+                <i class="logo"></i>
+                <span class="site-title">YingLong</span>
+            </a>
+            <nav id="main-nav">
+                
+                    <a class="main-nav-link" href="/">Home</a>
+                
+                    <a class="main-nav-link" href="/archives">Archives</a>
+                
+                    <a class="main-nav-link" href="/categories">Categories</a>
+                
+                    <a class="main-nav-link" href="/tags">Tags</a>
+                
+                    <a class="main-nav-link" href="/about">About</a>
+                
+            </nav>
+            
+            <div id="search-form-wrap">
+    
+        <form class="search-form">
+            <input type="text" class="ins-search-input search-form-input" placeholder="Search">
+            <button type="submit" class="search-form-submit"></button>
+        </form>
+        <div class="ins-search">
+    <div class="ins-search-mask"></div>
+    <div class="ins-search-container">
+        <div class="ins-input-wrapper">
+            <input type="text" class="ins-search-input" placeholder="Type something...">
+            <span class="ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+    (function (window) {
+        var INSIGHT_CONFIG = {
+            TRANSLATION: {
+                POSTS: 'Posts',
+                PAGES: 'Pages',
+                CATEGORIES: 'Categories',
+                TAGS: 'Tags',
+                UNTITLED: '(Untitled)',
+            },
+            ROOT_URL: '/',
+            CONTENT_URL: '/content.json',
+        };
+        window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+    })(window);
+</script>
+<script src="/js/insight.js"></script>
+    
+</div>
+        </div>
+    </div>
+    <div id="main-nav-mobile" class="header-sub header-inner">
+        <table class="menu outer">
+            <tr>
+                
+                    <td><a class="main-nav-link" href="/">Home</a></td>
+                
+                    <td><a class="main-nav-link" href="/archives">Archives</a></td>
+                
+                    <td><a class="main-nav-link" href="/categories">Categories</a></td>
+                
+                    <td><a class="main-nav-link" href="/tags">Tags</a></td>
+                
+                    <td><a class="main-nav-link" href="/about">About</a></td>
+                
+                <td>
+                    
+    <div class="search-form">
+        <input type="text" class="ins-search-input search-form-input" placeholder="Search">
+    </div>
+
+                </td>
+            </tr>
+        </table>
+    </div>
+</header>
+
+    <div class="outer">
+        
+        
+            <aside id="sidebar">
+    
+        
+    <div class="widget-wrap" id="categories">
+        <h3 class="widget-title">
+            <span>categories</span>
+            &nbsp;
+            <a id="allExpand" href="#">
+                <i class="fa fa-angle-double-down fa-2x"></i>
+            </a>
+        </h3>
+
+        
+        
+        
+            <ul class="unstyled" id="tree">
+                
+                    <li class="directory open">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder-open"></i>
+                            &nbsp;
+                            DB
+                        </a>
+                        
+            <ul class="unstyled" id="tree">
+                
+                    <li class="file"><a href="/Blog/DB/MySQL基础/">MySQL基础</a></li>
+                
+                    <li class="file"><a href="/Blog/DB/MySQL常用SQL总结/">MySQL常用SQL总结</a></li>
+                
+                    <li class="file"><a href="/Blog/DB/索引的原理与使用/">索引的原理与使用</a></li>
+                
+                    <li class="file"><a href="/Blog/DB/分库分表/">分库分表</a></li>
+                
+                    <li class="file"><a href="/Blog/DB/Explain工具/">Explain工具</a></li>
+                
+                    <li class="file"><a href="/Blog/DB/MySQL内部组件结构/">MySQL内部组件结构</a></li>
+                
+                    <li class="file"><a href="/Blog/DB/索引优化一/">索引优化一</a></li>
+                
+                    <li class="file"><a href="/Blog/DB/MySQL事务隔离级别与锁机制/">MySQL事务隔离级别与锁机制</a></li>
+                
+                    <li class="file"><a href="/Blog/DB/索引优化三/">索引优化三</a></li>
+                
+                    <li class="file active"><a href="/Blog/DB/索引优化二/">索引优化二</a></li>
+                
+            </ul>
+        
+                    </li>
+                
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            Git
+                        </a>
+                        
+            <ul class="unstyled" id="tree">
+                
+                    <li class="file"><a href="/Blog/Git/GIt基本概念/">Git基本概念</a></li>
+                
+                    <li class="file"><a href="/Blog/Git/GIt常用命令/">Git常用命令</a></li>
+                
+                    <li class="file"><a href="/Blog/Git/分支管理理解/">分支管理理解</a></li>
+                
+            </ul>
+        
+                    </li>
+                
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            Go
+                        </a>
+                        
+            <ul class="unstyled" id="tree">
+                
+                    <li class="file"><a href="/Blog/Go/Go基础/">Go基础</a></li>
+                
+            </ul>
+        
+                    </li>
+                
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            Java
+                        </a>
+                        
+            <ul class="unstyled" id="tree">
+                
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            VM
+                        </a>
+                        
+            <ul class="unstyled" id="tree">
+                
+                    <li class="file"><a href="/Blog/Java/VM/HotSpot收集算法实现/">HotSpot收集算法实现</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/VM/JVM内存池/">JVM内存池</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/VM/内存非配与回收策略/">内存分配与回收策略</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/VM/Java内存区域/">Java内存区域</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/VM/Minor&Major&Full GC/">Minor&Major&Full GC</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/VM/OutOfMemoryError异常/">OOM异常实验</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/VM/垃圾收集算法/">垃圾收集算法</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/VM/堆中对象分配&布局&访问/">堆中对象分配&布局&访问</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/VM/对象是否存活/">对象是否存活</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/VM/类加载的时机/">类加载的时机</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/VM/运行时栈帧结构/">运行时栈帧结构</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/VM/垃圾收集器/">垃圾收集器</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/VM/方法调用/">方法调用</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/VM/字节码指令/">字节码指令</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/VM/理解GC日志/">理解GC日志</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/VM/类加载器/">类加载器</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/VM/Class文件结构/">Class文件结构</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/VM/属性表集合/">属性表集合</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/VM/类加载过程/">类加载过程</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/VM/字节码指令手册/">字节码指令手册</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/VM/JVM调优思路/">JVM调优思路</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/VM/JVM调优工具/">JVM调优工具</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/VM/常量池/">常量池</a></li>
+                
+            </ul>
+        
+                    </li>
+                
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            基础
+                        </a>
+                        
+            <ul class="unstyled" id="tree">
+                
+                    <li class="file"><a href="/Blog/Java/基础/lambda常用总结/">lambda常用总结</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/基础/时间及日期总结/">Java8时间及日期</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/基础/位运算/">位运算</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/基础/注解实现及应用/">注解实现及应用</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/基础/HashMap源码分析JDK8/">HashMap源码分析JDK8</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/基础/HashMap源码分析JDK7/">HashMap源码分析JDK7</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/基础/反射基础/">反射基础</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/基础/动态代理/">动态代理</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/基础/Java实用工具库/">Java实用工具库</a></li>
+                
+            </ul>
+        
+                    </li>
+                
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            工具
+                        </a>
+                        
+            <ul class="unstyled" id="tree">
+                
+                    <li class="file"><a href="/Blog/Java/工具/Java中调用Groovy脚本/">Java中调用Groovy脚本</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/工具/国密SM2/">国密SM2</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/工具/国密SM4/">国密SM4</a></li>
+                
+            </ul>
+        
+                    </li>
+                
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            并发
+                        </a>
+                        
+            <ul class="unstyled" id="tree">
+                
+                    <li class="file"><a href="/Blog/Java/并发/原子性、可见性、有序性/">原子性、可见性、有序性</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/并发/Synchronized总结/">Synchronized总结</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/并发/线程安全/">线程安全</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/并发/线程安全实现方式/">线程安全实现方式</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/并发/ThreadLocal原理/">ThreadLocal原理</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/并发/Volatile原理/">Volatile原理</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/并发/Java与线程/">Java与线程</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/并发/锁优化/">锁优化</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/并发/Java内存模型与线程/">Java内存模型</a></li>
+                
+            </ul>
+        
+                    </li>
+                
+                    <li class="file"><a href="/Blog/Java/JVM整体概览/">JVM整体概览</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/JVM内存参数设置/">JVM内存参数设置</a></li>
+                
+            </ul>
+        
+                    </li>
+                
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            Linux
+                        </a>
+                        
+            <ul class="unstyled" id="tree">
+                
+                    <li class="file"><a href="/Blog/Linux/Linux常用命令/">Linux常用命令</a></li>
+                
+                    <li class="file"><a href="/Blog/Linux/Linux常用技巧/">Linux常用技巧</a></li>
+                
+            </ul>
+        
+                    </li>
+                
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            Maven
+                        </a>
+                        
+            <ul class="unstyled" id="tree">
+                
+                    <li class="file"><a href="/Blog/Maven/Maven加密JAR包/">Maven加密JAR包</a></li>
+                
+                    <li class="file"><a href="/Blog/Maven/Maven基础/">Maven基础</a></li>
+                
+                    <li class="file"><a href="/Blog/Maven/Maven常用/">Maven常用</a></li>
+                
+                    <li class="file"><a href="/Blog/Maven/Maven属性/">Maven属性</a></li>
+                
+                    <li class="file"><a href="/Blog/Maven/Maven常用工具/">Maven常用工具</a></li>
+                
+                    <li class="file"><a href="/Blog/Maven/Maven插件编写/">Maven插件编写</a></li>
+                
+                    <li class="file"><a href="/Blog/Maven/Maven生命周期/">Maven生命周期</a></li>
+                
+                    <li class="file"><a href="/Blog/Maven/Maven个性化打包/">Maven个性化打包</a></li>
+                
+                    <li class="file"><a href="/Blog/Maven/Maven仓库/">Maven仓库</a></li>
+                
+                    <li class="file"><a href="/Blog/Maven/Maven插件基础/">Maven插件基础</a></li>
+                
+                    <li class="file"><a href="/Blog/Maven/Maven聚合与继承/">Maven聚合与继承</a></li>
+                
+                    <li class="file"><a href="/Blog/Maven/Maven常用插件/">Maven常用插件</a></li>
+                
+                    <li class="file"><a href="/Blog/Maven/Maven标签全解/">Maven标签全解</a></li>
+                
+                    <li class="file"><a href="/Blog/Maven/Maven Assembly标签全解/">Maven Assembly标签全解</a></li>
+                
+            </ul>
+        
+                    </li>
+                
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            Python
+                        </a>
+                        
+            <ul class="unstyled" id="tree">
+                
+                    <li class="file"><a href="/Blog/Python/Excel文件数据抽取/">Excel文件数据抽取</a></li>
+                
+            </ul>
+        
+                    </li>
+                
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            Test
+                        </a>
+                        
+            <ul class="unstyled" id="tree">
+                
+                    <li class="file"><a href="/Blog/Test/IT测试总结/">IT测试总结</a></li>
+                
+                    <li class="file"><a href="/Blog/Test/JMeter日常总结/">JMeter日常总结</a></li>
+                
+                    <li class="file"><a href="/Blog/Test/LoadRunner日常总结/">LoadRunner日常总结</a></li>
+                
+                    <li class="file"><a href="/Blog/Test/UT测试总结/">UT测试总结</a></li>
+                
+            </ul>
+        
+                    </li>
+                
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            中间件
+                        </a>
+                        
+            <ul class="unstyled" id="tree">
+                
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            Spring
+                        </a>
+                        
+            <ul class="unstyled" id="tree">
+                
+                    <li class="file"><a href="/Blog/中间件/Spring/IoC容器/">IoC容器</a></li>
+                
+                    <li class="file"><a href="/Blog/中间件/Spring/Spring Gzip压缩/">Spring Gzip压缩</a></li>
+                
+                    <li class="file"><a href="/Blog/中间件/Spring/Spring整体架构/">Spring整体架构</a></li>
+                
+                    <li class="file"><a href="/Blog/中间件/Spring/Spring线程池跨线程数据共享/">Spring线程池跨线程数据共享</a></li>
+                
+                    <li class="file"><a href="/Blog/中间件/Spring/Spring知识点/">Spring知识点</a></li>
+                
+                    <li class="file"><a href="/Blog/中间件/Spring/SpringMvc异步/">SpringMvc异步原理及实现</a></li>
+                
+                    <li class="file"><a href="/Blog/中间件/Spring/Hystrix总结/">Hystrix总结</a></li>
+                
+                    <li class="file"><a href="/Blog/中间件/Spring/Spring初始化扩展/">Spring初始化扩展</a></li>
+                
+            </ul>
+        
+                    </li>
+                
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            Tomcat
+                        </a>
+                        
+            <ul class="unstyled" id="tree">
+                
+                    <li class="file"><a href="/Blog/中间件/Tomcat/Tomcat工作原理/">Tomcat工作原理</a></li>
+                
+                    <li class="file"><a href="/Blog/中间件/Tomcat/Tomcat整体架构/">Tomcat整体架构</a></li>
+                
+                    <li class="file"><a href="/Blog/中间件/Tomcat/Tomcat中BIO和NIO底层原理实现对比/">Tomcat中BIO和NIO底层原理实现对比</a></li>
+                
+                    <li class="file"><a href="/Blog/中间件/Tomcat/Tomcat启动过程/">Tomcat启动过程</a></li>
+                
+                    <li class="file"><a href="/Blog/中间件/Tomcat/Tomcat处理请求过程/">Tomcat处理请求过程</a></li>
+                
+                    <li class="file"><a href="/Blog/中间件/Tomcat/Tomcat处理响应过程/">Tomcat处理响应过程</a></li>
+                
+                    <li class="file"><a href="/Blog/中间件/Tomcat/Tomcat热部署热加载/">Tomcat热部署热加载</a></li>
+                
+            </ul>
+        
+                    </li>
+                
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            常见问题
+                        </a>
+                        
+            <ul class="unstyled" id="tree">
+                
+                    <li class="file"><a href="/Blog/中间件/常见问题/HBase依赖冲突/">HBase依赖冲突</a></li>
+                
+                    <li class="file"><a href="/Blog/中间件/常见问题/Maven编译后文件损坏/">Maven编译后文件损坏</a></li>
+                
+            </ul>
+        
+                    </li>
+                
+                    <li class="file"><a href="/Blog/中间件/Redis分布式锁实现/">Redis分布式锁实现</a></li>
+                
+                    <li class="file"><a href="/Blog/中间件/Redis总结/">Redis总结</a></li>
+                
+            </ul>
+        
+                    </li>
+                
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            协议族
+                        </a>
+                        
+            <ul class="unstyled" id="tree">
+                
+                    <li class="file"><a href="/Blog/协议族/TCPIP四层&五层模型/">TCP/IP四层&五层模型</a></li>
+                
+                    <li class="file"><a href="/Blog/协议族/网络基础知识/">网络基础知识</a></li>
+                
+                    <li class="file"><a href="/Blog/协议族/以太网/">以太网</a></li>
+                
+                    <li class="file"><a href="/Blog/协议族/地址解析协议/">地址解析协议ARP</a></li>
+                
+            </ul>
+        
+                    </li>
+                
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            杂记
+                        </a>
+                        
+            <ul class="unstyled" id="tree">
+                
+                    <li class="file"><a href="/Blog/杂记/IDEA实用插件/">IDEA实用插件</a></li>
+                
+                    <li class="file"><a href="/Blog/杂记/JAVA实用工具/">JAVA实用工具</a></li>
+                
+                    <li class="file"><a href="/Blog/杂记/IDEA快捷的使用/">IDEA的快捷使用</a></li>
+                
+                    <li class="file"><a href="/Blog/杂记/Win实用工具/">Win实用工具</a></li>
+                
+                    <li class="file"><a href="/Blog/杂记/XSD使用总结/">XSD实用总结</a></li>
+                
+                    <li class="file"><a href="/Blog/杂记/SonarQube配置总结/">SonarQube配置总结</a></li>
+                
+            </ul>
+        
+                    </li>
+                
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            算法
+                        </a>
+                        
+            <ul class="unstyled" id="tree">
+                
+                    <li class="file"><a href="/Blog/算法/二叉搜索树/">二叉搜索树</a></li>
+                
+                    <li class="file"><a href="/Blog/算法/平衡二叉树/">平衡二叉树</a></li>
+                
+                    <li class="file"><a href="/Blog/算法/树基础/">树基础</a></li>
+                
+                    <li class="file"><a href="/Blog/算法/排序算法/">排序算法</a></li>
+                
+                    <li class="file"><a href="/Blog/算法/图基础/">图基础</a></li>
+                
+            </ul>
+        
+                    </li>
+                
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            自度
+                        </a>
+                        
+            <ul class="unstyled" id="tree">
+                
+                    <li class="file"><a href="/Blog/自度/隐形眼镜攻略/"></a></li>
+                
+            </ul>
+        
+                    </li>
+                
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            设计模式
+                        </a>
+                        
+            <ul class="unstyled" id="tree">
+                
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            创建型模式
+                        </a>
+                        
+            <ul class="unstyled" id="tree">
+                
+                    <li class="file"><a href="/Blog/设计模式/创建型模式/单例模式/">单例模式</a></li>
+                
+                    <li class="file"><a href="/Blog/设计模式/创建型模式/原型模式/">原型模式</a></li>
+                
+                    <li class="file"><a href="/Blog/设计模式/创建型模式/建造者模式/">建造者模式</a></li>
+                
+                    <li class="file"><a href="/Blog/设计模式/创建型模式/工厂模式/">工厂模式</a></li>
+                
+            </ul>
+        
+                    </li>
+                
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            结构型模式
+                        </a>
+                        
+            <ul class="unstyled" id="tree">
+                
+                    <li class="file"><a href="/Blog/设计模式/结构型模式/代理模式/">代理模式</a></li>
+                
+                    <li class="file"><a href="/Blog/设计模式/结构型模式/装饰模式/">装饰模式</a></li>
+                
+                    <li class="file"><a href="/Blog/设计模式/结构型模式/适配器模式/">适配器模式</a></li>
+                
+                    <li class="file"><a href="/Blog/设计模式/结构型模式/组合模式/">组合模式</a></li>
+                
+                    <li class="file"><a href="/Blog/设计模式/结构型模式/外观模式/">外观模式</a></li>
+                
+            </ul>
+        
+                    </li>
+                
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            行为型模式
+                        </a>
+                        
+            <ul class="unstyled" id="tree">
+                
+                    <li class="file"><a href="/Blog/设计模式/行为型模式/模板方法模式/">模板方法模式</a></li>
+                
+                    <li class="file"><a href="/Blog/设计模式/行为型模式/中介者模式/">中介者模式</a></li>
+                
+                    <li class="file"><a href="/Blog/设计模式/行为型模式/命令模式/">命令模式</a></li>
+                
+                    <li class="file"><a href="/Blog/设计模式/行为型模式/责任链模式/">责任链模式</a></li>
+                
+                    <li class="file"><a href="/Blog/设计模式/行为型模式/策略模式/">策略模式</a></li>
+                
+                    <li class="file"><a href="/Blog/设计模式/行为型模式/迭代器模式/">迭代器模式</a></li>
+                
+                    <li class="file"><a href="/Blog/设计模式/行为型模式/观察者模式/">观察者模式</a></li>
+                
+                    <li class="file"><a href="/Blog/设计模式/行为型模式/备忘录模式/">备忘录模式</a></li>
+                
+                    <li class="file"><a href="/Blog/设计模式/行为型模式/访问者模式/">访问者模式</a></li>
+                
+                    <li class="file"><a href="/Blog/设计模式/行为型模式/状态模式/">状态模式</a></li>
+                
+            </ul>
+        
+                    </li>
+                
+                    <li class="file"><a href="/Blog/设计模式/SOLID基本原则/">SOLID基本原则</a></li>
+                
+                    <li class="file"><a href="/Blog/设计模式/设计模式概览/">设计模式概览</a></li>
+                
+            </ul>
+        
+                    </li>
+                
+                    <li class="file"><a href="/Blog/index/">Welcome YingLong's Blog</a></li>
+                
+            </ul>
+        
+    </div>
+    <script>
+        $(document).ready(function () {
+            var iconFolderOpenClass = 'fa-folder-open';
+            var iconFolderCloseClass = 'fa-folder';
+            var iconAllExpandClass = 'fa-angle-double-down';
+            var iconAllPackClass = 'fa-angle-double-up';
+            // Handle directory-tree expansion:
+            // 左键单独展开目录
+            $(document).on('click', '#categories a[data-role="directory"]', function (event) {
+                event.preventDefault();
+
+                var icon = $(this).children('.fa');
+                var expanded = icon.hasClass(iconFolderOpenClass);
+                var subtree = $(this).siblings('ul');
+                icon.removeClass(iconFolderOpenClass).removeClass(iconFolderCloseClass);
+                if (expanded) {
+                    if (typeof subtree != 'undefined') {
+                        subtree.slideUp({duration: 100});
+                    }
+                    icon.addClass(iconFolderCloseClass);
+                } else {
+                    if (typeof subtree != 'undefined') {
+                        subtree.slideDown({duration: 100});
+                    }
+                    icon.addClass(iconFolderOpenClass);
+                }
+            });
+            // 右键展开下属所有目录
+            $('#categories a[data-role="directory"]').bind("contextmenu", function (event) {
+                event.preventDefault();
+
+                var icon = $(this).children('.fa');
+                var expanded = icon.hasClass(iconFolderOpenClass);
+                var listNode = $(this).siblings('ul');
+                var subtrees = $.merge(listNode.find('li ul'), listNode);
+                var icons = $.merge(listNode.find('.fa'), icon);
+                icons.removeClass(iconFolderOpenClass).removeClass(iconFolderCloseClass);
+                if (expanded) {
+                    subtrees.slideUp({duration: 100});
+                    icons.addClass(iconFolderCloseClass);
+                } else {
+                    subtrees.slideDown({duration: 100});
+                    icons.addClass(iconFolderOpenClass);
+                }
+            })
+            // 展开关闭所有目录按钮
+            $(document).on('click', '#allExpand', function (event) {
+                event.preventDefault();
+
+                var icon = $(this).children('.fa');
+                var expanded = icon.hasClass(iconAllExpandClass);
+                icon.removeClass(iconAllExpandClass).removeClass(iconAllPackClass);
+                if (expanded) {
+                    $('#sidebar .fa.fa-folder').removeClass('fa-folder').addClass('fa-folder-open')
+                    $('#categories li ul').slideDown({duration: 100});
+                    icon.addClass(iconAllPackClass);
+                } else {
+                    $('#sidebar .fa.fa-folder-open').removeClass('fa-folder-open').addClass('fa-folder')
+                    $('#categories li ul').slideUp({duration: 100});
+                    icon.addClass(iconAllExpandClass);
+                }
+            });
+        });
+    </script>
+
+    
+    <div id="toTop" class="fa fa-angle-up"></div>
+</aside>
+        
+        <section id="main"><article id="post-DB/索引优化二" class="article article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+        
+            <header class="article-header">
+                
+                    <div class="article-meta">
+                        
+    <div class="article-category">
+        <i class="fa fa-folder"></i>
+        <a class="article-category-link" href="/categories/DB/">DB</a>
+    </div>
+
+                        
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link" href="/tags/MySQL/">MySQL</a>
+    </div>
+
+                        
+    <div class="article-date">
+        <i class="fa fa-calendar"></i>
+        <a href="/Blog/DB/索引优化二/">
+            <time datetime="2021-08-30T16:00:00.000Z" itemprop="datePublished">2021-08-31</time>
+        </a>
+    </div>
+
+
+                        
+                    </div>
+                
+                
+    
+        <h1 class="article-title" itemprop="name">
+            索引优化二
+        </h1>
+    
+
+            </header>
+        
+        
+        <div class="article-entry" itemprop="articleBody">
+            
+            
+                    
+            
+            
+                <h3 id="索引设计原则"><a href="#索引设计原则" class="headerlink" title="索引设计原则"></a>索引设计原则</h3><h4 id="代码先行，索引后上"><a href="#代码先行，索引后上" class="headerlink" title="代码先行，索引后上"></a>代码先行，索引后上</h4><p>建完表不要立马就建立索引，一般应等<strong>主体业务功能开发完毕</strong>，把涉及到该表相关sql都要拿出来分析之后再建立<br>索引。</p>
+<h4 id="联合索引尽量覆盖条件"><a href="#联合索引尽量覆盖条件" class="headerlink" title="联合索引尽量覆盖条件"></a>联合索引尽量覆盖条件</h4><p>可设计一个或两三个联合索引，<strong>尽量少建单值索引</strong>，让每一个联合索引都<strong>尽量去包含sql语句里的where、order by、group by的字段</strong>，还要确保这些联合索引的字段顺序<strong>尽量满足sql查询的最左前缀原则</strong>。</p>
+<h4 id="不要在小基数字段上建立索引"><a href="#不要在小基数字段上建立索引" class="headerlink" title="不要在小基数字段上建立索引"></a>不要在小基数字段上建立索引</h4><p>索引基数是指这个字段在表里总共有多少个不同的值，若一张表总共100万行记录，其中性别字段其值不是男就是女，则该字段基数就是2。</p>
+<p>若<strong>对这种小基数字段建立索引，还不如全表扫描</strong>，因为你的索引树里就包含男和女两种值，根本没法进行快速的二分查找，那用索引就没有太大的意义了。</p>
+<p>一般建立索引，<strong>尽量使用那些基数比较大的字段，才能发挥出B+树快速二分查找的优势</strong>。</p>
+<h4 id="长字符串我们可以采用前缀索引"><a href="#长字符串我们可以采用前缀索引" class="headerlink" title="长字符串我们可以采用前缀索引"></a>长字符串我们可以采用前缀索引</h4><p><strong>尽量对字段类型较小的列设计索引</strong>，如tinyint类型的字段，字段类型较小的话，占用磁盘空间也会比较小，搜索时性能也会比较好。所谓的字段类型小一点的列，也不是绝对的，很多时候要针对varchar(255)这种字段建立索引，哪怕多占用一些磁盘空间也是有必要的。</p>
+<p>对于这种varchar(255)的大字段可能会比较占用磁盘空间，可以稍微优化下，比如针对这个字段的前20个字符建立索引，对这个字段里的每个值的前20个字符放在索引树里，类似于KEY，<strong><code>index(name(20),age,position)</code></strong>。</p>
+<p>在where条件里搜索时，若根据name字段来搜索，此时就会先到索引树里根据name字段的前20个字符去搜索，定位到之后前20个字符的前缀匹配的部分数据之后，再回到聚簇索引提取出来完整的name字段值进行比对。</p>
+<p>若要order by name，此时name因为在索引树里仅仅包含了前20个字符，故该排序是<strong>没法用上索引， group by也是同理</strong>。所以这里大家要对前缀索引有一个了解。</p>
+<h4 id="where与order-by冲突时优先where"><a href="#where与order-by冲突时优先where" class="headerlink" title="where与order by冲突时优先where"></a>where与order by冲突时优先where</h4><p>一般这种时候往往都是让where条件去使用索引来快速筛选出来一部分指定的数据，接着再进行排序。<strong>大多数情况基于索引进行where筛选往往可以最快速度筛选出需要的少部分数据，然后做排序的成本可能会小很多</strong>。</p>
+<h4 id="基于慢sql查询做优化"><a href="#基于慢sql查询做优化" class="headerlink" title="基于慢sql查询做优化"></a>基于慢sql查询做优化</h4><p>可根据监控后台的一些慢sql，针对这些慢sql查询做特定的索引优化。</p>
+<h3 id="索引下推"><a href="#索引下推" class="headerlink" title="索引下推"></a>索引下推</h3><p>对于<strong>辅助的联合索引</strong>(name,age,position)，正常情况按照<strong>最左前缀原则</strong>，SELECT * FROM employees WHERE name like ‘LiLei%’ AND age = 22 AND position =’manager’ 该情况只会走name字段索引，因为根据name字段过滤完，得到的索引行里age和position是无序的，无法很好的利用索引。</p>
+<p><strong><code>MySQL5.6</code>之前的版本</strong>，该查询只能在<strong>联合索引</strong>里匹配到名字是’LiLei’开头的索引，然后<strong>拿这些索引对应的主键逐个回表</strong>，到主键索引上找出相应的记录，<strong>再比对</strong>age和position这两个字段的值是否符合。</p>
+<p><strong><code>MySQL5.6</code></strong>引入了<strong>索引下推优化</strong>，<strong>可在索引遍历过程中，对索引中包含的所有字段先做判断，过滤掉不符合条件的记录之后再回表，可有效减少回表次数</strong>。使用索引下推优化后，查询在联合索引里匹配到名字’LiLei’开头的索引后，同时还会在索引里过滤age和position这两个字段，拿着<strong>过滤完剩下</strong>的索引对应的主键id再回表查整行数据。</p>
+<p><strong>索引下推会减少回表次数</strong>，对于<strong><code>InnoDB</code>引擎</strong>的表索引下推<strong>只能用于二级索引</strong>，InnoDB的主键索引是聚簇索引叶子节点上保存的是全行数据，故这时索引下推并不会起到减少查询全行数据的效果。</p>
+<h3 id="Using-filesort文件排序原理详解"><a href="#Using-filesort文件排序原理详解" class="headerlink" title="Using filesort文件排序原理详解"></a>Using filesort文件排序原理详解</h3><p><strong><code>filesort</code></strong>文件排序方式有<strong>单路排序</strong>和<strong>双路排序</strong>又叫<strong>回表排序</strong>模式</p>
+<ul>
+<li><strong>单路排序</strong>：<strong>一次性取出满足条件行的所有字段，然后在sort buffer中进行排序</strong>；用<strong><a href="#trace工具">trace工具</a></strong>可<br>看到<code>sort_mode</code>信息里显示<strong><code>&lt;sort_key, additional_fields&gt;</code></strong>或者<strong><code>&lt;sort_key, packed_additional_fields&gt;</code></strong></li>
+<li><strong>双路排序</strong>：首先<strong>根据相应条件取出相应的排序字段和可以直接定位行数据的行ID</strong>，然后在sort buffer中进行排序，<strong>排序完后需要再次取回其它需要的字段</strong>；用<strong><a href="#trace工具">trace工具</a></strong>可看到<strong><code>sort_mode</code></strong>信息里显示<strong><code>&lt;sort_key, rowid&gt;</code></strong></li>
+</ul>
+<p>MySQL通过<strong>比较系统变量<code>max_length_for_sort_data</code>与需查询字段总大小来判断使用哪种排序模式，默认1024字节</strong>，若字段总长度小于<strong><code>max_length_for_sort_data</code></strong> 则使用<strong>单路排序</strong>模式；否则使用<strong>双路排序</strong>模式。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">set</span> <span class="keyword">session</span> optimizer_trace=<span class="string">"enabled=on"</span>,end_markers_in_json=<span class="keyword">on</span>;</span><br><span class="line"><span class="keyword">explain</span> <span class="keyword">select</span> * <span class="keyword">from</span> employees <span class="keyword">where</span> <span class="keyword">name</span> = <span class="string">'zhangsan'</span> <span class="keyword">order</span> <span class="keyword">by</span> <span class="keyword">position</span>;</span><br><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> information_schema.OPTIMIZER_TRACE;</span><br></pre></td></tr></table></figure>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">&#123;//Sql执行阶段</span><br><span class="line">  "select#": 1,</span><br><span class="line">  "steps": [</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="attr">"filesort_information"</span>: [</span><br><span class="line">        &#123;</span><br><span class="line">          <span class="attr">"direction"</span>: <span class="string">"asc"</span>,</span><br><span class="line">          <span class="attr">"table"</span>: <span class="string">"`employees`"</span>,</span><br><span class="line">          <span class="attr">"field"</span>: <span class="string">"position"</span></span><br><span class="line">        &#125;</span><br><span class="line">      ] /* filesort_information */,</span><br><span class="line">      <span class="attr">"filesort_priority_queue_optimization"</span>: &#123;</span><br><span class="line">        <span class="attr">"usable"</span>: <span class="literal">false</span>,</span><br><span class="line">        <span class="attr">"cause"</span>: <span class="string">"not applicable (no LIMIT)"</span></span><br><span class="line">      &#125; /* filesort_priority_queue_optimization */,</span><br><span class="line">      <span class="attr">"filesort_execution"</span>: [</span><br><span class="line">      ] /* filesort_execution */,</span><br><span class="line">      "filesort_summary": &#123;//文件排序信息</span><br><span class="line">        "rows": 10000, //预计扫描行数</span><br><span class="line">        "examined_rows": 10000, //参与排序的行</span><br><span class="line">        "number_of_tmp_files": 3, //使用临时文件的个数，这个值如果为0代表全部使用的sort_buffer内存排序，否则使用的</span><br><span class="line">        磁盘文件排序</span><br><span class="line">        "sort_buffer_size": 262056, //排序缓存的大小，单位Byte</span><br><span class="line">        "sort_mode": "&lt;sort_key, packed_additional_fields&gt;" //排序方式，这里用的单路排序</span><br><span class="line">      &#125; /* filesort_summary */</span><br><span class="line">    &#125;</span><br><span class="line">  ] /* steps */</span><br><span class="line">&#125; /* join_execution */</span><br></pre></td></tr></table></figure>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">set</span> max_length_for_sort_data = <span class="number">10</span>; <span class="comment">--employees表所有字段长度总和肯定大于10字节</span></span><br><span class="line"><span class="keyword">explain</span> <span class="keyword">select</span> * <span class="keyword">from</span> employees <span class="keyword">where</span> <span class="keyword">name</span> = <span class="string">'zhangsan'</span> <span class="keyword">order</span> <span class="keyword">by</span> <span class="keyword">position</span>;</span><br><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> information_schema.OPTIMIZER_TRACE;</span><br><span class="line"><span class="keyword">set</span> <span class="keyword">session</span> optimizer_trace=<span class="string">"enabled=off"</span>; <span class="comment">--关闭trace</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">"select#"</span>: <span class="number">1</span>,</span><br><span class="line">  <span class="attr">"steps"</span>: [</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="attr">"filesort_information"</span>: [</span><br><span class="line">        &#123;</span><br><span class="line">          <span class="attr">"direction"</span>: <span class="string">"asc"</span>,</span><br><span class="line">          <span class="attr">"table"</span>: <span class="string">"`employees`"</span>,</span><br><span class="line">          <span class="attr">"field"</span>: <span class="string">"position"</span></span><br><span class="line">        &#125;</span><br><span class="line">      ] /* filesort_information */,</span><br><span class="line">      <span class="attr">"filesort_priority_queue_optimization"</span>: &#123;</span><br><span class="line">        <span class="attr">"usable"</span>: <span class="literal">false</span>,</span><br><span class="line">        <span class="attr">"cause"</span>: <span class="string">"not applicable (no LIMIT)"</span></span><br><span class="line">      &#125; /* filesort_priority_queue_optimization */,</span><br><span class="line">      <span class="attr">"filesort_execution"</span>: [</span><br><span class="line">      ] /* filesort_execution */,</span><br><span class="line">      <span class="attr">"filesort_summary"</span>: &#123;</span><br><span class="line">        <span class="attr">"rows"</span>: <span class="number">10000</span>,</span><br><span class="line">        <span class="attr">"examined_rows"</span>: <span class="number">10000</span>,</span><br><span class="line">        <span class="attr">"number_of_tmp_files"</span>: <span class="number">2</span>,</span><br><span class="line">        <span class="attr">"sort_buffer_size"</span>: <span class="number">262136</span>,</span><br><span class="line">        <span class="attr">"sort_mode"</span>: <span class="string">"&lt;sort_key, rowid&gt;"</span></span><br><span class="line">        // 排序方式， 这里用的双路排序</span><br><span class="line">      &#125; /* filesort_summary */</span><br><span class="line">    &#125;</span><br><span class="line">  ] /* steps */</span><br><span class="line">&#125; /* join_execution */</span><br></pre></td></tr></table></figure>
+<p><strong>单路排序</strong>：从索引name找到第一个满足name = ‘zhangsan’ 条件的主键id，根据主键id取出整行，<strong>取出所有字段的值，存入sort_buffer中</strong>，直到将所以满足条件的数据找完，对sort_buffer中的数据按照字段position进行排序。</p>
+<p><strong>双路排序</strong>：从索引name找到第一个满足name = ‘zhuge’的主键id，根据主键id取出整行，<strong>把排序字段position和主键id放到sort buffer中</strong>，直到将所以满足条件的数据找完，对sort_buffer中的字段position和主键id按照字段 position进行排序，<strong>遍历排序好的id和字段position，按照id的值回到原表中取出所有字段的值</strong>返回给客户端</p>
+<p>对比两个排序模式，<strong>单路排序会把所有需要查询的字段都放到sort buffer中</strong>，而<strong>双路排序只会把主键和需要排序的字段放到sort buffer中进行排序</strong>，<strong>然后再通过主键回到原表查询需要的字段</strong>。</p>
+<p>若MySQL排序<strong>内存sort_buffer配置比较小</strong>且没有条件继续增加了，可适当把<strong><code>max_length_for_sort_data</code></strong>配置小点，<strong>让优化器选择使用双路排序算法</strong>，可在sort_buffer中一次排序更多的行，只需要再根据主键回到原表取数据。</p>
+<p>若MySQL排序内存有条件可以配置比较大，可以<strong>适当增大<code>max_length_for_sort_data</code>的值</strong>，让优化器优先选择单路排序，把需要的字段放到sort_buffer中，这样排序后就会直接从内存里返回查询结果了。</p>
+<p>MySQL通过max_length_for_sort_data 这个参数来控制排序，在<strong>不同场景使用不同的排序模式，从而提升排序效率</strong>。若全部使用<strong>sort_buffer内存排序一般情况下效率会高于磁盘文件排序</strong>，但不能因为这个就随便增<br>大<strong><code>sort_buffer</code>默认<code>1M</code></strong>，mysql很多参数设置都是做过优化的，不要轻易调整。 </p>
+<h3 id="优化实例"><a href="#优化实例" class="headerlink" title="优化实例"></a>优化实例</h3><h4 id="示例数据"><a href="#示例数据" class="headerlink" title="示例数据"></a>示例数据</h4><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> <span class="string">`employees`</span> (</span><br><span class="line"> <span class="string">`id`</span> <span class="built_in">int</span>(<span class="number">11</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span> AUTO_INCREMENT,</span><br><span class="line"> <span class="string">`name`</span> <span class="built_in">varchar</span>(<span class="number">24</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">DEFAULT</span> <span class="string">''</span> <span class="keyword">COMMENT</span> <span class="string">'姓名'</span>,</span><br><span class="line"> <span class="string">`age`</span> <span class="built_in">int</span>(<span class="number">11</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">DEFAULT</span> <span class="string">'0'</span> <span class="keyword">COMMENT</span> <span class="string">'年龄'</span>,</span><br><span class="line"> <span class="string">`position`</span> <span class="built_in">varchar</span>(<span class="number">20</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">DEFAULT</span> <span class="string">''</span> <span class="keyword">COMMENT</span> <span class="string">'职位'</span>,</span><br><span class="line"> <span class="string">`hire_time`</span> <span class="built_in">timestamp</span> <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">DEFAULT</span> <span class="keyword">CURRENT_TIMESTAMP</span> <span class="keyword">COMMENT</span> <span class="string">'入职时间'</span>,</span><br><span class="line"> PRIMARY <span class="keyword">KEY</span> (<span class="string">`id`</span>),</span><br><span class="line"> <span class="keyword">KEY</span> <span class="string">`idx_name_age_position`</span> (<span class="string">`name`</span>,<span class="string">`age`</span>,<span class="string">`position`</span>) <span class="keyword">USING</span> BTREE</span><br><span class="line">) <span class="keyword">ENGINE</span>=<span class="keyword">InnoDB</span> AUTO_INCREMENT=<span class="number">1</span> <span class="keyword">DEFAULT</span> <span class="keyword">CHARSET</span>=utf8 <span class="keyword">COMMENT</span>=<span class="string">'员工记录表'</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> employees(<span class="keyword">name</span>,age,<span class="keyword">position</span>,hire_time) <span class="keyword">VALUES</span>(<span class="string">'LiLei'</span>,<span class="number">22</span>,<span class="string">'manager'</span>,<span class="keyword">NOW</span>());</span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> employees(<span class="keyword">name</span>,age,<span class="keyword">position</span>,hire_time) <span class="keyword">VALUES</span>(<span class="string">'HanMeimei'</span>, <span class="number">23</span>,<span class="string">'dev'</span>,<span class="keyword">NOW</span>());</span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> employees(<span class="keyword">name</span>,age,<span class="keyword">position</span>,hire_time) <span class="keyword">VALUES</span>(<span class="string">'Lucy'</span>,<span class="number">23</span>,<span class="string">'dev'</span>,<span class="keyword">NOW</span>());</span><br><span class="line"></span><br><span class="line"> <span class="comment">-- 插入一些示例数据</span></span><br><span class="line"><span class="keyword">drop</span> <span class="keyword">procedure</span> <span class="keyword">if</span> <span class="keyword">exists</span> insert_emp;</span><br><span class="line">delimiter ;;</span><br><span class="line"><span class="keyword">create</span> <span class="keyword">procedure</span> insert_emp()</span><br><span class="line"><span class="keyword">begin</span></span><br><span class="line">    <span class="keyword">declare</span> i <span class="built_in">int</span>;</span><br><span class="line">    <span class="keyword">set</span> i=<span class="number">1</span>;</span><br><span class="line">    while(i&lt;=100000)do</span><br><span class="line">        <span class="keyword">insert</span> <span class="keyword">into</span> employees(<span class="keyword">name</span>,age,<span class="keyword">position</span>) <span class="keyword">values</span>(<span class="keyword">CONCAT</span>(<span class="string">'zhangsan'</span>,i),i,<span class="string">'dev'</span>);</span><br><span class="line">        <span class="keyword">set</span> i=i+<span class="number">1</span>;</span><br><span class="line">    <span class="keyword">end</span> <span class="keyword">while</span>;</span><br><span class="line"><span class="keyword">end</span>;;</span><br><span class="line">delimiter ;</span><br><span class="line"><span class="keyword">call</span> insert_emp();</span><br></pre></td></tr></table></figure>
+<h4 id="联合索引第一个字段用范围查找"><a href="#联合索引第一个字段用范围查找" class="headerlink" title="联合索引第一个字段用范围查找"></a>联合索引第一个字段用范围查找</h4><p>第一个字段用范围查找，可能不会走索引，mysql内部计算第一个字段<strong>查询范围</strong>，<strong>若结果集很大，回表效率不高，或扫描的行很多，还不如就全表扫描</strong>，就不会走索引</p>
+<p>很明显这里没有走索引，但是不同的数据是有可能走索引的，即使走索引也只是name字段能走索引</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">EXPLAIN</span> <span class="keyword">SELECT</span> * <span class="keyword">FROM</span> employees <span class="keyword">WHERE</span> <span class="keyword">name</span> &gt; <span class="string">'LiLei'</span> <span class="keyword">AND</span> age = <span class="number">22</span> <span class="keyword">AND</span> <span class="keyword">position</span> =<span class="string">'manager'</span>;</span><br></pre></td></tr></table></figure>
+<p><img src="../../../../images/DB/index_opt_range_invalid_1.png" alt></p>
+<p>这里使用<code>like</code>就能走索引，且三个字段的索引都走了，但<strong><code>like</code></strong>也<strong>不一定必定走索引</strong></p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">EXPLAIN</span> <span class="keyword">SELECT</span> * <span class="keyword">FROM</span> employees <span class="keyword">WHERE</span> <span class="keyword">name</span> <span class="keyword">like</span> <span class="string">'LiLei%'</span> <span class="keyword">AND</span> age = <span class="number">22</span> <span class="keyword">AND</span> <span class="keyword">position</span> =<span class="string">'manager'</span>;</span><br></pre></td></tr></table></figure>
+<p><img src="../../../../images/DB/index_opt_range_valid_2.png" alt></p>
+<h4 id="强制索引"><a href="#强制索引" class="headerlink" title="强制索引"></a>强制索引</h4><p>使用<strong><code>force index</code></strong>强制使用索引，虽然使用了强制走索引让联合索引第一个字段范围查找也走索引，扫描的行rows看上去也少了点，但是<strong>最终查找效率不一定比全表扫描高</strong>，因为回表效率不高 </p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">EXPLAIN</span> <span class="keyword">SELECT</span> * <span class="keyword">FROM</span> employees <span class="keyword">force</span> <span class="keyword">index</span>(idx_name_age_position) <span class="keyword">WHERE</span> <span class="keyword">name</span> &gt; <span class="string">'LiLei'</span> <span class="keyword">AND</span> age = <span class="number">22</span> <span class="keyword">AND</span> <span class="keyword">position</span> =<span class="string">'manager'</span>;</span><br></pre></td></tr></table></figure>
+<p><img src="../../../../images/DB/index_opt_range_valid_3.png" alt></p>
+<p>关闭查询缓存，分别查询如下两个语句，很明强制索引比不走索引慢得多</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">set</span> <span class="keyword">global</span> query_cache_size=<span class="number">0</span>;</span><br><span class="line"><span class="keyword">set</span> <span class="keyword">global</span> query_cache_type=<span class="number">0</span>;</span><br><span class="line"><span class="comment">-- 执行时间0.103s</span></span><br><span class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> employees <span class="keyword">WHERE</span> <span class="keyword">name</span> &gt; <span class="string">'LiLei'</span>;</span><br><span class="line"><span class="comment">-- 执行时间0.623s</span></span><br><span class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> employees <span class="keyword">force</span> <span class="keyword">index</span>(idx_name_age_position) <span class="keyword">WHERE</span> <span class="keyword">name</span> &gt; <span class="string">'LiLei'</span>;</span><br></pre></td></tr></table></figure>
+<h4 id="覆盖索引优化"><a href="#覆盖索引优化" class="headerlink" title="覆盖索引优化"></a>覆盖索引优化</h4><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">EXPLAIN</span> <span class="keyword">SELECT</span> <span class="keyword">name</span>,age,<span class="keyword">position</span> <span class="keyword">FROM</span> employees <span class="keyword">WHERE</span> <span class="keyword">name</span> &gt; <span class="string">'LiLei'</span> <span class="keyword">AND</span> age = <span class="number">22</span> <span class="keyword">AND</span> <span class="keyword">position</span> =<span class="string">'manager'</span>;</span><br></pre></td></tr></table></figure>
+<p><img src="../../../../images/DB/index_opt_range_valid_4.png" alt></p>
+<h4 id="in和or"><a href="#in和or" class="headerlink" title="in和or"></a>in和or</h4><p>in和or在<strong>表数据量比较大的情况会走索引</strong>，在<strong>表记录不多的情况下会选择全表扫描</strong> </p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">EXPLAIN</span> <span class="keyword">SELECT</span> * <span class="keyword">FROM</span> employees <span class="keyword">WHERE</span> <span class="keyword">name</span> <span class="keyword">in</span> (<span class="string">'LiLei'</span>, <span class="string">'HanMeimei'</span>, <span class="string">'Lucy'</span>) <span class="keyword">AND</span> age = <span class="number">22</span> <span class="keyword">AND</span> <span class="keyword">position</span> = <span class="string">'manager'</span>;</span><br><span class="line"><span class="keyword">EXPLAIN</span> <span class="keyword">SELECT</span> * <span class="keyword">FROM</span> employees <span class="keyword">WHERE</span> (<span class="keyword">name</span> = <span class="string">'LiLei'</span> <span class="keyword">or</span> <span class="keyword">name</span> = <span class="string">'HanMeimei'</span>) <span class="keyword">AND</span> age = <span class="number">22</span> <span class="keyword">AND</span> <span class="keyword">position</span> = <span class="string">'manager'</span>;</span><br></pre></td></tr></table></figure>
+<p><img src="../../../../images/DB/index_opt_range_in_or_valid_5.png" alt></p>
+<p>将employees表复制一张employees_copy的表，只保留两三条记录</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">EXPLAIN</span> <span class="keyword">SELECT</span> * <span class="keyword">FROM</span> employees_copy <span class="keyword">WHERE</span> <span class="keyword">name</span> <span class="keyword">in</span> (<span class="string">'LiLei'</span>, <span class="string">'HanMeimei'</span>, <span class="string">'Lucy'</span>) <span class="keyword">AND</span> age = <span class="number">22</span> <span class="keyword">AND</span> <span class="keyword">position</span> = <span class="string">'manager'</span>;</span><br><span class="line"><span class="keyword">EXPLAIN</span> <span class="keyword">SELECT</span> * <span class="keyword">FROM</span> employees_copy <span class="keyword">WHERE</span> (<span class="keyword">name</span> = <span class="string">'LiLei'</span> <span class="keyword">or</span> <span class="keyword">name</span> = <span class="string">'HanMeimei'</span>) <span class="keyword">AND</span> age = <span class="number">22</span> <span class="keyword">AND</span> <span class="keyword">position</span> = <span class="string">'manager'</span>;</span><br></pre></td></tr></table></figure>
+<p><img src="../../../../images/DB/index_opt_range_in_or_invalid_6.png" alt></p>
+<h4 id="like"><a href="#like" class="headerlink" title="like"></a>like</h4><p>like KK%<strong>一般情况都会走索引</strong>，之所以走索引，是因为用到了<strong><a href="#索引下推">索引下推优化</a></strong></p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">EXPLAIN</span> <span class="keyword">SELECT</span> * <span class="keyword">FROM</span> employees <span class="keyword">WHERE</span> <span class="keyword">name</span> <span class="keyword">like</span> <span class="string">'LiLei%'</span> <span class="keyword">AND</span> age = <span class="number">22</span> <span class="keyword">AND</span> <span class="keyword">position</span> =<span class="string">'manager'</span>;</span><br></pre></td></tr></table></figure>
+<p><img src="../../../../images/DB/index_opt_range_like_valid_7.png" alt></p>
+<p>但若扫表的数据过多，也可能不走索引</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">EXPLAIN</span> <span class="keyword">SELECT</span> * <span class="keyword">FROM</span> employees <span class="keyword">WHERE</span> <span class="keyword">name</span> <span class="keyword">like</span> <span class="string">'zhangsan%'</span> <span class="keyword">AND</span> age = <span class="number">22</span> <span class="keyword">AND</span> <span class="keyword">position</span> =<span class="string">'manager'</span>;</span><br></pre></td></tr></table></figure>
+<p><img src="../../../../images/DB/index_opt_range_like_invalid_8.png" alt></p>
+<h4 id="order-by与group-by优化"><a href="#order-by与group-by优化" class="headerlink" title="order by与group by优化"></a>order by与group by优化</h4><p>最左前缀法则，中间字段不能断，因此查询用到了name索引，从<strong><code>key_len=74</code></strong>也能看出，age索引列用<br>在排序过程中，<strong>因为<code>Extra</code>字段里没有<code>using filesort</code></strong></p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">explain</span> <span class="keyword">select</span> * <span class="keyword">from</span> employees <span class="keyword">where</span> <span class="keyword">name</span> = <span class="string">'Lilei'</span> <span class="keyword">and</span> <span class="keyword">position</span> = <span class="string">'dev'</span> <span class="keyword">order</span> <span class="keyword">by</span> age;</span><br></pre></td></tr></table></figure>
+<p><img src="../../../../images/DB/index_opt_order_by_invalid_12.png" alt></p>
+<p><strong><code>key_len=74</code></strong>查询使用了name索引，由于用了position进行排序，跳过了age，出现了<strong><code>Using filesort</code></strong></p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">explain</span> <span class="keyword">select</span> * <span class="keyword">from</span> employees <span class="keyword">where</span> <span class="keyword">name</span> = <span class="string">'Lilei'</span> <span class="keyword">order</span> <span class="keyword">by</span> <span class="keyword">position</span>;</span><br></pre></td></tr></table></figure>
+<p><img src="../../../../images/DB/index_opt_order_by_invalid_13.png" alt></p>
+<p>查找只用到索引name，age和position用于排序，<strong>无<code>Using filesort</code></strong></p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">explain</span> <span class="keyword">select</span> * <span class="keyword">from</span> employees <span class="keyword">where</span> <span class="keyword">name</span> = <span class="string">'Lilei'</span> <span class="keyword">order</span> <span class="keyword">by</span> age, <span class="keyword">position</span>;</span><br></pre></td></tr></table></figure>
+<p><img src="../../../../images/DB/index_opt_order_by_valid_14.png" alt></p>
+<p><strong>出现<code>Using filesort</code></strong>，因为索引的创建顺序为name,age,position，但是排序的时候age和position颠倒位置了</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">explain</span> <span class="keyword">select</span> * <span class="keyword">from</span> employees <span class="keyword">where</span> <span class="keyword">name</span> = <span class="string">'Lilei'</span> <span class="keyword">order</span> <span class="keyword">by</span> <span class="keyword">position</span>,age;</span><br></pre></td></tr></table></figure>
+<p><img src="../../../../images/DB/index_opt_order_by_invalid_15.png" alt></p>
+<p><strong>未出现Using filesort</strong>，因为age为常量，<strong>在排序中被优化</strong>，所以索引未颠倒</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">explain</span> <span class="keyword">select</span> * <span class="keyword">from</span> employees <span class="keyword">where</span> <span class="keyword">name</span> = <span class="string">'Lilei'</span> <span class="keyword">and</span> age = <span class="number">18</span> <span class="keyword">order</span> <span class="keyword">by</span> <span class="keyword">position</span>,age;</span><br></pre></td></tr></table></figure>
+<p><img src="../../../../images/DB/index_opt_order_by_valid_16.png" alt></p>
+<p>虽然排序的字段列与索引顺序一样，且order by默认升序，这里position desc变成了降序，导致与<strong>索引的排序方式不同</strong>，从而产生Using filesort。Mysql8以上版本有<strong>降序索引</strong>可以支持该种查询方式。 </p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">explain</span> <span class="keyword">select</span> * <span class="keyword">from</span> employees <span class="keyword">where</span> <span class="keyword">name</span> = <span class="string">'zhangsan'</span> <span class="keyword">order</span> <span class="keyword">by</span> age <span class="keyword">asc</span>, <span class="keyword">position</span> <span class="keyword">desc</span>;</span><br></pre></td></tr></table></figure>
+<p><img src="../../../../images/DB/index_opt_order_by_invalid_17.png" alt></p>
+<p>对于排序来说，多个相等条件也是范围查询</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">explain</span> <span class="keyword">select</span> * <span class="keyword">from</span> employees <span class="keyword">where</span> <span class="keyword">name</span> <span class="keyword">in</span> (<span class="string">'zhangsan'</span>, <span class="string">'LiLei'</span>) <span class="keyword">order</span> <span class="keyword">by</span> age, <span class="keyword">position</span>;</span><br></pre></td></tr></table></figure>
+<p><img src="../../../../images/DB/index_opt_order_by_invalid_18.png" alt></p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">explain</span> <span class="keyword">select</span> * <span class="keyword">from</span> employees <span class="keyword">where</span> <span class="keyword">name</span> &gt; <span class="string">'a'</span> <span class="keyword">order</span> <span class="keyword">by</span> <span class="keyword">name</span>;</span><br></pre></td></tr></table></figure>
+<p><img src="../../../../images/DB/index_opt_order_by_invalid_19.png" alt></p>
+<p>用覆盖索引优化 </p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">explain</span> <span class="keyword">select</span> <span class="keyword">name</span>, age, <span class="keyword">position</span> <span class="keyword">from</span> employees <span class="keyword">where</span> <span class="keyword">name</span> &gt; <span class="string">'a'</span> <span class="keyword">order</span> <span class="keyword">by</span> <span class="keyword">name</span>;</span><br></pre></td></tr></table></figure>
+<p><img src="../../../../images/DB/index_opt_order_by_valid_20.png" alt></p>
+<p><code>MySQL</code>支持<strong>两种</strong>方式的排序<strong><code>filesort</code></strong>和<strong><code>index</code></strong>，<strong><code>Using index</code></strong>是指MySQL<strong>扫描索引本身完成排序</strong>。<strong><code>index</code>效率高，<code>filesort</code>效率低</strong>。</p>
+<p>order by满足两种情况会使用Using index：order by语句<strong>使用索引最左前列</strong>；使用<strong><code>where</code>子句与<code>order by</code>子句条件列组合满足索引最左前列</strong>。</p>
+<p><strong>尽量在索引列上完成排序</strong>，遵循索引建立时的最左前缀法则。若order by的条件不在索引列上，就会产生Using filesort。<strong>能用覆盖索引尽量用覆盖索引</strong>；</p>
+<p><strong>group by与order by很类似，其实质是先排序后分组，遵照索引创建顺序的最左前缀法则</strong>，对于group by的优化若<strong>不需要排序的可以加上<code>order by null</code>禁止排序</strong></p>
+<p><strong>where高于having，能写在where中的限定条件就不要去having限定了</strong> </p>
+<h4 id="trace工具"><a href="#trace工具" class="headerlink" title="trace工具"></a>trace工具</h4><p>我们的数据中name大于a的数据非常多，而大于zzz的数据几乎没有，由于用name索引需要遍历name字段联合索引树，然后还需要根据遍历出来的主键值去主键索引树里再去查出最终数据，成本比全表扫描还高；</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">EXPLAIN</span> <span class="keyword">select</span> * <span class="keyword">from</span> employees <span class="keyword">where</span> <span class="keyword">name</span> &gt; <span class="string">'a'</span>;</span><br></pre></td></tr></table></figure>
+<p><img src="../../../../images/DB/index_opt_range_invalid_9.png" alt></p>
+<p>使用覆盖索引优化</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">EXPLAIN</span> <span class="keyword">select</span> <span class="keyword">name</span>,age,<span class="keyword">position</span> <span class="keyword">from</span> employees <span class="keyword">where</span> <span class="keyword">name</span> &gt; <span class="string">'a'</span> ;</span><br></pre></td></tr></table></figure>
+<p><img src="../../../../images/DB/index_opt_range_valid_10.png" alt></p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">EXPLAIN</span> <span class="keyword">select</span> * <span class="keyword">from</span> employees <span class="keyword">where</span> <span class="keyword">name</span> &gt; <span class="string">'zzz'</span> ;</span><br></pre></td></tr></table></figure>
+<p><img src="../../../../images/DB/index_opt_range_valid_11.png" alt></p>
+<p>最终是否选择走索引或者一张表涉及多个索引，最终如何选择索引，可通过trace工具来具体分析一下，开启trace工具会影响mysql性能，只能临时分析sql使用，用完之后立即关闭，如下是开启trace工具命令，然后调用具体的查询语句，在查询<strong><code>information_schema.OPTIMIZER_TRACE</code></strong>的trace字段。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 开启trace</span></span><br><span class="line"><span class="keyword">set</span> <span class="keyword">session</span> optimizer_trace = <span class="string">"enabled=on"</span>,end_markers_in_json = <span class="keyword">on</span>;</span><br><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> employees <span class="keyword">where</span> <span class="keyword">name</span> &gt; <span class="string">'a'</span> <span class="keyword">order</span> <span class="keyword">by</span> <span class="keyword">position</span>;</span><br><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> information_schema.OPTIMIZER_TRACE;</span><br><span class="line"><span class="comment">-- 关闭trace</span></span><br><span class="line"><span class="keyword">set</span> <span class="keyword">session</span> optimizer_trace=<span class="string">"enabled=off"</span>;</span><br></pre></td></tr></table></figure>
+<p> 查询结果如下，可以很明显看到全表扫描的成本低于索引扫描，所以mysql最终选择全表扫描：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br><span class="line">198</span><br><span class="line">199</span><br><span class="line">200</span><br><span class="line">201</span><br><span class="line">202</span><br><span class="line">203</span><br><span class="line">204</span><br><span class="line">205</span><br><span class="line">206</span><br><span class="line">207</span><br><span class="line">208</span><br><span class="line">209</span><br><span class="line">210</span><br><span class="line">211</span><br><span class="line">212</span><br><span class="line">213</span><br><span class="line">214</span><br><span class="line">215</span><br><span class="line">216</span><br><span class="line">217</span><br><span class="line">218</span><br><span class="line">219</span><br><span class="line">220</span><br><span class="line">221</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">"steps"</span>: [</span><br><span class="line">    &#123;</span><br><span class="line">      "join_preparation": &#123; -- 第一阶段：SQL准备阶段，格式化sql</span><br><span class="line">        "select#": 1,</span><br><span class="line">        "steps": [</span><br><span class="line">          &#123;</span><br><span class="line">            <span class="attr">"expanded_query"</span>: <span class="string">"/* select#1 */ select `employees`.`id` AS `id`,`employees`.`name` AS `name`,`employees`.`age` AS `age`,`employees`.`position` AS `position`,`employees`.`hire_time` AS `hire_time` from `employees` where (`employees`.`name` &gt; 'a') order by `employees`.`position`"</span></span><br><span class="line">          &#125;</span><br><span class="line">        ] /* steps */</span><br><span class="line">      &#125; /* join_preparation */</span><br><span class="line">    &#125;,</span><br><span class="line">    &#123;</span><br><span class="line">      "join_optimization": &#123;	--第二阶段：SQL优化阶段</span><br><span class="line">        "select#": 1,</span><br><span class="line">        "steps": [</span><br><span class="line">          &#123;</span><br><span class="line">            "condition_processing": &#123;	--条件处理</span><br><span class="line">              "condition": "WHERE",</span><br><span class="line">              "original_condition": "(`employees`.`name` &gt; 'a')",</span><br><span class="line">              "steps": [</span><br><span class="line">                &#123;</span><br><span class="line">                  <span class="attr">"transformation"</span>: <span class="string">"equality_propagation"</span>,</span><br><span class="line">                  <span class="attr">"resulting_condition"</span>: <span class="string">"(`employees`.`name` &gt; 'a')"</span></span><br><span class="line">                &#125;,</span><br><span class="line">                &#123;</span><br><span class="line">                  <span class="attr">"transformation"</span>: <span class="string">"constant_propagation"</span>,</span><br><span class="line">                  <span class="attr">"resulting_condition"</span>: <span class="string">"(`employees`.`name` &gt; 'a')"</span></span><br><span class="line">                &#125;,</span><br><span class="line">                &#123;</span><br><span class="line">                  <span class="attr">"transformation"</span>: <span class="string">"trivial_condition_removal"</span>,</span><br><span class="line">                  <span class="attr">"resulting_condition"</span>: <span class="string">"(`employees`.`name` &gt; 'a')"</span></span><br><span class="line">                &#125;</span><br><span class="line">              ] /* steps */</span><br><span class="line">            &#125; /* condition_processing */</span><br><span class="line">          &#125;,</span><br><span class="line">          &#123;</span><br><span class="line">            <span class="attr">"substitute_generated_columns"</span>: &#123;</span><br><span class="line">            &#125; /* substitute_generated_columns */</span><br><span class="line">          &#125;,</span><br><span class="line">          &#123;</span><br><span class="line">            <span class="attr">"table_dependencies"</span>: [	--表依赖详情</span><br><span class="line">              &#123;</span><br><span class="line">                <span class="attr">"table"</span>: <span class="string">"`employees`"</span>,</span><br><span class="line">                <span class="attr">"row_may_be_null"</span>: <span class="literal">false</span>,</span><br><span class="line">                <span class="attr">"map_bit"</span>: <span class="number">0</span>,</span><br><span class="line">                <span class="attr">"depends_on_map_bits"</span>: [</span><br><span class="line">                ] /* depends_on_map_bits */</span><br><span class="line">              &#125;</span><br><span class="line">            ] /* table_dependencies */</span><br><span class="line">          &#125;,</span><br><span class="line">          &#123;</span><br><span class="line">            <span class="attr">"ref_optimizer_key_uses"</span>: [</span><br><span class="line">            ] /* ref_optimizer_key_uses */</span><br><span class="line">          &#125;,</span><br><span class="line">          &#123;</span><br><span class="line">            <span class="attr">"rows_estimation"</span>: [	--预估表的访问成本</span><br><span class="line">              &#123;</span><br><span class="line">                <span class="attr">"table"</span>: <span class="string">"`employees`"</span>,</span><br><span class="line">                <span class="attr">"range_analysis"</span>: &#123;</span><br><span class="line">                  "table_scan": &#123;	--全表扫描情况</span><br><span class="line">                    "rows": 97275,	--扫描行数</span><br><span class="line">                    "cost": 19810	--查询成本</span><br><span class="line">                  &#125; /* table_scan */,</span><br><span class="line">                  "potential_range_indexes": [ --查询可能使用的索引</span><br><span class="line">                    &#123;</span><br><span class="line">                      "index": "PRIMARY",	--主键索引</span><br><span class="line">                      "usable": false,</span><br><span class="line">                      "cause": "not_applicable"</span><br><span class="line">                    &#125;,</span><br><span class="line">                    &#123;</span><br><span class="line">                      "index": "idx_name_age_position",	--辅助索引</span><br><span class="line">                      "usable": true,</span><br><span class="line">                      "key_parts": [</span><br><span class="line">                        "name",</span><br><span class="line">                        "age",</span><br><span class="line">                        "position",</span><br><span class="line">                        <span class="string">"id"</span></span><br><span class="line">                      ] /* key_parts */</span><br><span class="line">                    &#125;</span><br><span class="line">                  ] /* potential_range_indexes */,</span><br><span class="line">                  "setup_range_conditions": [</span><br><span class="line">                  ] /* setup_range_conditions */,</span><br><span class="line">                  "group_index_range": &#123;</span><br><span class="line">                    "chosen": false,</span><br><span class="line">                    "cause": "not_group_by_or_distinct"</span><br><span class="line">                  &#125; /* group_index_range */,</span><br><span class="line">                  "analyzing_range_alternatives": &#123;	--分析各个索引使用成本</span><br><span class="line">                    "range_scan_alternatives": [</span><br><span class="line">                      &#123;</span><br><span class="line">                        <span class="attr">"index"</span>: <span class="string">"idx_name_age_position"</span>,</span><br><span class="line">                        <span class="attr">"ranges"</span>: [</span><br><span class="line">                          <span class="string">"a &lt; name"</span>	--索引使用范围</span><br><span class="line">                        ] /* ranges */,</span><br><span class="line">                        <span class="attr">"index_dives_for_eq_ranges"</span>: <span class="literal">true</span>,</span><br><span class="line">                        "rowid_ordered": false,	--使用该索引获取的记录是否按照主键排序</span><br><span class="line">                        "using_mrr": false,</span><br><span class="line">                        "index_only": false,	--是否使用覆盖索引</span><br><span class="line">                        "rows": 48637,	--索引扫描行数</span><br><span class="line">                        "cost": 58365,	--索引使用成本</span><br><span class="line">                        "chosen": false,	--是否选择该索引</span><br><span class="line">                        "cause": "cost"</span><br><span class="line">                      &#125;</span><br><span class="line">                    ] /* range_scan_alternatives */,</span><br><span class="line">                    "analyzing_roworder_intersect": &#123;</span><br><span class="line">                      "usable": false,</span><br><span class="line">                      "cause": "too_few_roworder_scans"</span><br><span class="line">                    &#125; /* analyzing_roworder_intersect */</span><br><span class="line">                  &#125; /* analyzing_range_alternatives */</span><br><span class="line">                &#125; /* range_analysis */</span><br><span class="line">              &#125;</span><br><span class="line">            ] /* rows_estimation */</span><br><span class="line">          &#125;,</span><br><span class="line">          &#123;</span><br><span class="line">            <span class="attr">"considered_execution_plans"</span>: [</span><br><span class="line">              &#123;</span><br><span class="line">                <span class="attr">"plan_prefix"</span>: [</span><br><span class="line">                ] /* plan_prefix */,</span><br><span class="line">                <span class="attr">"table"</span>: <span class="string">"`employees`"</span>,</span><br><span class="line">                "best_access_path": &#123;	--最优访问路径</span><br><span class="line">                  "considered_access_paths": [	--最终选择的访问路径</span><br><span class="line">                    &#123;</span><br><span class="line">                      <span class="attr">"rows_to_scan"</span>: <span class="number">97275</span>,</span><br><span class="line">                      "access_type": "scan",	--访问类型：为scan，全表扫描</span><br><span class="line">                      "resulting_rows": 97275,</span><br><span class="line">                      "cost": 19808,</span><br><span class="line">                      "chosen": true,	--确定选择</span><br><span class="line">                      "use_tmp_table": true</span><br><span class="line">                    &#125;</span><br><span class="line">                  ] /* considered_access_paths */</span><br><span class="line">                &#125; /* best_access_path */,</span><br><span class="line">                "condition_filtering_pct": 100,</span><br><span class="line">                "rows_for_plan": 97275,</span><br><span class="line">                "cost_for_plan": 19808,</span><br><span class="line">                "sort_cost": 97275,</span><br><span class="line">                "new_cost_for_plan": 117083,</span><br><span class="line">                "chosen": true</span><br><span class="line">              &#125;</span><br><span class="line">            ] /* considered_execution_plans */</span><br><span class="line">          &#125;,</span><br><span class="line">          &#123;</span><br><span class="line">            <span class="attr">"attaching_conditions_to_tables"</span>: &#123;</span><br><span class="line">              <span class="attr">"original_condition"</span>: <span class="string">"(`employees`.`name` &gt; 'a')"</span>,</span><br><span class="line">              <span class="attr">"attached_conditions_computation"</span>: [</span><br><span class="line">              ] /* attached_conditions_computation */,</span><br><span class="line">              <span class="attr">"attached_conditions_summary"</span>: [</span><br><span class="line">                &#123;</span><br><span class="line">                  <span class="attr">"table"</span>: <span class="string">"`employees`"</span>,</span><br><span class="line">                  <span class="attr">"attached"</span>: <span class="string">"(`employees`.`name` &gt; 'a')"</span></span><br><span class="line">                &#125;</span><br><span class="line">              ] /* attached_conditions_summary */</span><br><span class="line">            &#125; /* attaching_conditions_to_tables */</span><br><span class="line">          &#125;,</span><br><span class="line">          &#123;</span><br><span class="line">            <span class="attr">"clause_processing"</span>: &#123;</span><br><span class="line">              <span class="attr">"clause"</span>: <span class="string">"ORDER BY"</span>,</span><br><span class="line">              <span class="attr">"original_clause"</span>: <span class="string">"`employees`.`position`"</span>,</span><br><span class="line">              <span class="attr">"items"</span>: [</span><br><span class="line">                &#123;</span><br><span class="line">                  <span class="attr">"item"</span>: <span class="string">"`employees`.`position`"</span></span><br><span class="line">                &#125;</span><br><span class="line">              ] /* items */,</span><br><span class="line">              <span class="attr">"resulting_clause_is_simple"</span>: <span class="literal">true</span>,</span><br><span class="line">              <span class="attr">"resulting_clause"</span>: <span class="string">"`employees`.`position`"</span></span><br><span class="line">            &#125; /* clause_processing */</span><br><span class="line">          &#125;,</span><br><span class="line">          &#123;</span><br><span class="line">            <span class="attr">"reconsidering_access_paths_for_index_ordering"</span>: &#123;</span><br><span class="line">              <span class="attr">"clause"</span>: <span class="string">"ORDER BY"</span>,</span><br><span class="line">              <span class="attr">"steps"</span>: [</span><br><span class="line">              ] /* steps */,</span><br><span class="line">              <span class="attr">"index_order_summary"</span>: &#123;</span><br><span class="line">                <span class="attr">"table"</span>: <span class="string">"`employees`"</span>,</span><br><span class="line">                <span class="attr">"index_provides_order"</span>: <span class="literal">false</span>,</span><br><span class="line">                <span class="attr">"order_direction"</span>: <span class="string">"undefined"</span>,</span><br><span class="line">                <span class="attr">"index"</span>: <span class="string">"unknown"</span>,</span><br><span class="line">                <span class="attr">"plan_changed"</span>: <span class="literal">false</span></span><br><span class="line">              &#125; /* index_order_summary */</span><br><span class="line">            &#125; /* reconsidering_access_paths_for_index_ordering */</span><br><span class="line">          &#125;,</span><br><span class="line">          &#123;</span><br><span class="line">            <span class="attr">"refine_plan"</span>: [</span><br><span class="line">              &#123;</span><br><span class="line">                <span class="attr">"table"</span>: <span class="string">"`employees`"</span></span><br><span class="line">              &#125;</span><br><span class="line">            ] /* refine_plan */</span><br><span class="line">          &#125;</span><br><span class="line">        ] /* steps */</span><br><span class="line">      &#125; /* join_optimization */</span><br><span class="line">    &#125;,</span><br><span class="line">    &#123;</span><br><span class="line">      "join_execution": &#123;	--第三阶段：SQL执行阶段</span><br><span class="line">        "select#": 1,</span><br><span class="line">        "steps": [</span><br><span class="line">          &#123;</span><br><span class="line">            <span class="attr">"filesort_information"</span>: [</span><br><span class="line">              &#123;</span><br><span class="line">                <span class="attr">"direction"</span>: <span class="string">"asc"</span>,</span><br><span class="line">                <span class="attr">"table"</span>: <span class="string">"`employees`"</span>,</span><br><span class="line">                <span class="attr">"field"</span>: <span class="string">"position"</span></span><br><span class="line">              &#125;</span><br><span class="line">            ] /* filesort_information */,</span><br><span class="line">            <span class="attr">"filesort_priority_queue_optimization"</span>: &#123;</span><br><span class="line">              <span class="attr">"usable"</span>: <span class="literal">false</span>,</span><br><span class="line">              <span class="attr">"cause"</span>: <span class="string">"not applicable (no LIMIT)"</span></span><br><span class="line">            &#125; /* filesort_priority_queue_optimization */,</span><br><span class="line">            <span class="attr">"filesort_execution"</span>: [</span><br><span class="line">            ] /* filesort_execution */,</span><br><span class="line">            <span class="attr">"filesort_summary"</span>: &#123;</span><br><span class="line">              <span class="attr">"rows"</span>: <span class="number">100003</span>,</span><br><span class="line">              <span class="attr">"examined_rows"</span>: <span class="number">100003</span>,</span><br><span class="line">              <span class="attr">"number_of_tmp_files"</span>: <span class="number">31</span>,</span><br><span class="line">              <span class="attr">"sort_buffer_size"</span>: <span class="number">262056</span>,</span><br><span class="line">              <span class="attr">"sort_mode"</span>: <span class="string">"&lt;sort_key, packed_additional_fields&gt;"</span></span><br><span class="line">            &#125; /* filesort_summary */</span><br><span class="line">          &#125;</span><br><span class="line">        ] /* steps */</span><br><span class="line">      &#125; /* join_execution */</span><br><span class="line">    &#125;</span><br><span class="line">  ] /* steps */</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+        </div>
+        
+    <footer class="article-footer">
+    </footer>
+    </div>
+</article>
+
+
+    
+    <nav id="article-nav">
+        
+            <a href="/Blog/DB/MySQL内部组件结构/" id="article-nav-newer" class="article-nav-link-wrap">
+                <strong class="article-nav-caption">Newer</strong>
+                <div class="article-nav-title">
+                    
+                        MySQL内部组件结构
+                    
+                </div>
+            </a>
+        
+        
+            <a href="/Blog/DB/索引的原理与使用/" id="article-nav-older" class="article-nav-link-wrap">
+                <strong class="article-nav-caption">Older</strong>
+                <div class="article-nav-title">索引的原理与使用</div>
+            </a>
+        
+    </nav>
+
+
+
+
+
+    
+    
+
+
+
+
+    <!-- baidu url auto push script -->
+    <script type="text/javascript">
+        !function () {
+            var e = /([http|https]:\/\/[a-zA-Z0-9\_\.]+\.baidu\.com)/gi, r = window.location.href,
+                o = document.referrer;
+            if (!e.test(r)) {
+                var n = "//api.share.baidu.com/s.gif";
+                o ? (n += "?r=" + encodeURIComponent(document.referrer), r && (n += "&l=" + r)) : r && (n += "?l=" + r);
+                var t = new Image;
+                t.src = n
+            }
+        }(window);
+    </script>
+</section>
+    </div>
+    <footer id="footer">
+    <div class="outer">
+        <div id="footer-info" class="inner">
+            YaoYingLong &copy; 2021
+            <!-- <a rel="license" href="http://creativecommons.org/licenses/by-nc-nd/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-nc-nd/4.0/80x15.png" /></a> -->
+            <br> Powered by <a href="http://hexo.io/" target="_blank" rel="external nofollow noopener noreferrer">Hexo</a>. Theme - <a href="https://github.com/zthxxx/hexo-theme-Wikitten" rel="external nofollow noopener noreferrer" target="_blank">wikitten</a>
+        </div>
+    </div>
+</footer>
+    
+
+    
+        <script src="/libs/lightgallery/js/lightgallery.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-thumbnail.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-pager.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-autoplay.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-fullscreen.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-zoom.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-hash.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-share.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-video.min.js"></script>
+    
+    
+        <script src="/libs/justified-gallery/jquery.justifiedGallery.min.js"></script>
+    
+    
+        <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [ ["$","$"], ["\\(","\\)"] ],
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
+            processEscapes: true,
+            TeX: {
+                equationNumbers: {
+                  autoNumber: 'AMS'
+                }
+            }
+        }
+    });
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax();
+        for (var i = 0; i < all.length; ++i)
+            all[i].SourceElement().parentNode.className += ' has-jax';
+    });
+
+
+</script>
+<script async src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+
+
+
+<!-- Custom Scripts -->
+<script src="/js/main.js"></script>
+
+</div>
+</body>

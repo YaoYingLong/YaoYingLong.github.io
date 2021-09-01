@@ -12,18 +12,18 @@
         <meta name="keywords" content="MySQL">
     
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-    <meta name="description" content="事务基本特征ACID事务是并发控制的单位，是用户定义的一个操作序列，这些操作要么都成功，要么都失败，是一个不可分割的工作单位。  Atomicity原子性：事务中的包含的操作被看做是一个逻辑单元，要么全部成功，要么全部失败 Isolation隔离性：多个用户可以对同一个数据并发访问，而不破坏数据的正确性和完整性，并行事务的修改必须与其他并行事务的修改相互独立 Consistency一致性：合法的数">
+    <meta name="description" content="数据类型选择选择正确的数据类型，对于性能至关重要，在数据类型设置方面，尽量用更小的数据类型，因为它们通常有更好的性能，花费更少的硬件资源，且尽量把字段定义为NOT NULL，避免使用NULL。一般应该遵循下面两步：  确定合适的大类型：数字、字符串、时间、二进制； 确定具体的类型：有无符号、取值范围、变长定长等。   数值类型若整形数据没有负数，如ID号，建议指定为UNSIGNED无符号类型，容量">
 <meta name="keywords" content="MySQL">
 <meta property="og:type" content="article">
 <meta property="og:title" content="MySQL基础">
 <meta property="og:url" content="https://yaoyinglong.github.io/Blog/DB/MySQL基础/index.html">
 <meta property="og:site_name" content="YingLong">
-<meta property="og:description" content="事务基本特征ACID事务是并发控制的单位，是用户定义的一个操作序列，这些操作要么都成功，要么都失败，是一个不可分割的工作单位。  Atomicity原子性：事务中的包含的操作被看做是一个逻辑单元，要么全部成功，要么全部失败 Isolation隔离性：多个用户可以对同一个数据并发访问，而不破坏数据的正确性和完整性，并行事务的修改必须与其他并行事务的修改相互独立 Consistency一致性：合法的数">
+<meta property="og:description" content="数据类型选择选择正确的数据类型，对于性能至关重要，在数据类型设置方面，尽量用更小的数据类型，因为它们通常有更好的性能，花费更少的硬件资源，且尽量把字段定义为NOT NULL，避免使用NULL。一般应该遵循下面两步：  确定合适的大类型：数字、字符串、时间、二进制； 确定具体的类型：有无符号、取值范围、变长定长等。   数值类型若整形数据没有负数，如ID号，建议指定为UNSIGNED无符号类型，容量">
 <meta property="og:locale" content="en">
-<meta property="og:updated_time" content="2021-06-18T07:38:50.314Z">
+<meta property="og:updated_time" content="2021-09-01T09:23:29.499Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="MySQL基础">
-<meta name="twitter:description" content="事务基本特征ACID事务是并发控制的单位，是用户定义的一个操作序列，这些操作要么都成功，要么都失败，是一个不可分割的工作单位。  Atomicity原子性：事务中的包含的操作被看做是一个逻辑单元，要么全部成功，要么全部失败 Isolation隔离性：多个用户可以对同一个数据并发访问，而不破坏数据的正确性和完整性，并行事务的修改必须与其他并行事务的修改相互独立 Consistency一致性：合法的数">
+<meta name="twitter:description" content="数据类型选择选择正确的数据类型，对于性能至关重要，在数据类型设置方面，尽量用更小的数据类型，因为它们通常有更好的性能，花费更少的硬件资源，且尽量把字段定义为NOT NULL，避免使用NULL。一般应该遵循下面两步：  确定合适的大类型：数字、字符串、时间、二进制； 确定具体的类型：有无符号、取值范围、变长定长等。   数值类型若整形数据没有负数，如ID号，建议指定为UNSIGNED无符号类型，容量">
     
 
     
@@ -178,9 +178,17 @@
                 
                     <li class="file"><a href="/Blog/DB/分库分表/">分库分表</a></li>
                 
-                    <li class="file"><a href="/Blog/DB/索引优化/">索引优化</a></li>
-                
                     <li class="file"><a href="/Blog/DB/Explain工具/">Explain工具</a></li>
+                
+                    <li class="file"><a href="/Blog/DB/MySQL内部组件结构/">MySQL内部组件结构</a></li>
+                
+                    <li class="file"><a href="/Blog/DB/索引优化一/">索引优化一</a></li>
+                
+                    <li class="file"><a href="/Blog/DB/MySQL事务隔离级别与锁机制/">MySQL事务隔离级别与锁机制</a></li>
+                
+                    <li class="file"><a href="/Blog/DB/索引优化三/">索引优化三</a></li>
+                
+                    <li class="file"><a href="/Blog/DB/索引优化二/">索引优化二</a></li>
                 
             </ul>
         
@@ -860,34 +868,198 @@
                     
             
             
-                <h3 id="事务基本特征ACID"><a href="#事务基本特征ACID" class="headerlink" title="事务基本特征ACID"></a>事务基本特征ACID</h3><p>事务是并发控制的单位，是用户定义的一个操作序列，这些操作要么都成功，要么都失败，是一个不可分割的工作单位。</p>
+                <h3 id="数据类型选择"><a href="#数据类型选择" class="headerlink" title="数据类型选择"></a>数据类型选择</h3><p>选择正确的数据类型，对于性能至关重要，在数据类型设置方面，<strong>尽量用更小的数据类型</strong>，因为它们通常有更好的性能，<strong>花费更少的硬件资源</strong>，且<strong>尽量把字段定义为<code>NOT NULL</code></strong>，避免使用NULL。一般应该遵循下面两步：</p>
 <ul>
-<li><strong><code>Atomicity</code>原子性</strong>：事务中的包含的操作被看做是一个逻辑单元，要么全部成功，要么全部失败</li>
-<li><strong><code>Isolation</code>隔离性</strong>：多个用户可以对同一个数据并发访问，而不破坏数据的正确性和完整性，并行事务的修改必须与其他并行事务的修改相互独立</li>
-<li><strong><code>Consistency</code>一致性</strong>：合法的数据被写入到数据库，否则事务回滚到最初状态</li>
-<li><strong><code>Durability</code>持久性</strong>：事务结束后，事务处理的结果必须能够得到固化</li>
+<li><strong>确定合适的大类型</strong>：<strong>数字</strong>、<strong>字符串</strong>、<strong>时间</strong>、<strong>二进制</strong>；</li>
+<li><strong>确定具体的类型</strong>：<strong>有无符号</strong>、<strong>取值范围</strong>、<strong>变长定长</strong>等。 </li>
 </ul>
-<h3 id="四种隔离级别"><a href="#四种隔离级别" class="headerlink" title="四种隔离级别"></a>四种隔离级别</h3><h4 id="Read-Uncommitted读未提交"><a href="#Read-Uncommitted读未提交" class="headerlink" title="Read Uncommitted读未提交"></a><code>Read Uncommitted</code>读未提交</h4><p>级别最低，<strong>一个事务可以读到另外一个事务未提交的数据</strong>，事务在<strong>读数据</strong>的时候并<strong>未对数据加锁</strong>，在<strong>修改数据</strong>的时候只对数据增加<strong>行级共享锁</strong>。</p>
-<p><strong>事务1</strong>读取某行记录时，<strong>事务2</strong>也能对这行记录进行读取、更新，因为<strong>事务1</strong>并未对数据增加任何锁；</p>
-<p>当<strong>事务2</strong>对该记录进行更新时，<strong>事务1</strong>再次读取该记录，能读到<strong>事务2</strong>对该记录的修改版本，因为<strong>事务2</strong>只增加了共享读锁，<strong>事务1</strong>可以再增加共享读锁读取数据，即使该修改尚未被提交；</p>
-<p><strong>事务1</strong>更新某行记录时，<strong>事务2</strong>不能对这行记录做更新，直到<strong>事务1</strong>结束，因为<strong>事务1</strong>对数据增加了共享读锁，<strong>事务2</strong>不能增加排他写锁进行数据的修改；</p>
-<h4 id="Read-Committed读已提交"><a href="#Read-Committed读已提交" class="headerlink" title="Read Committed读已提交"></a><code>Read Committed</code>读已提交</h4><p>在一个事务修改数据过程中，如果事务还没提交，其他事务不能读该数据，事务对当前被读取的数据加<strong>行级共享锁</strong>且当读到时才加锁，一旦读完该行，立即释放该行级共享锁；事务在<strong>更新某数据的瞬间</strong>，必须先对其加<strong>行级排他锁</strong>，直到事务结束才释放。</p>
-<p><strong>事务1</strong>在读取某行记录的整个过程中，<strong>事务2</strong>都可以对该行记录进行读取，因为<strong>事务1</strong>对该行记录增加行级共享锁的情况下，<strong>事务2</strong>同样可以对该数据增加共享锁来读数据；</p>
-<p><strong>事务1</strong>读取某行的一瞬间，<strong>事务2</strong>不能修改该行数据，但只要<strong>事务1</strong>读取完改行数据，<strong>事务2</strong>就可以对该行数据进行修改。因为<strong>事务1</strong>在读取的一瞬间会对数据增加共享锁，<strong>任何其他事务</strong>都不能对该行数据增加<strong>排他锁</strong>。但<strong>事务1</strong>只要读完该行数据，就会释放<strong>行级共享锁</strong>，一旦锁释放，<strong>事务2</strong>就可以对数据增加排他锁并修改数据；</p>
-<p><strong>事务1</strong>更新某行记录时，<strong>事务2</strong>不能对这行记录做更新，直到<strong>事务1</strong>结束。因为<strong>事务1</strong>在更新数据时，会对该行数据增加<strong>排他锁</strong>，直到事务结束才会释放锁，所以在<strong>事务2</strong>没有提交之前，<strong>事务1</strong>都能不对数据增加<strong>共享锁</strong>进行数据的读取。所以<strong>可以解决脏读的现象</strong>，但<strong>不能解决不可重复读现象</strong>。</p>
-<h4 id="Repeatable-Read可重复读"><a href="#Repeatable-Read可重复读" class="headerlink" title="Repeatable Read可重复读"></a><code>Repeatable Read</code>可重复读</h4><p>事务在读取某数据的瞬间，必须先对其加<strong>行级共享锁</strong>，直到事务结束才释放；事务在更新某数据的瞬间，必须先对其加<strong>行级排他锁</strong>，直到事务结束才释放。</p>
-<p><strong>事务1</strong>在读取某行记录的整个过程中，<strong>事务2</strong>都可以对该行记录进行读取，因为<strong>事务1</strong>对该行记录增加行级共享锁的情况下，<strong>事务2</strong>同样可以对该数据增加共享锁来读数据；</p>
-<p><strong>事务1</strong>在读取某行记录的整个过程中，<strong>事务2</strong>都不能修改该行数据，<strong>事务1</strong>在读取的<strong>整个过程</strong>会对数据增加共享锁，直到事务提交才会释放锁，所以整个过程中，<strong>任何其他事务</strong>都不能对该行数据增加排他锁。<strong>所以能解决不可重复读的读现象</strong>；</p>
-<p><strong>事务1</strong>更新某行记录时，<strong>事务2</strong>不能对这行记录做更新，直到<strong>事务1</strong>结束，<strong>事务1</strong>在更新数据的时候，会对该行数据增加排他锁，直到事务结束才会释放锁，所以在<strong>事务2</strong>没有提交之前，<strong>事务1</strong>都能不对数据增加共享锁进行数据的读取。<strong>所以可以解决可重复读的现象</strong>，但<strong>不能解决幻读现象</strong>。</p>
-<h4 id="Serializable串行化"><a href="#Serializable串行化" class="headerlink" title="Serializable串行化"></a><code>Serializable</code>串行化</h4><p>可序列化的隔离级别中可以解决幻读，产生幻读的原因是事务在进行范围查询的时候没有增加<strong>范围锁</strong>所以导致幻读，范围锁<strong><code>range-locks</code></strong>：给<code>SELECT</code> 的查询中使用一个<code>WHERE</code>子句描述范围加锁。事务在读取数据时，必须先对其加<strong>表级共享锁</strong> ，直到事务结束才释放；事务在更新数据时，必须先对其加<strong>表级排他锁</strong> ，直到事务结束才释放。</p>
-<p><strong>事务1</strong>正在读取<strong>A表</strong>中的记录时，则<strong>事务2</strong>也能读取<strong>A表</strong>，但不能对<strong>A表</strong>做<strong>更新、新增、删除</strong>，直到<strong>事务1</strong>结束，因为<strong>事务1</strong>对表增加了<strong>表级共享锁</strong>，<strong>其他事务</strong>只能增加<strong>共享锁读取数据</strong>，不能进行其他任何操作；</p>
-<p><strong>事务1</strong>正在<strong>更新A表</strong>中的记录时，则<strong>事务2</strong>不能读取<strong>A表</strong>的任意记录，更不可能对<strong>A表</strong>做更新、新增、删除，直到<strong>事务1</strong>结束，<strong>事务1</strong>对表增加了<strong>表级排他锁</strong>，其他事务不能对表增加共享锁或排他锁，也就无法进行任何操作；</p>
-<p>可序列化解决了<strong>脏读</strong>、<strong>不可重复读</strong>、<strong>幻读</strong>等读现象，但无法读取其它事务已修改但未提交的记录，在当前事务完成之前，其它事务不能修改目前事务已读取的记录，在当前事务完成之前，其它事务所插入的新记录，其索引键值不能在当前事务的任何语句所读取的索引键范围中。</p>
-<p>四种事务隔离级别从<strong>隔离程度上越来越高</strong>，但同时在<strong>并发性上也就越来越低</strong>。之所以有这么几种隔离级别，就是为了方便开发人员在开发过程中根据业务需要选择最合适的隔离级别。</p>
-<h4 id="脏读"><a href="#脏读" class="headerlink" title="脏读"></a>脏读</h4><p>脏读又称无效数据的读出，在一个事务的处理过程中读到另一个未提的交事务中的数据。</p>
-<h4 id="不可重复读"><a href="#不可重复读" class="headerlink" title="不可重复读"></a>不可重复读</h4><p>在对数据库中的某个数据，一个事务范围类多次查询却返回了不同的数据值与脏读的区别是：不可重复读是读取了前一事务提交的数据</p>
-<h4 id="虚读（幻读）"><a href="#虚读（幻读）" class="headerlink" title="虚读（幻读）"></a>虚读（幻读）</h4><p>事务在操作过程中两次查询，第二次查询的结果包含了第一次查询中未出现的数据或缺少第一次查询中出现的数据，一般解决幻读的方法是增加<strong>范围锁<code>RangeS</code></strong>，锁定检锁范围为只读，这样就避免了幻读。</p>
-<h3 id="数据库三范式"><a href="#数据库三范式" class="headerlink" title="数据库三范式"></a>数据库三范式</h3><p><strong><code>1NF</code></strong>：强调的是列的原子性，即列不能够再分成其他几列<br><strong><code>2NF</code></strong>：表必须有一个主键，没有包含在主键中的列必须完全依赖于主键，而不只是依赖于主键的一部分<br><strong><code>3NF</code></strong>：非主键列必须直接依赖于主键列，不能存在传递依赖</p>
+<h5 id="数值类型"><a href="#数值类型" class="headerlink" title="数值类型"></a>数值类型</h5><p>若整形数据<strong>没有负数</strong>，如ID号，建议<strong>指定为<code>UNSIGNED</code>无符号类型</strong>，容量可以扩大一倍；建议使用<code>TINYINT</code>代替<code>ENUM</code>、<code>BITENUM</code>、<code>SET</code>；<strong>避免使用整数的显示宽度</strong>，不要用INT(10)类似的方法指定字段显示宽度，直接用INT。</p>
+<p><strong><code>DECIMAL</code>最适合保存准确度要求高</strong>，<strong>且用于计算的数据</strong>，如价格。但在使用DECIMAL类型时，注意长度设置。<strong>建议使用整形类型来运算和存储实数</strong>，方法是<strong>实数乘以相应的倍数后再操作</strong>。<strong>整数通常是最佳的数据类型</strong>，因为它速度快，且能使用<code>AUTO_INCREMENT</code>。 </p>
+<p>INT显示宽度：在使用<code>ZEROFILL</code>时有用，<strong>让查询结果前填充0</strong>，如<code>TINYINT(5)</code> ，若结果是5，则输出就是00005，实际存储的值还是5，且存储的数据不会超过255，只是输出数据时在前面填充了0。 </p>
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>大小</th>
+<th>范围（有符号）</th>
+<th>范围（无符号）</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>TINYINT</td>
+<td>1 字节</td>
+<td>-2^7 ~ 2^7-1</td>
+<td>(0, 255)</td>
+<td>小整数值</td>
+</tr>
+<tr>
+<td>SMALLINT</td>
+<td>2 字节</td>
+<td>-2^15 ~ 2^15-1</td>
+<td>(0, 65535)</td>
+<td>大整数值</td>
+</tr>
+<tr>
+<td>MEDIUMINT</td>
+<td>3 字节</td>
+<td>-2^23 ~ 2^23-1</td>
+<td>(0, 16777215)</td>
+<td>大整数值</td>
+</tr>
+<tr>
+<td>INT或 INTEGER</td>
+<td>4 字节</td>
+<td>-2^31 ~ 2^31-1</td>
+<td>0~2^63-1</td>
+<td>大整数值</td>
+</tr>
+<tr>
+<td>BIGINT</td>
+<td>8 字节</td>
+<td>-2^63 ~ 2^63-1</td>
+<td>0~2^127-1</td>
+<td>极大整数值</td>
+</tr>
+<tr>
+<td>FLOAT</td>
+<td>4 字节</td>
+<td></td>
+<td></td>
+<td>单精度浮点数值</td>
+</tr>
+<tr>
+<td>DOUBLE</td>
+<td>8 字节</td>
+<td></td>
+<td></td>
+<td>双精度浮点数值</td>
+</tr>
+<tr>
+<td>DECIMAL</td>
+<td>DECIMAL(M,D) 若M&gt;D<br>为M+2否则为D+2</td>
+<td>依赖于M和D的值</td>
+<td>依赖于M和D的值</td>
+<td>小数值</td>
+</tr>
+</tbody>
+</table>
+<h5 id="日期和时间"><a href="#日期和时间" class="headerlink" title="日期和时间"></a>日期和时间</h5><p>MySQL能存储的<strong>最小时间粒度为秒</strong>。<strong>建议用<code>DATE</code>数据类型来保存日期</strong>，<strong>默认日期格式<code>YYYY-mm-dd</code></strong>。用<strong>内建类型<code>DATE</code>、<code>TIME</code>、<code>DATETIME</code>来存储时间，而不是使用字符串</strong>。</p>
+<p>当数据格式为<code>TIMESTAMP</code>和<code>DATETIME</code>时，可用<code>CURRENT_TIMESTAMP</code>作为默认值，MySQL会自动返回记录插入的确切时间。<code>TIMESTAMP</code>是<code>UTC</code>时间戳，<strong>与时区相关</strong>。</p>
+<p><code>DATETIME</code>的存储格式是一个<code>YYYY-MM-DD HH:mm:ss</code>的整数，<strong>与时区无关</strong>，存什么读出来就是什么。除非有特殊需求，一般的公司建议使用<code>TIMESTAMP</code>，它<strong>比<code>DATETIME</code>更节约空间</strong>，但大公司一般用<code>DATETIME</code>，因为<strong>不用考虑<code>TIMESTAMP</code>将来的时间上限问题</strong>。<strong>不推荐把Unix的时间戳保存为整数值</strong>。</p>
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>大小 (字节)</th>
+<th>范围</th>
+<th>格式</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>DATE</td>
+<td>3</td>
+<td><code>1000-01-01</code>到<code>9999-12-31</code></td>
+<td><code>YYYY-MM-DD</code></td>
+<td>日期值</td>
+</tr>
+<tr>
+<td>TIME</td>
+<td>3</td>
+<td><code>-838:59:59</code>到<code>838:59:59</code></td>
+<td>HH:mm:ss</td>
+<td>时间值或持续时间</td>
+</tr>
+<tr>
+<td>YEAR</td>
+<td>1</td>
+<td><code>1901</code>到<code>2155</code></td>
+<td><code>YYYY</code></td>
+<td>年份值</td>
+</tr>
+<tr>
+<td>DATETIME</td>
+<td>8</td>
+<td><code>1000-01-01 00:00:00</code>到<br><code>9999-12-31 23:59:59</code></td>
+<td><code>YYYY-MM-DD HH:mm:ss</code></td>
+<td>混合日期和时间值</td>
+</tr>
+<tr>
+<td>TIMESTAMP</td>
+<td>4</td>
+<td><code>1970-01-01 00:00:00</code>到<br><code>2038-01-19 03:14:07</code></td>
+<td><code>YYYYMMDDhhmmss</code></td>
+<td>混合日期、时间，时间戳</td>
+</tr>
+</tbody>
+</table>
+<p>字符串</p>
+<p><strong>字符串长度相差较大用<code>VARCHAR</code></strong>；<strong>字符串短且所有值都接近一个长度用<code>CHAR</code></strong>。<code>CHAR</code>和<code>VARCHAR</code><strong>适用于</strong>包括人名、邮政编码、电话号码和<strong>不超过255个字符长度</strong>的任意字母数字组合。需要用来计算的数字不要用<code>VARCHAR</code>类型保存，可能会导致一些与计算相关的问题，可能影响到计算的准确性和完整性。</p>
+<p><strong>尽量少用<code>BLOB</code>和<code>TEXT</code></strong>，如果实在要用<strong>可考虑将BLOB和TEXT字段单独存一张表</strong>用id关联。<strong>BLOB系列存储二进制字符串，与字符集无关</strong>。TEXT系列存储非二进制字符串，<strong>与字符集相关</strong>。BLOB和TEXT<strong>都不能有默认值</strong>。</p>
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>大小</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CHAR</td>
+<td>0-255字节</td>
+<td>定长字符串，char(n)当插入字符串实际长度不足n时，<br>插入空格进行补充保存。在检索时，尾部的空格会被去掉。</td>
+</tr>
+<tr>
+<td>VARCHAR</td>
+<td>0-65535字节</td>
+<td>变长字符串，varchar(n)中n代表最大列长度，<br>插入字符串实际长度不足n时不会补充空格</td>
+</tr>
+<tr>
+<td>TINYBLOB</td>
+<td>0-255字节</td>
+<td>不超过 255 个字符的二进制字符串</td>
+</tr>
+<tr>
+<td>TINYTEXT</td>
+<td>0-255字节</td>
+<td>短文本字符串</td>
+</tr>
+<tr>
+<td>BLOB</td>
+<td>0-65535字节</td>
+<td>二进制形式的长文本数据</td>
+</tr>
+<tr>
+<td>TEXT</td>
+<td>0-65535字节</td>
+<td>长文本数据</td>
+</tr>
+<tr>
+<td>MEDIUMBLOB</td>
+<td>0-16777215字节</td>
+<td>二进制形式的中等长度文本数据</td>
+</tr>
+<tr>
+<td>MEDIUMTEXT</td>
+<td>0-16777215字节</td>
+<td>中等长度文本数据</td>
+</tr>
+<tr>
+<td>LONGBLOB</td>
+<td>0-4294967295字节</td>
+<td>二进制形式的极大文本数据</td>
+</tr>
+<tr>
+<td>LONGTEXT</td>
+<td>0-4294967295字节</td>
+<td>极大文本数据</td>
+</tr>
+</tbody>
+</table>
 
         </div>
         
