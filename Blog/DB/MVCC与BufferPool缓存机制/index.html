@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     
     <title>
-        InnoDB |
+        MVCC与BufferPool缓存机制 |
         
         YingLong</title>
     
@@ -12,15 +12,22 @@
         <meta name="keywords" content="MySQL">
     
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-    <meta name="keywords" content="MySQL">
+    <meta name="description" content="MVCC多版本并发控制机制MySQL在可重复读隔离级别下同样的SQL查询语句在一个事务里多次执行查询结果相同，就算其它事务对数据有修改也不会影响当前事务SQL语句的查询结果。 该隔离性是靠MVCC(Multi-Version Concurrency Control)机制来保证的，对同一行数据的读和写默认不通过加锁互斥来保证隔离性，避免频繁加锁互斥，而在串行化隔离级别为了保证较高的隔离性是通过将所有">
+<meta name="keywords" content="MySQL">
 <meta property="og:type" content="article">
-<meta property="og:title" content="InnoDB">
-<meta property="og:url" content="https://yaoyinglong.github.io/Blog/DB/Innodb/index.html">
+<meta property="og:title" content="MVCC与BufferPool缓存机制">
+<meta property="og:url" content="https://yaoyinglong.github.io/Blog/DB/MVCC与BufferPool缓存机制/index.html">
 <meta property="og:site_name" content="YingLong">
+<meta property="og:description" content="MVCC多版本并发控制机制MySQL在可重复读隔离级别下同样的SQL查询语句在一个事务里多次执行查询结果相同，就算其它事务对数据有修改也不会影响当前事务SQL语句的查询结果。 该隔离性是靠MVCC(Multi-Version Concurrency Control)机制来保证的，对同一行数据的读和写默认不通过加锁互斥来保证隔离性，避免频繁加锁互斥，而在串行化隔离级别为了保证较高的隔离性是通过将所有">
 <meta property="og:locale" content="en">
-<meta property="og:updated_time" content="2021-08-30T02:03:26.398Z">
+<meta property="og:image" content="https://yaoyinglong.github.io/images/DB/undo_cell_back_log_2.png">
+<meta property="og:image" content="https://yaoyinglong.github.io/images/DB/undo_read_view_time_1.png">
+<meta property="og:image" content="https://yaoyinglong.github.io/images/DB/Mysql执行过程与BufferPool缓存机制.png">
+<meta property="og:updated_time" content="2021-09-02T08:27:42.204Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="InnoDB">
+<meta name="twitter:title" content="MVCC与BufferPool缓存机制">
+<meta name="twitter:description" content="MVCC多版本并发控制机制MySQL在可重复读隔离级别下同样的SQL查询语句在一个事务里多次执行查询结果相同，就算其它事务对数据有修改也不会影响当前事务SQL语句的查询结果。 该隔离性是靠MVCC(Multi-Version Concurrency Control)机制来保证的，对同一行数据的读和写默认不通过加锁互斥来保证隔离性，避免频繁加锁互斥，而在串行化隔离级别为了保证较高的隔离性是通过将所有">
+<meta name="twitter:image" content="https://yaoyinglong.github.io/images/DB/undo_cell_back_log_2.png">
     
 
     
@@ -158,9 +165,9 @@
         
             <ul class="unstyled" id="tree">
                 
-                    <li class="directory">
+                    <li class="directory open">
                         <a href="#" data-role="directory">
-                            <i class="fa fa-folder"></i>
+                            <i class="fa fa-folder-open"></i>
                             &nbsp;
                             DB
                         </a>
@@ -186,6 +193,8 @@
                     <li class="file"><a href="/Blog/DB/索引优化三/">索引优化三</a></li>
                 
                     <li class="file"><a href="/Blog/DB/索引优化二/">索引优化二</a></li>
+                
+                    <li class="file active"><a href="/Blog/DB/MVCC与BufferPool缓存机制/">MVCC与BufferPool缓存机制</a></li>
                 
             </ul>
         
@@ -818,7 +827,7 @@
     <div id="toTop" class="fa fa-angle-up"></div>
 </aside>
         
-        <section id="main"><article id="post-DB/Innodb" class="article article-type-post" itemscope itemprop="blogPost">
+        <section id="main"><article id="post-DB/MVCC与BufferPool缓存机制" class="article article-type-post" itemscope itemprop="blogPost">
     <div class="article-inner">
         
         
@@ -828,7 +837,7 @@
                         
     <div class="article-category">
         <i class="fa fa-folder"></i>
-        <a class="article-category-link" href="/categories/hide/">hide</a>
+        <a class="article-category-link" href="/categories/DB/">DB</a>
     </div>
 
                         
@@ -840,8 +849,8 @@
                         
     <div class="article-date">
         <i class="fa fa-calendar"></i>
-        <a href="/Blog/DB/Innodb/">
-            <time datetime="2021-06-17T16:00:00.000Z" itemprop="datePublished">2021-06-18</time>
+        <a href="/Blog/DB/MVCC与BufferPool缓存机制/">
+            <time datetime="2021-09-01T16:00:00.000Z" itemprop="datePublished">2021-09-02</time>
         </a>
     </div>
 
@@ -852,7 +861,7 @@
                 
     
         <h1 class="article-title" itemprop="name">
-            InnoDB
+            MVCC与BufferPool缓存机制
         </h1>
     
 
@@ -865,7 +874,28 @@
                     
             
             
-                
+                <h3 id="MVCC多版本并发控制机制"><a href="#MVCC多版本并发控制机制" class="headerlink" title="MVCC多版本并发控制机制"></a>MVCC多版本并发控制机制</h3><p>MySQL在<strong>可重复读</strong>隔离级别下同样的SQL查询语句在一个事务里多次执行查询结果相同，就算其它事务对数据有修改也不会影响当前事务SQL语句的查询结果。</p>
+<p><strong>该隔离性是靠<code>MVCC(Multi-Version Concurrency Control)</code>机制来保证的</strong>，对<strong>同一行</strong>数据的<strong>读</strong>和<strong>写</strong>默认<strong>不通过加锁互斥</strong>来保证隔离性，<strong>避免频繁加锁互斥</strong>，而在<strong>串行化</strong>隔离级别为了<strong>保证较高的隔离性是通过将所有操作加锁互斥</strong>来实现的。MySQL在<strong>读已提交</strong>和<strong>可重复读</strong>隔离级别下都实现了<strong><code>MVCC</code>机制</strong>。</p>
+<h4 id="undo日志版本链与read-view机制详解"><a href="#undo日志版本链与read-view机制详解" class="headerlink" title="undo日志版本链与read view机制详解"></a>undo日志版本链与read view机制详解</h4><p><code>undo</code>日志版本链是指<strong>同一行</strong>数据被<strong>多个事务依次修改</strong>过后，在每个事务修改完后，MySQL会<strong>保留修改前的数据</strong>即<strong><code>undo</code>回滚日志</strong>，且<strong>用两个隐藏字段<code>trx_id</code>和<code>roll_pointer</code>把这些<code>undo</code>日志串联起来形成一个历史记录版本链</strong>。</p>
+<p><img src="../../../../images/DB/undo_cell_back_log_2.png" alt></p>
+<p>在<strong>可重复</strong>读隔离级别，当<strong>事务开启</strong>，执行<strong>第一条</strong>查询SQL时会<strong>生成当前事务的一致性视图<code>read-view</code></strong>，该视图<strong>在事务结束之前都不会变化</strong>，该视图是<strong>由执行查询时所有未提交事务<code>id</code></strong>组成的数组，数组里最小的<strong>事务id</strong>为<strong><code>min_id</code></strong>，已创建的最大事务id为<strong><code>max_id</code></strong>，事务里的<strong>任何SQL查询结果</strong>需要从<strong>对应版本链里的最新数据开始逐条跟read-view做对比从而得到最终的快照结果</strong>。</p>
+<p>对于<strong>读已提交</strong>隔离级别在<strong>每次执行查询SQL时都会重新生成<code>read-view</code></strong>，其他逻辑跟可重复读一致。</p>
+<h4 id="版本链比对规则"><a href="#版本链比对规则" class="headerlink" title="版本链比对规则"></a>版本链比对规则</h4><p>若row的<code>trx_id</code>落在<strong>绿色部分</strong>即<strong><code>trx_id&lt;min_id</code></strong>，表示<strong>该版本是已提交的事务生成的</strong>，则该数据是<strong>可见</strong>的；</p>
+<p>若row的<code>trx_id</code>落在<strong>红色部分</strong>即<strong><code>trx_id&gt;max_id</code></strong>，表示该版本<strong>是由将来启动的事务生成</strong>的，则该数据是<strong>不可见</strong>的，<strong>若row的<code>trx_id</code>就是当前自己的事务是可见的</strong>；</p>
+<p>若row的<code>trx_id</code>落在<strong>黄色部分</strong>即<strong><code>min_id &lt;=trx_id&lt;= max_id</code></strong>，则包括两种情况：</p>
+<ul>
+<li>若row的<strong><code>trx_id</code>在视图数组中</strong>，表示该版本是<strong>由还没提交的事务生成的</strong>，则该数据<strong>不可见</strong>，若row的<code>trx_id</code>是当前<strong>自己的事务</strong>则<strong>可见</strong></li>
+<li>若row的<strong><code>trx_id</code>不在视图数组中</strong>，表示该版本是<strong>已经提交了的事务生成的</strong>，则该数据<strong>可见</strong>。</li>
+</ul>
+<p><strong>删除可认为是update的特殊情况</strong>，会<strong>将版本链上最新</strong>的数据<strong>复制</strong>一份，然后<strong>将<code>trx_id</code>修改成删除操作的<code>trx_id</code></strong>，同时在该条记录的<strong>头信息record header</strong>里的<strong><code>deleted_flag</code></strong>标记位写上<strong><code>true</code></strong>，表示当前记录已经被删除，在查询时按照上面的规则查到对应的记录若<code>delete_flag</code>标记位为true，意味着记录已被删除，则不返回数据。</p>
+<p><img src="../../../../images/DB/undo_read_view_time_1.png" alt></p>
+<p><strong><code>begin</code>或<code>start transaction</code>命令并不是一个事务的起点</strong>，在执行到它们之后的<strong>第一个修改InnoDB表的语句，事务才真正启动</strong>，<strong>才会向MySQL申请事务id</strong>，MySQL内部是<strong>严格按照事务的启动顺序来分配事务id的</strong>。</p>
+<p>MVCC机制的实现就是<strong>通过<code>read-view</code>机制</strong>与<strong><code>undo</code>版本链比对机制</strong>，使得<strong>不同事务根据数据版本链对比规则读取同一条数据在版本链上的不同版本数据</strong>。</p>
+<h3 id="BufferPool缓存机制"><a href="#BufferPool缓存机制" class="headerlink" title="BufferPool缓存机制"></a>BufferPool缓存机制</h3><p><img src="../../../../images/DB/Mysql执行过程与BufferPool缓存机制.png" alt="Mysql执行过程与BufferPool缓存机制"></p>
+<p>若来一个请求就直接对磁盘文件进行随机读写，然后更新磁盘文件里的数据性能可能相当差。因为<strong>磁盘随机读写的性能非常差</strong>，所以<strong>直接更新磁盘文件是不能让数据库抗住很高并发</strong>的。</p>
+<p><strong>MSQL</strong>这套机制看起来复杂，但它可以保证<strong>每个更新请求都是更新内存<code>BufferPool</code>，然后顺序写日志文件</strong>，同时还能保证各种异常情况下的数据一致性。</p>
+<p><strong>更新内存的性能是极高的</strong>，然后<strong>顺序写磁盘上的日志文件的性能也是非常高的</strong>，要<strong>远高于随机读写磁盘文件</strong>。正是通过这套机制，才能让MySQL数据库在较高配置的机器上每秒可以抗下几干的读写请求。 </p>
+
         </div>
         
     <footer class="article-footer">
@@ -877,19 +907,10 @@
     
     <nav id="article-nav">
         
-            <a href="/Blog/DB/MySQL基础/" id="article-nav-newer" class="article-nav-link-wrap">
-                <strong class="article-nav-caption">Newer</strong>
-                <div class="article-nav-title">
-                    
-                        MySQL基础
-                    
-                </div>
-            </a>
         
-        
-            <a href="/Blog/DB/分库分表/" id="article-nav-older" class="article-nav-link-wrap">
+            <a href="/Blog/DB/MySQL事务隔离级别与锁机制/" id="article-nav-older" class="article-nav-link-wrap">
                 <strong class="article-nav-caption">Older</strong>
-                <div class="article-nav-title">分库分表</div>
+                <div class="article-nav-title">MySQL事务隔离级别与锁机制</div>
             </a>
         
     </nav>
