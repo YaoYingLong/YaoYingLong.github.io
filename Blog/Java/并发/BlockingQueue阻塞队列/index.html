@@ -4,25 +4,23 @@
     <meta charset="utf-8">
     
     <title>
-        自度 |
+        BlockingQueue阻塞队列 |
         
         YingLong</title>
     
     
-        <meta name="keywords" content="自度">
+        <meta name="keywords" content="并发">
     
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-    <meta name="description" content="人生不如意事常八九，不爱了或者爱而不得才是人生常态 人在道理面前，总以为自己明白了，但是只有被真正教训过才会知道明白，就像之前我被天气教育那样，把伞放家里下班的时候下雨，把伞放公司上班的时候下雨，最终我买了两把伞。以前我总以为真诚相待才是相处的根本，被教训过才发现，并不是这样，人与人是不同的，你认知里的真诚在别人眼里或许是污言秽语恶意中伤。 总是在第一经历某种痛苦或者说苦难的时候，是最煎熬的，也才">
+    <meta name="keywords" content="并发">
 <meta property="og:type" content="article">
-<meta property="og:title" content="自度">
-<meta property="og:url" content="https://yaoyinglong.github.io/Blog/自度/自度/index.html">
+<meta property="og:title" content="BlockingQueue阻塞队列">
+<meta property="og:url" content="https://yaoyinglong.github.io/Blog/Java/并发/BlockingQueue阻塞队列/index.html">
 <meta property="og:site_name" content="YingLong">
-<meta property="og:description" content="人生不如意事常八九，不爱了或者爱而不得才是人生常态 人在道理面前，总以为自己明白了，但是只有被真正教训过才会知道明白，就像之前我被天气教育那样，把伞放家里下班的时候下雨，把伞放公司上班的时候下雨，最终我买了两把伞。以前我总以为真诚相待才是相处的根本，被教训过才发现，并不是这样，人与人是不同的，你认知里的真诚在别人眼里或许是污言秽语恶意中伤。 总是在第一经历某种痛苦或者说苦难的时候，是最煎熬的，也才">
 <meta property="og:locale" content="en">
-<meta property="og:updated_time" content="2020-06-27T03:33:27.419Z">
+<meta property="og:updated_time" content="2021-09-03T06:41:32.549Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="自度">
-<meta name="twitter:description" content="人生不如意事常八九，不爱了或者爱而不得才是人生常态 人在道理面前，总以为自己明白了，但是只有被真正教训过才会知道明白，就像之前我被天气教育那样，把伞放家里下班的时候下雨，把伞放公司上班的时候下雨，最终我买了两把伞。以前我总以为真诚相待才是相处的根本，被教训过才发现，并不是这样，人与人是不同的，你认知里的真诚在别人眼里或许是污言秽语恶意中伤。 总是在第一经历某种痛苦或者说苦难的时候，是最煎熬的，也才">
+<meta name="twitter:title" content="BlockingQueue阻塞队列">
     
 
     
@@ -229,9 +227,9 @@
         
                     </li>
                 
-                    <li class="directory">
+                    <li class="directory open">
                         <a href="#" data-role="directory">
-                            <i class="fa fa-folder"></i>
+                            <i class="fa fa-folder-open"></i>
                             &nbsp;
                             Java
                         </a>
@@ -347,9 +345,9 @@
         
                     </li>
                 
-                    <li class="directory">
+                    <li class="directory open">
                         <a href="#" data-role="directory">
-                            <i class="fa fa-folder"></i>
+                            <i class="fa fa-folder-open"></i>
                             &nbsp;
                             并发
                         </a>
@@ -372,7 +370,13 @@
                 
                     <li class="file"><a href="/Blog/Java/并发/锁优化/">锁优化</a></li>
                 
-                    <li class="file"><a href="/Blog/Java/并发/Java内存模型与线程/">Java内存模型</a></li>
+                    <li class="file"><a href="/Blog/Java/并发/AQS原理及应用/">AQS原理及应用</a></li>
+                
+                    <li class="file active"><a href="/Blog/Java/并发/BlockingQueue阻塞队列/">BlockingQueue阻塞队列</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/并发/操作系统底层/">操作系统底层</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/并发/Java内存模型/">Java内存模型</a></li>
                 
             </ul>
         
@@ -643,21 +647,6 @@
                         <a href="#" data-role="directory">
                             <i class="fa fa-folder"></i>
                             &nbsp;
-                            自度
-                        </a>
-                        
-            <ul class="unstyled" id="tree">
-                
-                    <li class="file"><a href="/Blog/自度/隐形眼镜攻略/"></a></li>
-                
-            </ul>
-        
-                    </li>
-                
-                    <li class="directory">
-                        <a href="#" data-role="directory">
-                            <i class="fa fa-folder"></i>
-                            &nbsp;
                             设计模式
                         </a>
                         
@@ -822,7 +811,7 @@
     <div id="toTop" class="fa fa-angle-up"></div>
 </aside>
         
-        <section id="main"><article id="post-自度/自度" class="article article-type-post" itemscope itemprop="blogPost">
+        <section id="main"><article id="post-Java/并发/BlockingQueue阻塞队列" class="article article-type-post" itemscope itemprop="blogPost">
     <div class="article-inner">
         
         
@@ -832,15 +821,20 @@
                         
     <div class="article-category">
         <i class="fa fa-folder"></i>
-        <a class="article-category-link" href="/categories/hide/">hide</a>
+        <a class="article-category-link" href="/categories/Java/">Java</a><i class="fa fa-angle-right"></i><a class="article-category-link" href="/categories/Java/并发/">并发</a>
     </div>
 
                         
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link" href="/tags/并发/">并发</a>
+    </div>
+
                         
     <div class="article-date">
         <i class="fa fa-calendar"></i>
-        <a href="/Blog/自度/自度/">
-            <time datetime="2020-05-25T16:00:00.000Z" itemprop="datePublished">2020-05-26</time>
+        <a href="/Blog/Java/并发/BlockingQueue阻塞队列/">
+            <time datetime="2021-09-05T16:00:00.000Z" itemprop="datePublished">2021-09-06</time>
         </a>
     </div>
 
@@ -851,7 +845,7 @@
                 
     
         <h1 class="article-title" itemprop="name">
-            自度
+            BlockingQueue阻塞队列
         </h1>
     
 
@@ -864,15 +858,7 @@
                     
             
             
-                <p>人生不如意事常八九，不爱了或者爱而不得才是人生常态</p>
-<p>人在道理面前，总以为自己明白了，但是只有被真正教训过才会知道明白，就像之前我被天气教育那样，把伞放家里下班的时候下雨，把伞放公司上班的时候下雨，最终我买了两把伞。<br>以前我总以为真诚相待才是相处的根本，被教训过才发现，并不是这样，人与人是不同的，你认知里的真诚在别人眼里或许是污言秽语恶意中伤。</p>
-<p>总是在第一经历某种痛苦或者说苦难的时候，是最煎熬的，也才会学会不要轻易的寄托</p>
-<p>人总是在逆境中快速成长，才会对人生有所感悟</p>
-<p>我是一个平凡孤独平凡且无趣的人，没有伟大的梦想，尽量热爱生活</p>
-<p>渐渐的就发现没有什么特别热爱的东西了</p>
-<p>其实我觉得人生最好的状态就是无欲无求，对任何事都不抱什么什么特别的期待</p>
-<p>其实有一群经常一起玩的好朋友是真的很幸福。</p>
-
+                
         </div>
         
     <footer class="article-footer">
@@ -882,6 +868,25 @@
 
 
     
+    <nav id="article-nav">
+        
+            <a href="/Blog/Java/并发/AQS原理及应用/" id="article-nav-newer" class="article-nav-link-wrap">
+                <strong class="article-nav-caption">Newer</strong>
+                <div class="article-nav-title">
+                    
+                        AQS原理及应用
+                    
+                </div>
+            </a>
+        
+        
+            <a href="/Blog/DB/MVCC与BufferPool缓存机制/" id="article-nav-older" class="article-nav-link-wrap">
+                <strong class="article-nav-caption">Older</strong>
+                <div class="article-nav-title">MVCC与BufferPool缓存机制</div>
+            </a>
+        
+    </nav>
+
 
 
 

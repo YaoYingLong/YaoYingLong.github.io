@@ -4,25 +4,23 @@
     <meta charset="utf-8">
     
     <title>
-        和女孩子相处 |
+        AQS原理及应用 |
         
         YingLong</title>
     
     
-        <meta name="keywords" content="和女孩子相处">
+        <meta name="keywords" content="并发">
     
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-    <meta name="description" content="多问对方的意见或建议，尽量给选项，或者让她推荐 认真你就输了 菜单，歌单，账单 话题 分享音乐  自建 培养自己的决断力和勇气，别总是回答：随便、都可以、都挺好等 尽量体现自己的爱心，让自己有更多的爱心和耐心，控制脾气和情绪。 提升自己的吸引力、让对方获得更多的舒适感、让对方投资更多  禁忌 聊天时不要抱着解决问题的思维 约会中不能没有主见 没有话题不要强聊，适可而止 别每天都是磨磨唧唧的，动不动">
+    <meta name="keywords" content="并发">
 <meta property="og:type" content="article">
-<meta property="og:title" content="和女孩子相处">
-<meta property="og:url" content="https://yaoyinglong.github.io/Blog/自度/和女孩子相处/index.html">
+<meta property="og:title" content="AQS原理及应用">
+<meta property="og:url" content="https://yaoyinglong.github.io/Blog/Java/并发/AQS原理及应用/index.html">
 <meta property="og:site_name" content="YingLong">
-<meta property="og:description" content="多问对方的意见或建议，尽量给选项，或者让她推荐 认真你就输了 菜单，歌单，账单 话题 分享音乐  自建 培养自己的决断力和勇气，别总是回答：随便、都可以、都挺好等 尽量体现自己的爱心，让自己有更多的爱心和耐心，控制脾气和情绪。 提升自己的吸引力、让对方获得更多的舒适感、让对方投资更多  禁忌 聊天时不要抱着解决问题的思维 约会中不能没有主见 没有话题不要强聊，适可而止 别每天都是磨磨唧唧的，动不动">
 <meta property="og:locale" content="en">
-<meta property="og:updated_time" content="2020-11-12T01:59:16.640Z">
+<meta property="og:updated_time" content="2021-09-03T06:40:16.310Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="和女孩子相处">
-<meta name="twitter:description" content="多问对方的意见或建议，尽量给选项，或者让她推荐 认真你就输了 菜单，歌单，账单 话题 分享音乐  自建 培养自己的决断力和勇气，别总是回答：随便、都可以、都挺好等 尽量体现自己的爱心，让自己有更多的爱心和耐心，控制脾气和情绪。 提升自己的吸引力、让对方获得更多的舒适感、让对方投资更多  禁忌 聊天时不要抱着解决问题的思维 约会中不能没有主见 没有话题不要强聊，适可而止 别每天都是磨磨唧唧的，动不动">
+<meta name="twitter:title" content="AQS原理及应用">
     
 
     
@@ -229,9 +227,9 @@
         
                     </li>
                 
-                    <li class="directory">
+                    <li class="directory open">
                         <a href="#" data-role="directory">
-                            <i class="fa fa-folder"></i>
+                            <i class="fa fa-folder-open"></i>
                             &nbsp;
                             Java
                         </a>
@@ -347,9 +345,9 @@
         
                     </li>
                 
-                    <li class="directory">
+                    <li class="directory open">
                         <a href="#" data-role="directory">
-                            <i class="fa fa-folder"></i>
+                            <i class="fa fa-folder-open"></i>
                             &nbsp;
                             并发
                         </a>
@@ -372,7 +370,13 @@
                 
                     <li class="file"><a href="/Blog/Java/并发/锁优化/">锁优化</a></li>
                 
-                    <li class="file"><a href="/Blog/Java/并发/Java内存模型与线程/">Java内存模型</a></li>
+                    <li class="file active"><a href="/Blog/Java/并发/AQS原理及应用/">AQS原理及应用</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/并发/BlockingQueue阻塞队列/">BlockingQueue阻塞队列</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/并发/操作系统底层/">操作系统底层</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/并发/Java内存模型/">Java内存模型</a></li>
                 
             </ul>
         
@@ -643,21 +647,6 @@
                         <a href="#" data-role="directory">
                             <i class="fa fa-folder"></i>
                             &nbsp;
-                            自度
-                        </a>
-                        
-            <ul class="unstyled" id="tree">
-                
-                    <li class="file"><a href="/Blog/自度/隐形眼镜攻略/"></a></li>
-                
-            </ul>
-        
-                    </li>
-                
-                    <li class="directory">
-                        <a href="#" data-role="directory">
-                            <i class="fa fa-folder"></i>
-                            &nbsp;
                             设计模式
                         </a>
                         
@@ -822,7 +811,7 @@
     <div id="toTop" class="fa fa-angle-up"></div>
 </aside>
         
-        <section id="main"><article id="post-自度/和女孩子相处" class="article article-type-post" itemscope itemprop="blogPost">
+        <section id="main"><article id="post-Java/并发/AQS原理及应用" class="article article-type-post" itemscope itemprop="blogPost">
     <div class="article-inner">
         
         
@@ -832,15 +821,20 @@
                         
     <div class="article-category">
         <i class="fa fa-folder"></i>
-        <a class="article-category-link" href="/categories/hide/">hide</a>
+        <a class="article-category-link" href="/categories/Java/">Java</a><i class="fa fa-angle-right"></i><a class="article-category-link" href="/categories/Java/并发/">并发</a>
     </div>
 
                         
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link" href="/tags/并发/">并发</a>
+    </div>
+
                         
     <div class="article-date">
         <i class="fa fa-calendar"></i>
-        <a href="/Blog/自度/和女孩子相处/">
-            <time datetime="2020-05-25T16:00:00.000Z" itemprop="datePublished">2020-05-26</time>
+        <a href="/Blog/Java/并发/AQS原理及应用/">
+            <time datetime="2021-09-05T16:00:00.000Z" itemprop="datePublished">2021-09-06</time>
         </a>
     </div>
 
@@ -851,7 +845,7 @@
                 
     
         <h1 class="article-title" itemprop="name">
-            和女孩子相处
+            AQS原理及应用
         </h1>
     
 
@@ -864,87 +858,7 @@
                     
             
             
-                <p><strong>多问对方的意见或建议，尽量给选项，或者让她推荐</strong></p>
-<p><strong>认真你就输了</strong></p>
-<p>菜单，歌单，账单</p>
-<h3 id="话题"><a href="#话题" class="headerlink" title="话题"></a>话题</h3><ul>
-<li>分享音乐</li>
-</ul>
-<h3 id="自建"><a href="#自建" class="headerlink" title="自建"></a>自建</h3><ul>
-<li>培养自己的决断力和勇气，别总是回答：随便、都可以、都挺好等</li>
-<li>尽量体现自己的爱心，让自己有更多的爱心和耐心，控制脾气和情绪。</li>
-<li>提升自己的吸引力、让对方获得更多的舒适感、让对方投资更多</li>
-</ul>
-<h3 id="禁忌"><a href="#禁忌" class="headerlink" title="禁忌"></a>禁忌</h3><ul>
-<li>聊天时不要抱着解决问题的思维</li>
-<li>约会中不能没有主见</li>
-<li>没有话题不要强聊，适可而止</li>
-<li>别每天都是磨磨唧唧的，动不动先情绪爆表，遇事女生还没怎么样，就先焦虑的不行</li>
-<li>尽量多的拿主意，别总是成为跟随着</li>
-<li>犹豫不决，磨磨唧唧，反复纠结的，不是一个有魅力男人的行为</li>
-<li>谨慎的和对方发生争吵，避免自己的负面情绪，尽量让自己不那么邋遢，控制发生关系的频率，婚前减少同居维系新鲜感</li>
-<li>频繁问候 暴露你的需求感</li>
-<li>直接表白 跳阶段急切确定关系</li>
-<li>管女生</li>
-<li>吹牛炫富</li>
-<li>自说自话  一直在说自己的事情</li>
-<li>过度解读 曲解女生的意思</li>
-<li>秒回消息 感觉你很闲</li>
-<li>乱开玩笑 不懂开玩笑容易造成误会</li>
-<li>开车 没到气氛不要开车</li>
-<li>不休边幅  看着干净</li>
-<li>不礼貌  对女生不尊重</li>
-<li>发红包 妄图用钱跟礼物打动女人</li>
-<li>没主见</li>
-<li>大男子</li>
-<li>猴急</li>
-<li>油腻 自认为有魅力的行为实际很low</li>
-<li>过于好奇  偷看别人手机信息</li>
-</ul>
-<h3 id="活动"><a href="#活动" class="headerlink" title="活动"></a>活动</h3><ul>
-<li>猫咖</li>
-<li>电玩城</li>
-<li>射箭馆</li>
-<li>逛宜家</li>
-<li>湖边喂鱼</li>
-<li>水族馆</li>
-<li>看电影（私人影院）</li>
-<li>VR游戏体验馆</li>
-<li>唱歌</li>
-<li>逛公园（浣花溪公园）</li>
-<li>清吧喝酒听歌</li>
-<li>哈咖啡撸猫</li>
-<li>书店看书</li>
-<li>一起做足疗</li>
-<li>密室逃脱</li>
-<li>鬼屋探险</li>
-<li>游戏厅抓娃娃</li>
-<li>看话剧舞台剧</li>
-<li>逛蜡像馆</li>
-<li>野生动物园</li>
-<li>音乐节演唱会</li>
-<li>画展博物馆</li>
-<li>做陶艺</li>
-<li>农家乐摘草莓</li>
-<li>一起种盆栽</li>
-<li>DIY香薰蜡烛</li>
-<li>为对方做手工皂</li>
-<li>一起放风筝</li>
-<li>一起荡秋千</li>
-<li>躺在草地上看星星</li>
-<li>坐船出海钓鱼</li>
-<li>野餐露营</li>
-<li>一起做摩天轮</li>
-<li>一起滑雪、旱冰</li>
-<li>一起骑单车远行</li>
-<li>一起打保龄球</li>
-<li>游泳馆游泳</li>
-<li>真人CS</li>
-<li>开卡丁车</li>
-<li>一起玩皮划艇</li>
-<li>一起爬山看日出</li>
-</ul>
-
+                
         </div>
         
     <footer class="article-footer">
@@ -954,6 +868,16 @@
 
 
     
+    <nav id="article-nav">
+        
+        
+            <a href="/Blog/Java/并发/BlockingQueue阻塞队列/" id="article-nav-older" class="article-nav-link-wrap">
+                <strong class="article-nav-caption">Older</strong>
+                <div class="article-nav-title">BlockingQueue阻塞队列</div>
+            </a>
+        
+    </nav>
+
 
 
 

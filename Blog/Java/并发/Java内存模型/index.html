@@ -16,13 +16,15 @@
 <meta name="keywords" content="JVM,线程">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Java内存模型">
-<meta property="og:url" content="https://yaoyinglong.github.io/Blog/Java/并发/Java内存模型与线程/index.html">
+<meta property="og:url" content="https://yaoyinglong.github.io/Blog/Java/并发/Java内存模型/index.html">
 <meta property="og:site_name" content="YingLong">
 <meta property="og:description" content="硬件效率与一致性计算机的存储设备与处理器的运算速度有几个数量级的差距，所以现代计算机系统都不得不加入一层读写速度尽可能接近处理器运算速度的高速缓存来作为内存与处理器之间的缓冲：将运算需要使用到的数据复制到缓存中，让运算能快速进行，当运算结束后再从缓存中将数据同步回内存之中。 基于高速缓存的存储交互很好的解决了处理器与内存的速度矛盾，但也引入了一个新的问题：缓存一致性。在多处理器系统中，每个处理器都">
 <meta property="og:locale" content="en">
 <meta property="og:image" content="https://yaoyinglong.github.io/images/Java/处理器、高速缓存、主内存间的交互关系.jpg">
+<meta property="og:image" content="https://yaoyinglong.github.io/images/Java/并发/JVM-JMM-CPU底层全执行流程.jpg">
+<meta property="og:image" content="https://yaoyinglong.github.io/images/Java/并发/MESI协议状态切换过程分析.jpg">
 <meta property="og:image" content="https://yaoyinglong.github.io/images/Java/线程、主内存、工作内存三者交互关系.jpg">
-<meta property="og:updated_time" content="2021-06-30T01:40:36.474Z">
+<meta property="og:updated_time" content="2021-09-03T05:51:09.989Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Java内存模型">
 <meta name="twitter:description" content="硬件效率与一致性计算机的存储设备与处理器的运算速度有几个数量级的差距，所以现代计算机系统都不得不加入一层读写速度尽可能接近处理器运算速度的高速缓存来作为内存与处理器之间的缓冲：将运算需要使用到的数据复制到缓存中，让运算能快速进行，当运算结束后再从缓存中将数据同步回内存之中。 基于高速缓存的存储交互很好的解决了处理器与内存的速度矛盾，但也引入了一个新的问题：缓存一致性。在多处理器系统中，每个处理器都">
@@ -376,7 +378,13 @@
                 
                     <li class="file"><a href="/Blog/Java/并发/锁优化/">锁优化</a></li>
                 
-                    <li class="file active"><a href="/Blog/Java/并发/Java内存模型与线程/">Java内存模型</a></li>
+                    <li class="file"><a href="/Blog/Java/并发/AQS原理及应用/">AQS原理及应用</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/并发/BlockingQueue阻塞队列/">BlockingQueue阻塞队列</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/并发/操作系统底层/">操作系统底层</a></li>
+                
+                    <li class="file active"><a href="/Blog/Java/并发/Java内存模型/">Java内存模型</a></li>
                 
             </ul>
         
@@ -647,21 +655,6 @@
                         <a href="#" data-role="directory">
                             <i class="fa fa-folder"></i>
                             &nbsp;
-                            自度
-                        </a>
-                        
-            <ul class="unstyled" id="tree">
-                
-                    <li class="file"><a href="/Blog/自度/隐形眼镜攻略/"></a></li>
-                
-            </ul>
-        
-                    </li>
-                
-                    <li class="directory">
-                        <a href="#" data-role="directory">
-                            <i class="fa fa-folder"></i>
-                            &nbsp;
                             设计模式
                         </a>
                         
@@ -826,7 +819,7 @@
     <div id="toTop" class="fa fa-angle-up"></div>
 </aside>
         
-        <section id="main"><article id="post-Java/并发/Java内存模型与线程" class="article article-type-post" itemscope itemprop="blogPost">
+        <section id="main"><article id="post-Java/并发/Java内存模型" class="article article-type-post" itemscope itemprop="blogPost">
     <div class="article-inner">
         
         
@@ -848,7 +841,7 @@
                         
     <div class="article-date">
         <i class="fa fa-calendar"></i>
-        <a href="/Blog/Java/并发/Java内存模型与线程/">
+        <a href="/Blog/Java/并发/Java内存模型/">
             <time datetime="2020-09-26T16:00:00.000Z" itemprop="datePublished">2020-09-27</time>
         </a>
     </div>
@@ -879,6 +872,44 @@
 <p><img src="../../../../../images/Java/处理器、高速缓存、主内存间的交互关系.jpg" alt="处理器、高速缓存、主内存间的交互关系"></p>
 <p>除了增加高速缓存外，为了使处理器内部的运算单元尽可能被充分利用，处理器可能会对输入的代码进行<strong>乱序执行优化</strong>，即<strong>指令重排序</strong>，处理器会在<strong>计算之后将乱序执行的结果重组</strong>，<strong>保证该结果与顺序执行的结果是一致的</strong>，但不保证程序中各个语句计算的先后顺序与输入的代码中的顺序一致。</p>
 <p><code>Java</code>虚拟机的即时编译器中也有类似的<strong>指令重排序优化</strong>。</p>
+<p><img src="../../../../../images/Java/并发/JVM-JMM-CPU底层全执行流程.jpg" alt="JVM-JMM-CPU底层全执行流程"></p>
+<h3 id="MESI协议"><a href="#MESI协议" class="headerlink" title="MESI协议"></a>MESI协议</h3><p>MESI协议是通过锁缓存行，一个缓存行大小为<code>64byte</code>，当超过该值MESI协议将失效，这时会升级成锁总线，每个Cache line有4个状态，可用2个bit表示，MESI四个字母表示这四种状态：</p>
+<table>
+<thead>
+<tr>
+<th>状态</th>
+<th>描述</th>
+<th>监听任务</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>M 修改 (Modified)</td>
+<td><strong>缓存行有效</strong>，数据被修改和内存中的数据不一致，数据只存在于本Cache中。</td>
+<td>缓存行须监听所有试图读该缓存行相对主存的操作，该操作必须在缓存将该缓存行写回主存前，并将状态置为S之前被延迟执行。</td>
+</tr>
+<tr>
+<td>E 独享、互斥(Exclusive)</td>
+<td><strong>缓存行有效</strong>，数据和内存中的数据一致，数据只存在于本Cache中。</td>
+<td>缓存行须监听<strong>其它缓存读主存中该缓存行的操作</strong>，一旦有这种操作，该缓存行需要变成S状态。</td>
+</tr>
+<tr>
+<td>S 共享 (Shared)</td>
+<td><strong>缓存行有效</strong>，数据和内存中的数据一致，数据存在于很多Cache中。</td>
+<td>缓存行须监听其它缓存<strong>使该缓存行无效或者独享该缓存行的请求</strong>，并将该缓存行变成无效。</td>
+</tr>
+<tr>
+<td>I 无效 (Invalid)</td>
+<td><strong>缓存行无效</strong></td>
+<td>无</td>
+</tr>
+</tbody>
+</table>
+<p><strong>对于M和E状态是精确的，在和该缓存行的真正状态是一致的，而S状态可能是非一致的</strong>。若缓存将处于S状态的缓存行作废，而另一个缓存实际上可能已经独享了该缓存行，但该缓存却不会将该缓存行升迁为E状态，因为其它缓存不会广播作废掉该缓存行的通知，同样由于缓存并没有保存该缓存行的copy的数量，因此没有办法确定自己是否已经独享了该缓存行。</p>
+<p><img src="../../../../../images/Java/并发/MESI协议状态切换过程分析.jpg" alt="MESI协议状态切换过程"></p>
+<h4 id="缓存行伪共享"><a href="#缓存行伪共享" class="headerlink" title="缓存行伪共享"></a>缓存行伪共享</h4><p>目前主流的CPU Cache的Cache Line大小都是<strong><code>64Bytes</code></strong>。多线程情况下若<strong>修改共享同一个缓存行的变量，就会无意中影响彼此的性能</strong>。如2个long 型变量 a 、b，若t1访问a，t2访问b，而a与b刚好在同一个cache line中，此时t1先修改a，将导致b被刷新。</p>
+<p>为了解决伪共享，<code>Java8</code>新增了<strong><code>sun.misc.Contended</code></strong>注解，该注解的类会<strong>自动补齐缓存行</strong>，此注解默认是无效的，需在jvm启动时设置<strong><code>-XX:-RestrictContended</code></strong>参数。</p>
+<h4 id="Store-Bufferes"><a href="#Store-Bufferes" class="headerlink" title="Store Bufferes"></a>Store Bufferes</h4><p>为了避免这种CPU运算能力浪费，处理器把它想要写入主存的值写到Store Bufferes缓存，然后继续去处理其他事情，当所有失效确认都接收到时，数据才会最终被提交。</p>
 <h3 id="Java内存模型"><a href="#Java内存模型" class="headerlink" title="Java内存模型"></a>Java内存模型</h3><h4 id="主内存与工作内存"><a href="#主内存与工作内存" class="headerlink" title="主内存与工作内存"></a>主内存与工作内存</h4><p><code>Java</code>虚拟机中试图定义一种<strong><code>Java</code>内存模型<code>JMM</code></strong>来<strong>屏蔽</strong>各种<strong>硬件</strong>和<strong>操作系统</strong>的<strong>内存访问差异</strong>。<code>C/C++</code>语言是直接使用物理硬件和操作系统的内存模型，由于不同平台上内存模型的差异，可能导致不同平台上并发访问出错。</p>
 <p><strong><code>Java</code>内存模型的主要目标是定义程序中各个变量的访问规则</strong>，即在虚拟机中<strong>将变量存储到内存</strong>和<strong>从内存中取出变量</strong>这样的底层细节。这里说的变量包括：<strong>实例字段</strong>、<strong>静态字段</strong>、<strong>构成数组对象的元素</strong>，不包括：<strong>局部变量</strong>、<strong>方法参数</strong>。因为局部变量和方法参数是<strong>线程私有</strong>的。</p>
 <p><code>Java</code>内存模型并<strong>没有限制执行引擎使用处理器</strong>的<strong>特定寄存器</strong>或<strong>缓存</strong>来和<strong>主内存</strong>交互，也<strong>没有限制即时编译器进行调整代码执行顺序</strong>这类优化措施。</p>
@@ -950,7 +981,18 @@
 <li>若变量<strong>事先没有被<code>lock</code>操作锁定，不允许对它执行<code>unlock</code>操作</strong>，也<strong>不允许<code>unlock</code></strong>一个被其<strong>他线程锁定</strong>的变量。</li>
 <li><strong>对变量执行<code>unlock</code>操作之前，必须先把此变量同步回主内存中</strong>。</li>
 </ul>
-<h3 id="先行发生原则"><a href="#先行发生原则" class="headerlink" title="先行发生原则"></a>先行发生原则</h3>
+<h3 id="happens-before原则"><a href="#happens-before原则" class="headerlink" title="happens-before原则"></a>happens-before原则</h3><p>从JDK 5开始Java使用新的JSR-133内存模型，提供了<strong><code>happens-before</code>原则</strong>来<strong>辅助保证程序执行的原子性、可见性以及有序性</strong>问题，<strong>它是判断数据是否存在竞争、线程是否安全的依据</strong>，happens-before原则内容如下：</p>
+<ul>
+<li><strong>程序顺序原则</strong>：即<strong>在一个线程内必须保证语义串行性</strong>，也就是说按照代码顺序执行。</li>
+<li><strong>锁规则</strong>：解锁unlock操作必发生在后续同一个锁加锁lock前，若<strong>同一个锁解锁后，再加锁，则加锁动作必须在解锁动作之后</strong>。</li>
+<li><strong><a href="../Volatile原理">volatile规则</a></strong>：<strong>volatile变量的写，先发生于读，这保证了volatile变量的可见性</strong>，volatile变量在每次被线程访问时，<strong>都强迫从主内存中读该变量的值</strong>，而当该变量发生变化时，又会<strong>强迫将最新的值刷新到主内存</strong>，任何时刻，不同的线程总是能够看到该变量的最新值。</li>
+<li><strong>线程启动规则</strong>：<strong>线程的start()方法先于它的每一个动作</strong>，即若线程A在执行线程B的start方法之前修改了共享变量的值，则当线程B执行start方法时，线程A对共享变量的修改对线程B可见</li>
+<li><strong>传递性</strong>：A先于B ，B先于C则A必然先于C</li>
+<li><strong>线程终止规则</strong>：<strong>线程的所有操作先于线程的终结</strong>，Thread.join()方法作用是等待当前执行的线程终止。若在线程B终止之前，修改了共享变量，线程A从线程B的join方法成功返回后，线程B对共享变量的修改将对线程A可见。</li>
+<li><strong>线程中断规则</strong>：对线程<strong>interrupt()方法的调用先行发生于被中断线程的代码检测到中断事件的发生</strong>，可通过<strong>Thread.interrupted()方法检测线程是否中断</strong>。</li>
+<li><strong>对象终结规则</strong>：对象的<strong>构造函数执行结束先于finalize()方法</strong>。</li>
+</ul>
+
         </div>
         
     <footer class="article-footer">
