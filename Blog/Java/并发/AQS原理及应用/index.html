@@ -12,15 +12,21 @@
         <meta name="keywords" content="并发">
     
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-    <meta name="keywords" content="并发">
+    <meta name="description" content="AQS具备特性阻塞等待队列，共享/独占，公平/非公平，可重入，允许中断；除Lock外，Java.util.concurrent当中同步器的实现如Latch，Barrier，BlockingQueue等都是基于AQS框架实现。 一般通过定义内部类Sync继承AQS，将同步器所有调用都映射到Sync对应的方法，AQS内部维护volatile修饰的属性state (32位)，表示资源的可用状态，Stat">
+<meta name="keywords" content="并发">
 <meta property="og:type" content="article">
 <meta property="og:title" content="AQS原理及应用">
 <meta property="og:url" content="https://yaoyinglong.github.io/Blog/Java/并发/AQS原理及应用/index.html">
 <meta property="og:site_name" content="YingLong">
+<meta property="og:description" content="AQS具备特性阻塞等待队列，共享/独占，公平/非公平，可重入，允许中断；除Lock外，Java.util.concurrent当中同步器的实现如Latch，Barrier，BlockingQueue等都是基于AQS框架实现。 一般通过定义内部类Sync继承AQS，将同步器所有调用都映射到Sync对应的方法，AQS内部维护volatile修饰的属性state (32位)，表示资源的可用状态，Stat">
 <meta property="og:locale" content="en">
-<meta property="og:updated_time" content="2021-09-03T06:40:16.310Z">
+<meta property="og:image" content="https://yaoyinglong.github.io/images/Java/并发/同步等待队列.png">
+<meta property="og:image" content="https://yaoyinglong.github.io/images/Java/并发/条件等待队列.png">
+<meta property="og:updated_time" content="2021-09-03T09:31:38.919Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="AQS原理及应用">
+<meta name="twitter:description" content="AQS具备特性阻塞等待队列，共享/独占，公平/非公平，可重入，允许中断；除Lock外，Java.util.concurrent当中同步器的实现如Latch，Barrier，BlockingQueue等都是基于AQS框架实现。 一般通过定义内部类Sync继承AQS，将同步器所有调用都映射到Sync对应的方法，AQS内部维护volatile修饰的属性state (32位)，表示资源的可用状态，Stat">
+<meta name="twitter:image" content="https://yaoyinglong.github.io/images/Java/并发/同步等待队列.png">
     
 
     
@@ -858,7 +864,25 @@
                     
             
             
-                
+                <h3 id="AQS具备特性"><a href="#AQS具备特性" class="headerlink" title="AQS具备特性"></a>AQS具备特性</h3><p>阻塞等待队列，共享/独占，公平/非公平，可重入，允许中断；除Lock外，Java.util.concurrent当中同步器的实现如<strong><code>Latch</code></strong>，<strong><code>Barrier</code></strong>，<strong><code>BlockingQueue</code></strong>等都是基于AQS框架实现。</p>
+<p>一般通过定义内部类Sync继承AQS，将同步器所有调用都映射到Sync对应的方法，AQS内部维护volatile修饰的属性state (32位)，表示资源的可用状态，State三种访问方式<code>getState()</code>、<code>setState()</code>、<code>compareAndSetState()</code>。</p>
+<p>AQS定义<strong>Exclusive独占</strong>和<strong>Share共享</strong>两种资源共享方式，Exclusive独占只有一个线程能执行，如ReentrantLock；Share共享多个线程可同时执行，如Semaphore/CountDownLatch；</p>
+<p>不同的自定义同步器争用共享资源的方式也不同。<strong>自定义同步器</strong>在实现时<strong>只需要实现共享资源state的获取</strong>与<strong>释放方式</strong>，具体线程等待队列的维护，AQS已经在顶层实现好了。自定义同步器实现时主要实现以下几种方法：</p>
+<ul>
+<li><strong><code>isHeldExclusively()</code></strong>：该线程是否正在独占资源。只有用到condition才需要去实现它。</li>
+<li><strong><code>tryAcquire(int)</code></strong>：独占方式。尝试获取资源，成功则返回true，失败则返回false。</li>
+<li><strong><code>tryRelease(int)</code></strong>：独占方式。尝试释放资源，成功则返回true，失败则返回false。</li>
+<li><strong><code>tryAcquireShared(int)</code></strong>：共享方式。尝试获取资源，负数表示失败；0表示成功，但无剩余可用资源；正数表示成功，且有剩余资源。</li>
+<li><strong><code>tryReleaseShared(int)</code></strong>：共享方式。尝试释放资源，若释放后允许唤醒后续等待结点返回true，否则返回false。</li>
+</ul>
+<p>AQS定义<strong>同步等待队列</strong>和<strong>条件等待队列</strong>两种队列，同步等待队列是FIFO先进先出线程等待队列，线程由原自旋机制改为阻塞机制</p>
+<p><img src="../../../../../images/Java/并发/同步等待队列.png" alt="同步等待队列"></p>
+<p>条件等待队列，Condition是一个多线程间协调通信的工具类，使得某个或者某些线程一起等待某个条件Condition，只有当该条件具备时，这些等待线程才会被唤醒，从而重新争夺锁</p>
+<p><img src="../../../../../images/Java/并发/条件等待队列.png" alt="条件等待队列"></p>
+<h3 id="ReentrantLock"><a href="#ReentrantLock" class="headerlink" title="ReentrantLock"></a>ReentrantLock</h3><p><strong><code>ReentrantLock</code></strong>是一种<strong>基于AQS框架的应用实现</strong>，是JDK中一种线程并发访问的同步手段，它的功能类似于synchronized是一种互斥锁，可保证线程安全。且具有比synchronized更多的特性，支持<strong>手动加锁</strong>与<strong>解锁</strong>及<strong>加锁的公平性</strong>。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">ReentrantLock lock = <span class="keyword">new</span> ReentrantLock(<span class="keyword">false</span>);	<span class="comment">//false为非公平锁，true为公平锁</span></span><br><span class="line">lock.lock() 	<span class="comment">//加锁</span></span><br><span class="line">lock.unlock() 	<span class="comment">//解锁</span></span><br></pre></td></tr></table></figure>
+<p>在ReentrantLock内部定义了一个Sync的内部类，该类继承<code>AbstractQueuedSynchronized</code>，对该抽象类的部分方法做了实现。且还定义了<strong>FairSync公平锁</strong>的实现，<strong>NonfairSync非公平锁</strong>的实现，这两个类都继承自Sync，也就是间接继承了AbstractQueuedSynchronized。</p>
+
         </div>
         
     <footer class="article-footer">
