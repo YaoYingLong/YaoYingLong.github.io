@@ -21,7 +21,7 @@
 <meta property="og:description" content="所有的并发模式在解决线程安全问题时，采用的方案都是序列化访问临界资源。即同一时刻只能有一个线程访问临界资源，也称作同步互斥访问。 Java提供synchronized和Lock两种方式来实现同步互斥访问。 synchronized内置锁是一种对象锁，锁的是对象而非引用，作用粒度是对象，可用来实现对临界资源的同步互斥访问，是可重入的，是Java中解决并发问题的一种最常用最简单的方法，它可以确保线程互">
 <meta property="og:locale" content="en">
 <meta property="og:image" content="https://yaoyinglong.github.io/images/Java/并发/Monitor监视器锁.png">
-<meta property="og:updated_time" content="2021-09-03T09:32:42.581Z">
+<meta property="og:updated_time" content="2021-09-07T02:17:23.108Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Synchronized总结">
 <meta name="twitter:description" content="所有的并发模式在解决线程安全问题时，采用的方案都是序列化访问临界资源。即同一时刻只能有一个线程访问临界资源，也称作同步互斥访问。 Java提供synchronized和Lock两种方式来实现同步互斥访问。 synchronized内置锁是一种对象锁，锁的是对象而非引用，作用粒度是对象，可用来实现对临界资源的同步互斥访问，是可重入的，是Java中解决并发问题的一种最常用最简单的方法，它可以确保线程互">
@@ -375,13 +375,23 @@
                 
                     <li class="file"><a href="/Blog/Java/并发/锁优化/">锁优化</a></li>
                 
-                    <li class="file"><a href="/Blog/Java/并发/AQS原理及应用/">AQS原理及应用</a></li>
-                
                     <li class="file"><a href="/Blog/Java/并发/BlockingQueue阻塞队列/">BlockingQueue阻塞队列</a></li>
                 
                     <li class="file"><a href="/Blog/Java/并发/操作系统底层/">操作系统底层</a></li>
                 
                     <li class="file"><a href="/Blog/Java/并发/Java内存模型/">Java内存模型</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/并发/Atomic系列/">Atomic系列</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/并发/ReentrantReadWriteLock原理/">ReentrantReadWriteLock原理</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/并发/同步工具类/">同步工具类</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/并发/Condition原理/">Condition原理</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/并发/Unsafe应用/">Unsafe应用</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/并发/AQS与ReentrantLock/">AQS与ReentrantLock</a></li>
                 
             </ul>
         
@@ -879,6 +889,9 @@
 <p><strong><code>synchronized</code></strong>同步块对<strong>同一线程是可重入的</strong>，不会将自己死锁，但是是<strong>不可中断</strong>的。同步块在已进入的线程执行完成之前，会阻塞后面其他线程的进入。<code>Java</code>线程是<strong>映射到操作系统原生线程</strong>上的，阻塞或唤醒线程都需要操作系统帮忙，需要从<strong>用户状态</strong>转换到<strong>核心态</strong>中，因此转态<strong>转换需要耗费很多处理器时间</strong>。</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">static</span> Object object = <span class="keyword">new</span> Object();</span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">reentrantlock</span><span class="params">()</span></span>&#123;</span><br><span class="line">    String tname = Thread.currentThread().getName();</span><br><span class="line">    <span class="keyword">synchronized</span> (object) &#123;</span><br><span class="line">        System.out.println(String.format(<span class="string">"&#123;&#125;:) hold &#123;&#125;-&gt;monitor lock"</span>,tname,object));</span><br><span class="line">        <span class="keyword">synchronized</span> (object)&#123;</span><br><span class="line">            System.out.println(String.format(<span class="string">"&#123;&#125;:) re-hold &#123;&#125;-&gt;monitor lock"</span>,tname,object));</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p><strong><a href="../../VM/堆中对象分配&amp;布局&amp;访问#对象的内存布局">对象头</a></strong>MarkWord锁标识位为10，其中指针指向的是Monitor对象的起始地址，Monitor是由ObjectMonitor实现的，其位于HotSpot虚拟机源码ObjectMonitor.hpp文件。</p>
+<h3 id="wait与notify"><a href="#wait与notify" class="headerlink" title="wait与notify"></a>wait与notify</h3><p>wait和notify都是Object的成员函数，因为synchronized关键字可以加在任何对象的成员函数上，任何对象都可以成为锁，所以wait和notify只能放在Object里面。</p>
+<p>wait内部会先释放锁，然后进入阻塞状态，当被另一个线程notify后，重新拿锁，在执行后续逻辑。</p>
+<p>对于生产者消费者模型来说，由于wait和notify所作用对象和synchronized作用的对象是同一个，只能是一个对象，无法区分队列空或队列满两个条件。</p>
 <h3 id="使用场景"><a href="#使用场景" class="headerlink" title="使用场景"></a>使用场景</h3><p><code>Java</code>中使用<code>synchronized</code>可使用在<strong>代码块</strong>和<strong>方法</strong>中，<code>synchronized</code>用的位置不同锁得对象就不同。</p>
 <table>
 <thead>
@@ -951,7 +964,7 @@
 <li>方法抛出<strong>异常</strong>后，<strong>会释放锁</strong></li>
 </ul>
 <h4 id="可重入"><a href="#可重入" class="headerlink" title="可重入"></a>可重入</h4><p>同一个方法可重入</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title">method</span><span class="params">(<span class="keyword">int</span> a)</span> </span>&#123;</span><br><span class="line">    System.out.println(<span class="string">"a = "</span> + a);</span><br><span class="line">    <span class="keyword">if</span> (a == <span class="number">0</span>) &#123;</span><br><span class="line">        method(a + <span class="number">1</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title">method</span><span class="params">(<span class="keyword">int</span> a)</span> </span>&#123;</span><br><span class="line">    System.out.println(<span class="string">"a = "</span> + a);</span><br><span class="line">    <span class="keyword">if</span> (a == <span class="number">0</span>) &#123;</span><br><span class="line">        method(a + <span class="number">1</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">static</span> Object object = <span class="keyword">new</span> Object();</span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">reentrantLock</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    String tname = Thread.currentThread().getName();</span><br><span class="line">    <span class="keyword">synchronized</span> (object) &#123;</span><br><span class="line">        System.out.println(String.format(<span class="string">"&#123;&#125;:) hold &#123;&#125;-&gt;monitor lock"</span>, tname, object));</span><br><span class="line">        <span class="keyword">synchronized</span> (object) &#123;</span><br><span class="line">            System.out.println(String.format(<span class="string">"&#123;&#125;:) re-hold &#123;&#125;-&gt;monitor lock"</span>, tname, object));</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>不同的方法可重入</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title">methodA</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    System.out.println(<span class="string">"methodA"</span>);</span><br><span class="line">    methodB();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title">methodB</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    System.out.println(<span class="string">"methodB"</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>不同的类可重入</p>

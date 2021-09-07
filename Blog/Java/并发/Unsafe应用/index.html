@@ -1,0 +1,1013 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta name="generator" content="Hexo 3.8.0">
+    <meta charset="utf-8">
+    
+    <title>
+        Unsafe应用 |
+        
+        YingLong</title>
+    
+    
+        <meta name="keywords" content="并发">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="description" content="Unsafe位于sun.misc包下，主要提供一些用于执行低级别、不安全操作的方法，如直接访问系统内存资源、自主管理内存资源等，这些方法在提升Java运行效率、增强Java语言底层资源操作能力方面起到了很大的作用。 Unsafe类使Java拥有类似C语言指针一样操作内存空间的能力，增加了程序发生相关指针问题的风险。在程序中过度、不正确使用Unsafe类会使得程序出错的概率变大。 Unsafe类为单">
+<meta name="keywords" content="并发">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Unsafe应用">
+<meta property="og:url" content="https://yaoyinglong.github.io/Blog/Java/并发/Unsafe应用/index.html">
+<meta property="og:site_name" content="YingLong">
+<meta property="og:description" content="Unsafe位于sun.misc包下，主要提供一些用于执行低级别、不安全操作的方法，如直接访问系统内存资源、自主管理内存资源等，这些方法在提升Java运行效率、增强Java语言底层资源操作能力方面起到了很大的作用。 Unsafe类使Java拥有类似C语言指针一样操作内存空间的能力，增加了程序发生相关指针问题的风险。在程序中过度、不正确使用Unsafe类会使得程序出错的概率变大。 Unsafe类为单">
+<meta property="og:locale" content="en">
+<meta property="og:image" content="https://yaoyinglong.github.io/images/Java/并发/Unsafe基本功能.png">
+<meta property="og:updated_time" content="2021-09-07T08:24:56.016Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Unsafe应用">
+<meta name="twitter:description" content="Unsafe位于sun.misc包下，主要提供一些用于执行低级别、不安全操作的方法，如直接访问系统内存资源、自主管理内存资源等，这些方法在提升Java运行效率、增强Java语言底层资源操作能力方面起到了很大的作用。 Unsafe类使Java拥有类似C语言指针一样操作内存空间的能力，增加了程序发生相关指针问题的风险。在程序中过度、不正确使用Unsafe类会使得程序出错的概率变大。 Unsafe类为单">
+<meta name="twitter:image" content="https://yaoyinglong.github.io/images/Java/并发/Unsafe基本功能.png">
+    
+
+    
+
+    
+        <link rel="icon" href="/favicon.ico">
+    
+
+    <link rel="stylesheet" href="/libs/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/libs/open-sans/styles.css">
+    <link rel="stylesheet" href="/libs/source-code-pro/styles.css">
+
+    <link rel="stylesheet" href="/css/style.css">
+    <script src="/libs/jquery/2.1.3/jquery.min.js"></script>
+    <script src="/libs/jquery/plugins/cookie/1.4.1/jquery.cookie.js"></script>
+    
+    
+        <link rel="stylesheet" href="/libs/lightgallery/css/lightgallery.min.css">
+    
+    
+        <link rel="stylesheet" href="/libs/justified-gallery/justifiedGallery.min.css">
+    
+    
+    
+    
+
+
+</head>
+</html>
+<body>
+<div id="container">
+    <header id="header">
+    <div id="header-main" class="header-inner">
+        <div class="outer">
+            <a href="/" id="logo">
+                <i class="logo"></i>
+                <span class="site-title">YingLong</span>
+            </a>
+            <nav id="main-nav">
+                
+                    <a class="main-nav-link" href="/">Home</a>
+                
+                    <a class="main-nav-link" href="/archives">Archives</a>
+                
+                    <a class="main-nav-link" href="/categories">Categories</a>
+                
+                    <a class="main-nav-link" href="/tags">Tags</a>
+                
+                    <a class="main-nav-link" href="/about">About</a>
+                
+            </nav>
+            
+            <div id="search-form-wrap">
+    
+        <form class="search-form">
+            <input type="text" class="ins-search-input search-form-input" placeholder="Search">
+            <button type="submit" class="search-form-submit"></button>
+        </form>
+        <div class="ins-search">
+    <div class="ins-search-mask"></div>
+    <div class="ins-search-container">
+        <div class="ins-input-wrapper">
+            <input type="text" class="ins-search-input" placeholder="Type something...">
+            <span class="ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+    (function (window) {
+        var INSIGHT_CONFIG = {
+            TRANSLATION: {
+                POSTS: 'Posts',
+                PAGES: 'Pages',
+                CATEGORIES: 'Categories',
+                TAGS: 'Tags',
+                UNTITLED: '(Untitled)',
+            },
+            ROOT_URL: '/',
+            CONTENT_URL: '/content.json',
+        };
+        window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+    })(window);
+</script>
+<script src="/js/insight.js"></script>
+    
+</div>
+        </div>
+    </div>
+    <div id="main-nav-mobile" class="header-sub header-inner">
+        <table class="menu outer">
+            <tr>
+                
+                    <td><a class="main-nav-link" href="/">Home</a></td>
+                
+                    <td><a class="main-nav-link" href="/archives">Archives</a></td>
+                
+                    <td><a class="main-nav-link" href="/categories">Categories</a></td>
+                
+                    <td><a class="main-nav-link" href="/tags">Tags</a></td>
+                
+                    <td><a class="main-nav-link" href="/about">About</a></td>
+                
+                <td>
+                    
+    <div class="search-form">
+        <input type="text" class="ins-search-input search-form-input" placeholder="Search">
+    </div>
+
+                </td>
+            </tr>
+        </table>
+    </div>
+</header>
+
+    <div class="outer">
+        
+        
+            <aside id="sidebar">
+    
+        
+    <div class="widget-wrap" id="categories">
+        <h3 class="widget-title">
+            <span>categories</span>
+            &nbsp;
+            <a id="allExpand" href="#">
+                <i class="fa fa-angle-double-down fa-2x"></i>
+            </a>
+        </h3>
+
+        
+        
+        
+            <ul class="unstyled" id="tree">
+                
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            DB
+                        </a>
+                        
+            <ul class="unstyled" id="tree">
+                
+                    <li class="file"><a href="/Blog/DB/MySQL基础/">MySQL基础</a></li>
+                
+                    <li class="file"><a href="/Blog/DB/MySQL常用SQL总结/">MySQL常用SQL总结</a></li>
+                
+                    <li class="file"><a href="/Blog/DB/索引的原理与使用/">索引的原理与使用</a></li>
+                
+                    <li class="file"><a href="/Blog/DB/分库分表/">分库分表</a></li>
+                
+                    <li class="file"><a href="/Blog/DB/Explain工具/">Explain工具</a></li>
+                
+                    <li class="file"><a href="/Blog/DB/MySQL内部组件结构/">MySQL内部组件结构</a></li>
+                
+                    <li class="file"><a href="/Blog/DB/索引优化一/">索引优化一</a></li>
+                
+                    <li class="file"><a href="/Blog/DB/MySQL事务隔离级别与锁机制/">MySQL事务隔离级别与锁机制</a></li>
+                
+                    <li class="file"><a href="/Blog/DB/索引优化三/">索引优化三</a></li>
+                
+                    <li class="file"><a href="/Blog/DB/索引优化二/">索引优化二</a></li>
+                
+                    <li class="file"><a href="/Blog/DB/MVCC与BufferPool缓存机制/">MVCC与BufferPool缓存机制</a></li>
+                
+            </ul>
+        
+                    </li>
+                
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            Git
+                        </a>
+                        
+            <ul class="unstyled" id="tree">
+                
+                    <li class="file"><a href="/Blog/Git/GIt基本概念/">Git基本概念</a></li>
+                
+                    <li class="file"><a href="/Blog/Git/GIt常用命令/">Git常用命令</a></li>
+                
+                    <li class="file"><a href="/Blog/Git/分支管理理解/">分支管理理解</a></li>
+                
+            </ul>
+        
+                    </li>
+                
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            Go
+                        </a>
+                        
+            <ul class="unstyled" id="tree">
+                
+                    <li class="file"><a href="/Blog/Go/Go基础/">Go基础</a></li>
+                
+            </ul>
+        
+                    </li>
+                
+                    <li class="directory open">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder-open"></i>
+                            &nbsp;
+                            Java
+                        </a>
+                        
+            <ul class="unstyled" id="tree">
+                
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            VM
+                        </a>
+                        
+            <ul class="unstyled" id="tree">
+                
+                    <li class="file"><a href="/Blog/Java/VM/HotSpot收集算法实现/">HotSpot收集算法实现</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/VM/JVM内存池/">JVM内存池</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/VM/内存非配与回收策略/">内存分配与回收策略</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/VM/Java内存区域/">Java内存区域</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/VM/Minor&Major&Full GC/">Minor&Major&Full GC</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/VM/OutOfMemoryError异常/">OOM异常实验</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/VM/垃圾收集算法/">垃圾收集算法</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/VM/堆中对象分配&布局&访问/">堆中对象分配&布局&访问</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/VM/对象是否存活/">对象是否存活</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/VM/类加载的时机/">类加载的时机</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/VM/运行时栈帧结构/">运行时栈帧结构</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/VM/垃圾收集器/">垃圾收集器</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/VM/方法调用/">方法调用</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/VM/字节码指令/">字节码指令</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/VM/理解GC日志/">理解GC日志</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/VM/类加载器/">类加载器</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/VM/Class文件结构/">Class文件结构</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/VM/属性表集合/">属性表集合</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/VM/类加载过程/">类加载过程</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/VM/字节码指令手册/">字节码指令手册</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/VM/JVM调优思路/">JVM调优思路</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/VM/JVM调优工具/">JVM调优工具</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/VM/常量池/">常量池</a></li>
+                
+            </ul>
+        
+                    </li>
+                
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            基础
+                        </a>
+                        
+            <ul class="unstyled" id="tree">
+                
+                    <li class="file"><a href="/Blog/Java/基础/lambda常用总结/">lambda常用总结</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/基础/时间及日期总结/">Java8时间及日期</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/基础/位运算/">位运算</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/基础/注解实现及应用/">注解实现及应用</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/基础/HashMap源码分析JDK8/">HashMap源码分析JDK8</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/基础/HashMap源码分析JDK7/">HashMap源码分析JDK7</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/基础/反射基础/">反射基础</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/基础/动态代理/">动态代理</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/基础/Java实用工具库/">Java实用工具库</a></li>
+                
+            </ul>
+        
+                    </li>
+                
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            工具
+                        </a>
+                        
+            <ul class="unstyled" id="tree">
+                
+                    <li class="file"><a href="/Blog/Java/工具/Java中调用Groovy脚本/">Java中调用Groovy脚本</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/工具/国密SM2/">国密SM2</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/工具/国密SM4/">国密SM4</a></li>
+                
+            </ul>
+        
+                    </li>
+                
+                    <li class="directory open">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder-open"></i>
+                            &nbsp;
+                            并发
+                        </a>
+                        
+            <ul class="unstyled" id="tree">
+                
+                    <li class="file"><a href="/Blog/Java/并发/原子性、可见性、有序性/">原子性、可见性、有序性</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/并发/Synchronized总结/">Synchronized总结</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/并发/线程安全/">线程安全</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/并发/线程安全实现方式/">线程安全实现方式</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/并发/ThreadLocal原理/">ThreadLocal原理</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/并发/Volatile原理/">Volatile原理</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/并发/Java与线程/">Java与线程</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/并发/锁优化/">锁优化</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/并发/BlockingQueue阻塞队列/">BlockingQueue阻塞队列</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/并发/操作系统底层/">操作系统底层</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/并发/Java内存模型/">Java内存模型</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/并发/Atomic系列/">Atomic系列</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/并发/ReentrantReadWriteLock原理/">ReentrantReadWriteLock原理</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/并发/同步工具类/">同步工具类</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/并发/Condition原理/">Condition原理</a></li>
+                
+                    <li class="file active"><a href="/Blog/Java/并发/Unsafe应用/">Unsafe应用</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/并发/AQS与ReentrantLock/">AQS与ReentrantLock</a></li>
+                
+            </ul>
+        
+                    </li>
+                
+                    <li class="file"><a href="/Blog/Java/JVM整体概览/">JVM整体概览</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/JVM内存参数设置/">JVM内存参数设置</a></li>
+                
+            </ul>
+        
+                    </li>
+                
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            Linux
+                        </a>
+                        
+            <ul class="unstyled" id="tree">
+                
+                    <li class="file"><a href="/Blog/Linux/Linux常用命令/">Linux常用命令</a></li>
+                
+                    <li class="file"><a href="/Blog/Linux/Linux常用技巧/">Linux常用技巧</a></li>
+                
+            </ul>
+        
+                    </li>
+                
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            Maven
+                        </a>
+                        
+            <ul class="unstyled" id="tree">
+                
+                    <li class="file"><a href="/Blog/Maven/Maven加密JAR包/">Maven加密JAR包</a></li>
+                
+                    <li class="file"><a href="/Blog/Maven/Maven基础/">Maven基础</a></li>
+                
+                    <li class="file"><a href="/Blog/Maven/Maven常用/">Maven常用</a></li>
+                
+                    <li class="file"><a href="/Blog/Maven/Maven属性/">Maven属性</a></li>
+                
+                    <li class="file"><a href="/Blog/Maven/Maven常用工具/">Maven常用工具</a></li>
+                
+                    <li class="file"><a href="/Blog/Maven/Maven插件编写/">Maven插件编写</a></li>
+                
+                    <li class="file"><a href="/Blog/Maven/Maven生命周期/">Maven生命周期</a></li>
+                
+                    <li class="file"><a href="/Blog/Maven/Maven个性化打包/">Maven个性化打包</a></li>
+                
+                    <li class="file"><a href="/Blog/Maven/Maven仓库/">Maven仓库</a></li>
+                
+                    <li class="file"><a href="/Blog/Maven/Maven插件基础/">Maven插件基础</a></li>
+                
+                    <li class="file"><a href="/Blog/Maven/Maven聚合与继承/">Maven聚合与继承</a></li>
+                
+                    <li class="file"><a href="/Blog/Maven/Maven常用插件/">Maven常用插件</a></li>
+                
+                    <li class="file"><a href="/Blog/Maven/Maven标签全解/">Maven标签全解</a></li>
+                
+                    <li class="file"><a href="/Blog/Maven/Maven Assembly标签全解/">Maven Assembly标签全解</a></li>
+                
+            </ul>
+        
+                    </li>
+                
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            Python
+                        </a>
+                        
+            <ul class="unstyled" id="tree">
+                
+                    <li class="file"><a href="/Blog/Python/Excel文件数据抽取/">Excel文件数据抽取</a></li>
+                
+            </ul>
+        
+                    </li>
+                
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            Test
+                        </a>
+                        
+            <ul class="unstyled" id="tree">
+                
+                    <li class="file"><a href="/Blog/Test/IT测试总结/">IT测试总结</a></li>
+                
+                    <li class="file"><a href="/Blog/Test/JMeter日常总结/">JMeter日常总结</a></li>
+                
+                    <li class="file"><a href="/Blog/Test/LoadRunner日常总结/">LoadRunner日常总结</a></li>
+                
+                    <li class="file"><a href="/Blog/Test/UT测试总结/">UT测试总结</a></li>
+                
+            </ul>
+        
+                    </li>
+                
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            中间件
+                        </a>
+                        
+            <ul class="unstyled" id="tree">
+                
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            Spring
+                        </a>
+                        
+            <ul class="unstyled" id="tree">
+                
+                    <li class="file"><a href="/Blog/中间件/Spring/IoC容器/">IoC容器</a></li>
+                
+                    <li class="file"><a href="/Blog/中间件/Spring/Spring Gzip压缩/">Spring Gzip压缩</a></li>
+                
+                    <li class="file"><a href="/Blog/中间件/Spring/Spring整体架构/">Spring整体架构</a></li>
+                
+                    <li class="file"><a href="/Blog/中间件/Spring/Spring线程池跨线程数据共享/">Spring线程池跨线程数据共享</a></li>
+                
+                    <li class="file"><a href="/Blog/中间件/Spring/Spring知识点/">Spring知识点</a></li>
+                
+                    <li class="file"><a href="/Blog/中间件/Spring/SpringMvc异步/">SpringMvc异步原理及实现</a></li>
+                
+                    <li class="file"><a href="/Blog/中间件/Spring/Hystrix总结/">Hystrix总结</a></li>
+                
+                    <li class="file"><a href="/Blog/中间件/Spring/Spring初始化扩展/">Spring初始化扩展</a></li>
+                
+            </ul>
+        
+                    </li>
+                
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            Tomcat
+                        </a>
+                        
+            <ul class="unstyled" id="tree">
+                
+                    <li class="file"><a href="/Blog/中间件/Tomcat/Tomcat工作原理/">Tomcat工作原理</a></li>
+                
+                    <li class="file"><a href="/Blog/中间件/Tomcat/Tomcat整体架构/">Tomcat整体架构</a></li>
+                
+                    <li class="file"><a href="/Blog/中间件/Tomcat/Tomcat中BIO和NIO底层原理实现对比/">Tomcat中BIO和NIO底层原理实现对比</a></li>
+                
+                    <li class="file"><a href="/Blog/中间件/Tomcat/Tomcat启动过程/">Tomcat启动过程</a></li>
+                
+                    <li class="file"><a href="/Blog/中间件/Tomcat/Tomcat处理请求过程/">Tomcat处理请求过程</a></li>
+                
+                    <li class="file"><a href="/Blog/中间件/Tomcat/Tomcat处理响应过程/">Tomcat处理响应过程</a></li>
+                
+                    <li class="file"><a href="/Blog/中间件/Tomcat/Tomcat热部署热加载/">Tomcat热部署热加载</a></li>
+                
+            </ul>
+        
+                    </li>
+                
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            常见问题
+                        </a>
+                        
+            <ul class="unstyled" id="tree">
+                
+                    <li class="file"><a href="/Blog/中间件/常见问题/HBase依赖冲突/">HBase依赖冲突</a></li>
+                
+                    <li class="file"><a href="/Blog/中间件/常见问题/Maven编译后文件损坏/">Maven编译后文件损坏</a></li>
+                
+            </ul>
+        
+                    </li>
+                
+                    <li class="file"><a href="/Blog/中间件/Redis分布式锁实现/">Redis分布式锁实现</a></li>
+                
+                    <li class="file"><a href="/Blog/中间件/Redis总结/">Redis总结</a></li>
+                
+            </ul>
+        
+                    </li>
+                
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            协议族
+                        </a>
+                        
+            <ul class="unstyled" id="tree">
+                
+                    <li class="file"><a href="/Blog/协议族/TCPIP四层&五层模型/">TCP/IP四层&五层模型</a></li>
+                
+                    <li class="file"><a href="/Blog/协议族/网络基础知识/">网络基础知识</a></li>
+                
+                    <li class="file"><a href="/Blog/协议族/以太网/">以太网</a></li>
+                
+                    <li class="file"><a href="/Blog/协议族/地址解析协议/">地址解析协议ARP</a></li>
+                
+            </ul>
+        
+                    </li>
+                
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            杂记
+                        </a>
+                        
+            <ul class="unstyled" id="tree">
+                
+                    <li class="file"><a href="/Blog/杂记/IDEA实用插件/">IDEA实用插件</a></li>
+                
+                    <li class="file"><a href="/Blog/杂记/JAVA实用工具/">JAVA实用工具</a></li>
+                
+                    <li class="file"><a href="/Blog/杂记/IDEA快捷的使用/">IDEA的快捷使用</a></li>
+                
+                    <li class="file"><a href="/Blog/杂记/Win实用工具/">Win实用工具</a></li>
+                
+                    <li class="file"><a href="/Blog/杂记/XSD使用总结/">XSD实用总结</a></li>
+                
+                    <li class="file"><a href="/Blog/杂记/SonarQube配置总结/">SonarQube配置总结</a></li>
+                
+            </ul>
+        
+                    </li>
+                
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            算法
+                        </a>
+                        
+            <ul class="unstyled" id="tree">
+                
+                    <li class="file"><a href="/Blog/算法/二叉搜索树/">二叉搜索树</a></li>
+                
+                    <li class="file"><a href="/Blog/算法/平衡二叉树/">平衡二叉树</a></li>
+                
+                    <li class="file"><a href="/Blog/算法/树基础/">树基础</a></li>
+                
+                    <li class="file"><a href="/Blog/算法/排序算法/">排序算法</a></li>
+                
+                    <li class="file"><a href="/Blog/算法/图基础/">图基础</a></li>
+                
+            </ul>
+        
+                    </li>
+                
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            设计模式
+                        </a>
+                        
+            <ul class="unstyled" id="tree">
+                
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            创建型模式
+                        </a>
+                        
+            <ul class="unstyled" id="tree">
+                
+                    <li class="file"><a href="/Blog/设计模式/创建型模式/单例模式/">单例模式</a></li>
+                
+                    <li class="file"><a href="/Blog/设计模式/创建型模式/原型模式/">原型模式</a></li>
+                
+                    <li class="file"><a href="/Blog/设计模式/创建型模式/建造者模式/">建造者模式</a></li>
+                
+                    <li class="file"><a href="/Blog/设计模式/创建型模式/工厂模式/">工厂模式</a></li>
+                
+            </ul>
+        
+                    </li>
+                
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            结构型模式
+                        </a>
+                        
+            <ul class="unstyled" id="tree">
+                
+                    <li class="file"><a href="/Blog/设计模式/结构型模式/代理模式/">代理模式</a></li>
+                
+                    <li class="file"><a href="/Blog/设计模式/结构型模式/装饰模式/">装饰模式</a></li>
+                
+                    <li class="file"><a href="/Blog/设计模式/结构型模式/适配器模式/">适配器模式</a></li>
+                
+                    <li class="file"><a href="/Blog/设计模式/结构型模式/组合模式/">组合模式</a></li>
+                
+                    <li class="file"><a href="/Blog/设计模式/结构型模式/外观模式/">外观模式</a></li>
+                
+            </ul>
+        
+                    </li>
+                
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            行为型模式
+                        </a>
+                        
+            <ul class="unstyled" id="tree">
+                
+                    <li class="file"><a href="/Blog/设计模式/行为型模式/模板方法模式/">模板方法模式</a></li>
+                
+                    <li class="file"><a href="/Blog/设计模式/行为型模式/中介者模式/">中介者模式</a></li>
+                
+                    <li class="file"><a href="/Blog/设计模式/行为型模式/命令模式/">命令模式</a></li>
+                
+                    <li class="file"><a href="/Blog/设计模式/行为型模式/责任链模式/">责任链模式</a></li>
+                
+                    <li class="file"><a href="/Blog/设计模式/行为型模式/策略模式/">策略模式</a></li>
+                
+                    <li class="file"><a href="/Blog/设计模式/行为型模式/迭代器模式/">迭代器模式</a></li>
+                
+                    <li class="file"><a href="/Blog/设计模式/行为型模式/观察者模式/">观察者模式</a></li>
+                
+                    <li class="file"><a href="/Blog/设计模式/行为型模式/备忘录模式/">备忘录模式</a></li>
+                
+                    <li class="file"><a href="/Blog/设计模式/行为型模式/访问者模式/">访问者模式</a></li>
+                
+                    <li class="file"><a href="/Blog/设计模式/行为型模式/状态模式/">状态模式</a></li>
+                
+            </ul>
+        
+                    </li>
+                
+                    <li class="file"><a href="/Blog/设计模式/SOLID基本原则/">SOLID基本原则</a></li>
+                
+                    <li class="file"><a href="/Blog/设计模式/设计模式概览/">设计模式概览</a></li>
+                
+            </ul>
+        
+                    </li>
+                
+                    <li class="file"><a href="/Blog/index/">Welcome YingLong's Blog</a></li>
+                
+            </ul>
+        
+    </div>
+    <script>
+        $(document).ready(function () {
+            var iconFolderOpenClass = 'fa-folder-open';
+            var iconFolderCloseClass = 'fa-folder';
+            var iconAllExpandClass = 'fa-angle-double-down';
+            var iconAllPackClass = 'fa-angle-double-up';
+            // Handle directory-tree expansion:
+            // 左键单独展开目录
+            $(document).on('click', '#categories a[data-role="directory"]', function (event) {
+                event.preventDefault();
+
+                var icon = $(this).children('.fa');
+                var expanded = icon.hasClass(iconFolderOpenClass);
+                var subtree = $(this).siblings('ul');
+                icon.removeClass(iconFolderOpenClass).removeClass(iconFolderCloseClass);
+                if (expanded) {
+                    if (typeof subtree != 'undefined') {
+                        subtree.slideUp({duration: 100});
+                    }
+                    icon.addClass(iconFolderCloseClass);
+                } else {
+                    if (typeof subtree != 'undefined') {
+                        subtree.slideDown({duration: 100});
+                    }
+                    icon.addClass(iconFolderOpenClass);
+                }
+            });
+            // 右键展开下属所有目录
+            $('#categories a[data-role="directory"]').bind("contextmenu", function (event) {
+                event.preventDefault();
+
+                var icon = $(this).children('.fa');
+                var expanded = icon.hasClass(iconFolderOpenClass);
+                var listNode = $(this).siblings('ul');
+                var subtrees = $.merge(listNode.find('li ul'), listNode);
+                var icons = $.merge(listNode.find('.fa'), icon);
+                icons.removeClass(iconFolderOpenClass).removeClass(iconFolderCloseClass);
+                if (expanded) {
+                    subtrees.slideUp({duration: 100});
+                    icons.addClass(iconFolderCloseClass);
+                } else {
+                    subtrees.slideDown({duration: 100});
+                    icons.addClass(iconFolderOpenClass);
+                }
+            })
+            // 展开关闭所有目录按钮
+            $(document).on('click', '#allExpand', function (event) {
+                event.preventDefault();
+
+                var icon = $(this).children('.fa');
+                var expanded = icon.hasClass(iconAllExpandClass);
+                icon.removeClass(iconAllExpandClass).removeClass(iconAllPackClass);
+                if (expanded) {
+                    $('#sidebar .fa.fa-folder').removeClass('fa-folder').addClass('fa-folder-open')
+                    $('#categories li ul').slideDown({duration: 100});
+                    icon.addClass(iconAllPackClass);
+                } else {
+                    $('#sidebar .fa.fa-folder-open').removeClass('fa-folder-open').addClass('fa-folder')
+                    $('#categories li ul').slideUp({duration: 100});
+                    icon.addClass(iconAllExpandClass);
+                }
+            });
+        });
+    </script>
+
+    
+    <div id="toTop" class="fa fa-angle-up"></div>
+</aside>
+        
+        <section id="main"><article id="post-Java/并发/Unsafe应用" class="article article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+        
+            <header class="article-header">
+                
+                    <div class="article-meta">
+                        
+    <div class="article-category">
+        <i class="fa fa-folder"></i>
+        <a class="article-category-link" href="/categories/Java/">Java</a><i class="fa fa-angle-right"></i><a class="article-category-link" href="/categories/Java/并发/">并发</a>
+    </div>
+
+                        
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link" href="/tags/并发/">并发</a>
+    </div>
+
+                        
+    <div class="article-date">
+        <i class="fa fa-calendar"></i>
+        <a href="/Blog/Java/并发/Unsafe应用/">
+            <time datetime="2021-09-03T16:00:00.000Z" itemprop="datePublished">2021-09-04</time>
+        </a>
+    </div>
+
+
+                        
+                    </div>
+                
+                
+    
+        <h1 class="article-title" itemprop="name">
+            Unsafe应用
+        </h1>
+    
+
+            </header>
+        
+        
+        <div class="article-entry" itemprop="articleBody">
+            
+            
+                    
+            
+            
+                <p>Unsafe位于<strong><code>sun.misc</code></strong>包下，主要提供一些用于<strong>执行低级别</strong>、<strong>不安全操作</strong>的方法，如<strong>直接访问系统内存资源</strong>、<strong>自主管理内存资源</strong>等，这些方法在<strong>提升Java运行效率、增强Java语言底层资源操作能力</strong>方面起到了很大的作用。</p>
+<p>Unsafe类使Java拥有类似C语言指针一样操作内存空间的能力，增加了程序发生相关<strong>指针问题</strong>的风险。在程序中过度、不正确使用Unsafe类会使得程序出错的概率变大。</p>
+<p><strong>Unsafe类为单例实现</strong>，提供静态方法<strong><code>getUnsafe</code></strong>获取Unsafe实例，仅当<strong>调用<code>getUnsafe</code>方法的类为引导类加载器所加载时才合法</strong>，否则抛出<strong><code>SecurityException</code></strong>异常。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">final</span> <span class="class"><span class="keyword">class</span> <span class="title">Unsafe</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> Unsafe theUnsafe;</span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="title">Unsafe</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="meta">@CallerSensitive</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Unsafe <span class="title">getUnsafe</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        Class var0 = Reflection.getCallerClass();</span><br><span class="line">        <span class="keyword">if</span> (!VM.isSystemDomainLoader(var0.getClassLoader())) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> SecurityException(<span class="string">"Unsafe"</span>);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">return</span> theUnsafe;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="获取Unsafe实例"><a href="#获取Unsafe实例" class="headerlink" title="获取Unsafe实例"></a>获取Unsafe实例</h3><p>通过Java命令行命令<strong><code>-Xbootclasspath/a</code></strong>把调用Unsafe相关方法的<strong>类所在jar包路径追加到默认的bootstrap路径中</strong>，使得调用Unsafe相关方法的类<strong>被引导类加载器加载</strong>，从而通过<strong><code>Unsafe.getUnsafe</code></strong>方法安全的获取Unsafe实例。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">java -Xbootclasspath/a:$&#123;path&#125;   <span class="comment">// 其中path为调用Unsafe相关方法的类所在jar包路径</span></span><br></pre></td></tr></table></figure>
+<p>通过<strong>反射</strong>获取单例对象<strong><code>theUnsafe</code></strong>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Unsafe <span class="title">reflectGetUnsafe</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        Field field = Unsafe.class.getDeclaredField(<span class="string">"theUnsafe"</span>);</span><br><span class="line">        field.setAccessible(<span class="keyword">true</span>);</span><br><span class="line">        <span class="keyword">return</span> (Unsafe) field.get(<span class="keyword">null</span>);</span><br><span class="line">    &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">        e.printStackTrace();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="Unsafe功能"><a href="#Unsafe功能" class="headerlink" title="Unsafe功能"></a>Unsafe功能</h3><p>Unsafe提供的API大致可分为<strong>内存操作</strong>、<strong>CAS</strong>、<strong>Class相关</strong>、<strong>对象操作</strong>、<strong>线程调度</strong>、<strong>系统信息获取</strong>、<strong>内存屏障</strong>、<strong>数组操作</strong>等几类。</p>
+<p><img src="../../../../../images/Java/并发/Unsafe基本功能.png" alt="Unsafe基本功能"></p>
+<h4 id="内存操作"><a href="#内存操作" class="headerlink" title="内存操作"></a>内存操作</h4><p>主要包含<strong>堆外内存</strong>的<strong>分配</strong>、<strong>拷贝</strong>、<strong>释放</strong>、<strong>给定地址值操作</strong>等方法。在Java中创建的对象都处于<strong>堆内内存</strong>，堆内内存是由<code>JVM</code>所管控的<strong>进程内存</strong>，且遵循JVM的<strong>内存管理机制</strong>，JVM会<strong>采用垃圾回收机制统一管理堆内存</strong>。<strong>堆外内存</strong>存在于JVM管控之外的内存区域，<strong>对堆外内存的操作，依赖于<code>Unsafe</code>提供的操作堆外内存的<code>native</code>方法</strong>。</p>
+<p>使用堆外内存可<strong>对垃圾回收停顿的改善</strong>，由于堆外内存是直接受操作系统管理而不是JVM，故使用堆外内存时，即可保持较小的堆内内存规模。从而在GC时减少回收停顿对于应用的影响。</p>
+<p><strong>提升程序<code>I/O</code>操作的性能</strong>，通常I/O通信过程中，会<strong>存在堆内内存到堆外内存的数据拷贝操作</strong>，对于需要<strong>频繁进行内存间数据拷贝</strong>且<strong>生命周期较短的暂存数据</strong>，都<strong>建议存储到堆外内存</strong>。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 分配内存, 相当于C++的malloc函数</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">native</span> <span class="keyword">long</span> <span class="title">allocateMemory</span><span class="params">(<span class="keyword">long</span> bytes)</span></span>;</span><br><span class="line"><span class="comment">// 扩充内存</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">native</span> <span class="keyword">long</span> <span class="title">reallocateMemory</span><span class="params">(<span class="keyword">long</span> address, <span class="keyword">long</span> bytes)</span></span>;</span><br><span class="line"><span class="comment">// 释放内存</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">native</span> <span class="keyword">void</span> <span class="title">freeMemory</span><span class="params">(<span class="keyword">long</span> address)</span></span>;</span><br><span class="line"><span class="comment">// 在给定的内存块中设置值</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">native</span> <span class="keyword">void</span> <span class="title">setMemory</span><span class="params">(Object o, <span class="keyword">long</span> offset, <span class="keyword">long</span> bytes, <span class="keyword">byte</span> value)</span></span>;</span><br><span class="line"><span class="comment">// 内存拷贝</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">native</span> <span class="keyword">void</span> <span class="title">copyMemory</span><span class="params">(Object srcBase, <span class="keyword">long</span> srcOffset, Object destBase, <span class="keyword">long</span> destOffset, <span class="keyword">long</span> bytes)</span></span>;</span><br><span class="line"><span class="comment">// 获取给定地址值，忽略修饰限定符的访问限制。与此类似操作还有: getInt，getDouble，getLong，getChar等</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">native</span> Object <span class="title">getObject</span><span class="params">(Object o, <span class="keyword">long</span> offset)</span></span>;</span><br><span class="line"><span class="comment">// 为给定地址设置值，忽略修饰限定符的访问限制，与此类似操作还有: putInt,putDouble，putLong，putChar等</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">native</span> <span class="keyword">void</span> <span class="title">putObject</span><span class="params">(Object o, <span class="keyword">long</span> offset, Object x)</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">native</span> <span class="keyword">byte</span> <span class="title">getByte</span><span class="params">(<span class="keyword">long</span> address)</span></span>;</span><br><span class="line"><span class="comment">// 为给定地址设置byte类型的值（当且仅当该内存地址为allocateMemory分配	时，此方法结果才是确定的）</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">native</span> <span class="keyword">void</span> <span class="title">putByte</span><span class="params">(<span class="keyword">long</span> address, <span class="keyword">byte</span> x)</span></span>;</span><br></pre></td></tr></table></figure>
+<p><strong><code>DirectByteBuffer</code></strong>是Java用于实现堆外内存的一个重要类，其对于<strong>堆外内存</strong>的创建、使用、销毁等逻辑均由Unsafe提供的堆外内存API来实现，通常用在<strong>通信过程中做缓冲池</strong>，如Netty、MINA等<strong><code>NIO</code>框架</strong>中应用广泛。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">DirectByteBuffer(<span class="keyword">int</span> cap) &#123;                   <span class="comment">// package-private</span></span><br><span class="line">    <span class="keyword">super</span>(-<span class="number">1</span>, <span class="number">0</span>, cap, cap);</span><br><span class="line">    <span class="keyword">boolean</span> pa = VM.isDirectMemoryPageAligned();</span><br><span class="line">    <span class="keyword">int</span> ps = Bits.pageSize();</span><br><span class="line">    <span class="keyword">long</span> size = Math.max(<span class="number">1L</span>, (<span class="keyword">long</span>)cap + (pa ? ps : <span class="number">0</span>));</span><br><span class="line">    Bits.reserveMemory(size, cap);</span><br><span class="line">    <span class="keyword">long</span> base = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        base = unsafe.allocateMemory(size); <span class="comment">// 分配内存</span></span><br><span class="line">    &#125; <span class="keyword">catch</span> (OutOfMemoryError x) &#123;</span><br><span class="line">        Bits.unreserveMemory(size, cap);</span><br><span class="line">        <span class="keyword">throw</span> x;</span><br><span class="line">    &#125;</span><br><span class="line">    unsafe.setMemory(base, size, (<span class="keyword">byte</span>) <span class="number">0</span>);	<span class="comment">// 内存初始化</span></span><br><span class="line">    <span class="keyword">if</span> (pa &amp;&amp; (base % ps != <span class="number">0</span>)) &#123;</span><br><span class="line">        <span class="comment">// Round up to page boundary</span></span><br><span class="line">        address = base + ps - (base &amp; (ps - <span class="number">1</span>));</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        address = base;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 跟踪DirectByteBuffer对象的垃圾回收，当DirectByteBuffer被垃圾回收时，分配的堆外内存一起被释放</span></span><br><span class="line">    cleaner = Cleaner.create(<span class="keyword">this</span>, <span class="keyword">new</span> Deallocator(base, size, cap));</span><br><span class="line">    att = <span class="keyword">null</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">Unsafe unsafe = UnsafeInstance.reflectGetUnsafe();</span><br><span class="line"><span class="keyword">long</span> oneHundred = <span class="number">123456789L</span>;</span><br><span class="line"><span class="keyword">byte</span> size = <span class="number">8</span>;</span><br><span class="line"><span class="comment">// 调用allocateMemory分配内存</span></span><br><span class="line"><span class="keyword">long</span> memoryAddress = unsafe.allocateMemory(size);</span><br><span class="line">System.out.println(<span class="string">"memoryAddress: "</span> + memoryAddress);</span><br><span class="line"><span class="comment">// 将oneHundred写入到内存中</span></span><br><span class="line">unsafe.putAddress(memoryAddress, oneHundred);</span><br><span class="line"><span class="comment">// 内存中读取数据</span></span><br><span class="line"><span class="keyword">long</span> readValue = unsafe.getAddress(memoryAddress);</span><br><span class="line">System.out.println(<span class="string">"readValue: "</span> + readValue);</span><br><span class="line"><span class="comment">// 释放内存</span></span><br><span class="line">unsafe.freeMemory(memoryAddress);</span><br></pre></td></tr></table></figure>
+<h4 id="CAS"><a href="#CAS" class="headerlink" title="CAS"></a>CAS</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> var1	o         - 包含要修改field的对象</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> var2	offset    - 对象中某field的偏移量</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> var4	expected  - 期望值</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> var5	update    - 更新值</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@return</span>          	  - true | false</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">native</span> <span class="keyword">boolean</span> <span class="title">compareAndSwapObject</span><span class="params">(Object var1, <span class="keyword">long</span> var2, Object var4, Object var5)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">native</span> <span class="keyword">boolean</span> <span class="title">compareAndSwapInt</span><span class="params">(Object var1, <span class="keyword">long</span> var2, <span class="keyword">int</span> var4, <span class="keyword">int</span> var5)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">native</span> <span class="keyword">boolean</span> <span class="title">compareAndSwapLong</span><span class="params">(Object var1, <span class="keyword">long</span> var2, <span class="keyword">long</span> var4, <span class="keyword">long</span> var6)</span></span>;</span><br></pre></td></tr></table></figure>
+<p>通过Unsafe来给属性赋值，offset为user字段的内存偏移地址：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">UnsafeTest</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> Unsafe unsafe;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">long</span> offset;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">transient</span> <span class="keyword">volatile</span> User user;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">static</span> &#123;</span><br><span class="line">        unsafe = UnsafeInstance.reflectGetUnsafe();</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            offset = unsafe.objectFieldOffset(UnsafeTest.class.getDeclaredField(<span class="string">"head"</span>));</span><br><span class="line">        &#125; <span class="keyword">catch</span> (NoSuchFieldException e) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> RuntimeException();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        UnsafeTest unsafeTest = <span class="keyword">new</span> UnsafeTest();</span><br><span class="line">        User user123 = <span class="keyword">new</span> User();</span><br><span class="line">        user.setAddress(<span class="string">"123"</span>);</span><br><span class="line">        unsafe.compareAndSwapObject(unsafeTest, offset, <span class="keyword">null</span>, user123);</span><br><span class="line">        System.out.println(unsafeTest.head.getAddress());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="线程调度"><a href="#线程调度" class="headerlink" title="线程调度"></a>线程调度</h4><p>包括线程<strong>挂起</strong>、<strong>恢复</strong>、<strong>锁机制</strong>等方法，将一个线程进行挂起是通过park方法实现的，调用park方法后，线程将一直阻塞直到超时或者中断等条件出现；<code>unpark</code>可终止一个挂起的线程，使其恢复正常。</p>
+<p>Java锁和同步器框架的核心类AbstractQueuedSynchronizer，就是通过调用<strong>LockSupport.park()</strong>和<strong>LockSupport.unpark()</strong>实现线程的阻塞和唤醒的，而LockSupport的park、unpark方法实际是调用Unsafe的park、unpark方式来实现。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 取消阻塞线程</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">native</span> <span class="keyword">void</span> <span class="title">unpark</span><span class="params">(Object thread)</span></span>;</span><br><span class="line"><span class="comment">// 阻塞线程</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">native</span> <span class="keyword">void</span> <span class="title">park</span><span class="params">(<span class="keyword">boolean</span> isAbsolute, <span class="keyword">long</span> time)</span></span>;</span><br><span class="line"><span class="comment">// 获得对象锁（可重入锁）</span></span><br><span class="line"><span class="meta">@Deprecated</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">native</span> <span class="keyword">void</span> <span class="title">monitorEnter</span><span class="params">(Object o)</span></span>;</span><br><span class="line"><span class="comment">// 释放对象锁</span></span><br><span class="line"><span class="meta">@Deprecated</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">native</span> <span class="keyword">void</span> <span class="title">monitorExit</span><span class="params">(Object o)</span></span>;</span><br><span class="line"><span class="comment">// 尝试获取对象锁</span></span><br><span class="line"><span class="meta">@Deprecated</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">native</span> <span class="keyword">boolean</span> <span class="title">tryMonitorEnter</span><span class="params">(Object o)</span></span>;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">static</span> Object object = <span class="keyword">new</span> Object();</span><br><span class="line"><span class="keyword">static</span> Unsafe unsafe = UnsafeInstance.reflectGetUnsafe();</span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">method1</span><span class="params">()</span></span>&#123;</span><br><span class="line">    unsafe.monitorEnter(object);</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">method2</span><span class="params">()</span></span>&#123;</span><br><span class="line">    unsafe.monitorExit(object);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">Unsafe unsafe = UnsafeInstance.reflectGetUnsafe();</span><br><span class="line">Thread t = <span class="keyword">new</span> Thread(() -&gt; &#123;</span><br><span class="line">    System.out.println(<span class="string">"thread - is running----"</span>);</span><br><span class="line">    <span class="comment">//true则会实现ms定时,false则会实现ns定时。</span></span><br><span class="line">    unsafe.park(<span class="keyword">false</span>,<span class="number">0L</span>); <span class="comment">//阻塞当前线程</span></span><br><span class="line">    System.out.println(<span class="string">"thread is over-----"</span>);</span><br><span class="line">&#125;);</span><br><span class="line">t.start();</span><br><span class="line">Thread.sleep(<span class="number">1000</span>);</span><br><span class="line">System.out.println(<span class="string">"唤醒Thread-t"</span>);</span><br><span class="line">unsafe.unpark(t);</span><br></pre></td></tr></table></figure>
+<h4 id="内存屏障"><a href="#内存屏障" class="headerlink" title="内存屏障"></a>内存屏障</h4><p>Java8中引入，用于定义内存屏障，也称内存栅栏，内存栅障，屏障指令等，是一类同步屏障指令，是CPU或编译器在对内存随机访问的操作中的一个同步点，使得此点之前的所有读写操作都执行后才可以开始执行此点之后的操作，避免代码重排序。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 禁止load操作重排序。屏障前的load操作不能被重排序到屏障后，屏障后的load操作不能被重排序到屏障前</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">native</span> <span class="keyword">void</span> <span class="title">loadFence</span><span class="params">()</span></span>;</span><br><span class="line"><span class="comment">// 禁止store操作重排序。屏障前的store操作不能被重排序到屏障后，屏障后的store操作不能被重排序到屏障前</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">native</span> <span class="keyword">void</span> <span class="title">storeFence</span><span class="params">()</span></span>;</span><br><span class="line"><span class="comment">// 禁止load、store操作重排序</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">native</span> <span class="keyword">void</span> <span class="title">fullFence</span><span class="params">()</span></span>;</span><br></pre></td></tr></table></figure>
+
+        </div>
+        
+    <footer class="article-footer">
+    </footer>
+    </div>
+</article>
+
+
+    
+    <nav id="article-nav">
+        
+            <a href="/Blog/Java/并发/AQS与ReentrantLock/" id="article-nav-newer" class="article-nav-link-wrap">
+                <strong class="article-nav-caption">Newer</strong>
+                <div class="article-nav-title">
+                    
+                        AQS与ReentrantLock
+                    
+                </div>
+            </a>
+        
+        
+            <a href="/Blog/DB/MVCC与BufferPool缓存机制/" id="article-nav-older" class="article-nav-link-wrap">
+                <strong class="article-nav-caption">Older</strong>
+                <div class="article-nav-title">MVCC与BufferPool缓存机制</div>
+            </a>
+        
+    </nav>
+
+
+
+
+
+    
+    
+
+
+
+
+    <!-- baidu url auto push script -->
+    <script type="text/javascript">
+        !function () {
+            var e = /([http|https]:\/\/[a-zA-Z0-9\_\.]+\.baidu\.com)/gi, r = window.location.href,
+                o = document.referrer;
+            if (!e.test(r)) {
+                var n = "//api.share.baidu.com/s.gif";
+                o ? (n += "?r=" + encodeURIComponent(document.referrer), r && (n += "&l=" + r)) : r && (n += "?l=" + r);
+                var t = new Image;
+                t.src = n
+            }
+        }(window);
+    </script>
+</section>
+    </div>
+    <footer id="footer">
+    <div class="outer">
+        <div id="footer-info" class="inner">
+            YaoYingLong &copy; 2021
+            <!-- <a rel="license" href="http://creativecommons.org/licenses/by-nc-nd/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-nc-nd/4.0/80x15.png" /></a> -->
+            <br> Powered by <a href="http://hexo.io/" target="_blank" rel="external nofollow noopener noreferrer">Hexo</a>. Theme - <a href="https://github.com/zthxxx/hexo-theme-Wikitten" rel="external nofollow noopener noreferrer" target="_blank">wikitten</a>
+        </div>
+    </div>
+</footer>
+    
+
+    
+        <script src="/libs/lightgallery/js/lightgallery.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-thumbnail.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-pager.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-autoplay.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-fullscreen.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-zoom.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-hash.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-share.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-video.min.js"></script>
+    
+    
+        <script src="/libs/justified-gallery/jquery.justifiedGallery.min.js"></script>
+    
+    
+        <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [ ["$","$"], ["\\(","\\)"] ],
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
+            processEscapes: true,
+            TeX: {
+                equationNumbers: {
+                  autoNumber: 'AMS'
+                }
+            }
+        }
+    });
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax();
+        for (var i = 0; i < all.length; ++i)
+            all[i].SourceElement().parentNode.className += ' has-jax';
+    });
+
+
+</script>
+<script async src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+
+
+
+<!-- Custom Scripts -->
+<script src="/js/main.js"></script>
+
+</div>
+</body>
