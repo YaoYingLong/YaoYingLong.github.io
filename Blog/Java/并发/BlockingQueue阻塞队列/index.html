@@ -12,15 +12,20 @@
         <meta name="keywords" content="并发">
     
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-    <meta name="keywords" content="并发">
+    <meta name="description" content="BlockingQueue是一个带阻塞功能的队列，入队时若队列已满则阻塞调用者，出队时若队列为空则阻塞调用者。该接口和JDK中Queue接口是兼容的，在其基础上增加了阻塞功能，add和offer是无阻塞的，put是阻塞的，remove和peek是非阻塞的，take是阻塞的。 12345678910111213public interface BlockingQueue&amp;lt;E&amp;gt; exten">
+<meta name="keywords" content="并发">
 <meta property="og:type" content="article">
 <meta property="og:title" content="BlockingQueue阻塞队列">
 <meta property="og:url" content="https://yaoyinglong.github.io/Blog/Java/并发/BlockingQueue阻塞队列/index.html">
 <meta property="og:site_name" content="YingLong">
+<meta property="og:description" content="BlockingQueue是一个带阻塞功能的队列，入队时若队列已满则阻塞调用者，出队时若队列为空则阻塞调用者。该接口和JDK中Queue接口是兼容的，在其基础上增加了阻塞功能，add和offer是无阻塞的，put是阻塞的，remove和peek是非阻塞的，take是阻塞的。 12345678910111213public interface BlockingQueue&amp;lt;E&amp;gt; exten">
 <meta property="og:locale" content="en">
-<meta property="og:updated_time" content="2021-09-03T06:41:32.549Z">
+<meta property="og:image" content="https://yaoyinglong.github.io/images/Java/并发/BlockingQueue各种实现类.png">
+<meta property="og:updated_time" content="2021-09-09T15:56:19.994Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="BlockingQueue阻塞队列">
+<meta name="twitter:description" content="BlockingQueue是一个带阻塞功能的队列，入队时若队列已满则阻塞调用者，出队时若队列为空则阻塞调用者。该接口和JDK中Queue接口是兼容的，在其基础上增加了阻塞功能，add和offer是无阻塞的，put是阻塞的，remove和peek是非阻塞的，take是阻塞的。 12345678910111213public interface BlockingQueue&amp;lt;E&amp;gt; exten">
+<meta name="twitter:image" content="https://yaoyinglong.github.io/images/Java/并发/BlockingQueue各种实现类.png">
     
 
     
@@ -376,8 +381,6 @@
                 
                     <li class="file"><a href="/Blog/Java/并发/Java内存模型/">Java内存模型</a></li>
                 
-                    <li class="file"><a href="/Blog/Java/并发/Atomic系列/">Atomic系列</a></li>
-                
                     <li class="file"><a href="/Blog/Java/并发/ReentrantReadWriteLock原理/">ReentrantReadWriteLock原理</a></li>
                 
                     <li class="file"><a href="/Blog/Java/并发/同步工具类/">同步工具类</a></li>
@@ -387,6 +390,8 @@
                     <li class="file"><a href="/Blog/Java/并发/Unsafe应用/">Unsafe应用</a></li>
                 
                     <li class="file"><a href="/Blog/Java/并发/AQS与ReentrantLock/">AQS与ReentrantLock</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/并发/线程池原理/">线程池原理</a></li>
                 
             </ul>
         
@@ -844,7 +849,7 @@
     <div class="article-date">
         <i class="fa fa-calendar"></i>
         <a href="/Blog/Java/并发/BlockingQueue阻塞队列/">
-            <time datetime="2021-09-05T16:00:00.000Z" itemprop="datePublished">2021-09-06</time>
+            <time datetime="2021-09-09T16:00:00.000Z" itemprop="datePublished">2021-09-10</time>
         </a>
     </div>
 
@@ -868,7 +873,10 @@
                     
             
             
-                
+                <p>BlockingQueue是一个<strong>带阻塞功能</strong>的队列，<strong>入队</strong>时若<strong>队列已满</strong>则<strong>阻塞调用者</strong>，<strong>出队</strong>时若<strong>队列为空</strong>则<strong>阻塞调用者</strong>。该接口和JDK中Queue接口是兼容的，在其基础上增加了阻塞功能，<strong><code>add</code>和<code>offer</code>是无阻塞的，<code>put</code>是阻塞的，<code>remove</code>和<code>peek</code>是非阻塞的，<code>take</code>是阻塞的</strong>。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">BlockingQueue</span>&lt;<span class="title">E</span>&gt; <span class="keyword">extends</span> <span class="title">Queue</span>&lt;<span class="title">E</span>&gt; </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">boolean</span> <span class="title">add</span><span class="params">(E e)</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">boolean</span> <span class="title">offer</span><span class="params">(E e)</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">put</span><span class="params">(E e)</span> <span class="keyword">throws</span> InterruptedException</span>;</span><br><span class="line">    <span class="function"><span class="keyword">boolean</span> <span class="title">offer</span><span class="params">(E e, <span class="keyword">long</span> timeout, TimeUnit unit)</span> <span class="keyword">throws</span> InterruptedException</span>;</span><br><span class="line">    <span class="function">E <span class="title">take</span><span class="params">()</span> <span class="keyword">throws</span> InterruptedException</span>;</span><br><span class="line">    <span class="function">E <span class="title">poll</span><span class="params">(<span class="keyword">long</span> timeout, TimeUnit unit)</span> <span class="keyword">throws</span> InterruptedException</span>;</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">remainingCapacity</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">boolean</span> <span class="title">remove</span><span class="params">(Object o)</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">contains</span><span class="params">(Object o)</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">drainTo</span><span class="params">(Collection&lt;? <span class="keyword">super</span> E&gt; c)</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">drainTo</span><span class="params">(Collection&lt;? <span class="keyword">super</span> E&gt; c, <span class="keyword">int</span> maxElements)</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><img src="../../../../../images/Java/并发/BlockingQueue各种实现类.png" alt="BlockingQueue各种实现类"></p>
+<h3 id="ArrayBlockingQueue"><a href="#ArrayBlockingQueue" class="headerlink" title="ArrayBlockingQueue"></a>ArrayBlockingQueue</h3><h3 id="LinkedBlockingQueue"><a href="#LinkedBlockingQueue" class="headerlink" title="LinkedBlockingQueue"></a>LinkedBlockingQueue</h3><h3 id="PriorityBlockingQueue"><a href="#PriorityBlockingQueue" class="headerlink" title="PriorityBlockingQueue"></a>PriorityBlockingQueue</h3><h3 id="DelayQueue"><a href="#DelayQueue" class="headerlink" title="DelayQueue"></a>DelayQueue</h3><h3 id="SynchronousQueue"><a href="#SynchronousQueue" class="headerlink" title="SynchronousQueue"></a>SynchronousQueue</h3>
         </div>
         
     <footer class="article-footer">
@@ -880,19 +888,10 @@
     
     <nav id="article-nav">
         
-            <a href="/Blog/Java/并发/Condition原理/" id="article-nav-newer" class="article-nav-link-wrap">
-                <strong class="article-nav-caption">Newer</strong>
-                <div class="article-nav-title">
-                    
-                        Condition原理
-                    
-                </div>
-            </a>
         
-        
-            <a href="/Blog/Java/并发/AQS与ReentrantLock/" id="article-nav-older" class="article-nav-link-wrap">
+            <a href="/Blog/Java/并发/线程池原理/" id="article-nav-older" class="article-nav-link-wrap">
                 <strong class="article-nav-caption">Older</strong>
-                <div class="article-nav-title">AQS与ReentrantLock</div>
+                <div class="article-nav-title">线程池原理</div>
             </a>
         
     </nav>

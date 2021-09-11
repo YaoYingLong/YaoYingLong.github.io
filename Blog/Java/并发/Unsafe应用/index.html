@@ -21,7 +21,7 @@
 <meta property="og:description" content="Unsafe位于sun.misc包下，主要提供一些用于执行低级别、不安全操作的方法，如直接访问系统内存资源、自主管理内存资源等，这些方法在提升Java运行效率、增强Java语言底层资源操作能力方面起到了很大的作用。 Unsafe类使Java拥有类似C语言指针一样操作内存空间的能力，增加了程序发生相关指针问题的风险。在程序中过度、不正确使用Unsafe类会使得程序出错的概率变大。 Unsafe类为单">
 <meta property="og:locale" content="en">
 <meta property="og:image" content="https://yaoyinglong.github.io/images/Java/并发/Unsafe基本功能.png">
-<meta property="og:updated_time" content="2021-09-07T08:24:56.016Z">
+<meta property="og:updated_time" content="2021-09-07T12:40:37.264Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Unsafe应用">
 <meta name="twitter:description" content="Unsafe位于sun.misc包下，主要提供一些用于执行低级别、不安全操作的方法，如直接访问系统内存资源、自主管理内存资源等，这些方法在提升Java运行效率、增强Java语言底层资源操作能力方面起到了很大的作用。 Unsafe类使Java拥有类似C语言指针一样操作内存空间的能力，增加了程序发生相关指针问题的风险。在程序中过度、不正确使用Unsafe类会使得程序出错的概率变大。 Unsafe类为单">
@@ -381,8 +381,6 @@
                 
                     <li class="file"><a href="/Blog/Java/并发/Java内存模型/">Java内存模型</a></li>
                 
-                    <li class="file"><a href="/Blog/Java/并发/Atomic系列/">Atomic系列</a></li>
-                
                     <li class="file"><a href="/Blog/Java/并发/ReentrantReadWriteLock原理/">ReentrantReadWriteLock原理</a></li>
                 
                     <li class="file"><a href="/Blog/Java/并发/同步工具类/">同步工具类</a></li>
@@ -392,6 +390,8 @@
                     <li class="file active"><a href="/Blog/Java/并发/Unsafe应用/">Unsafe应用</a></li>
                 
                     <li class="file"><a href="/Blog/Java/并发/AQS与ReentrantLock/">AQS与ReentrantLock</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/并发/线程池原理/">线程池原理</a></li>
                 
             </ul>
         
@@ -900,6 +900,12 @@
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">Unsafe unsafe = UnsafeInstance.reflectGetUnsafe();</span><br><span class="line">Thread t = <span class="keyword">new</span> Thread(() -&gt; &#123;</span><br><span class="line">    System.out.println(<span class="string">"thread - is running----"</span>);</span><br><span class="line">    <span class="comment">//true则会实现ms定时,false则会实现ns定时。</span></span><br><span class="line">    unsafe.park(<span class="keyword">false</span>,<span class="number">0L</span>); <span class="comment">//阻塞当前线程</span></span><br><span class="line">    System.out.println(<span class="string">"thread is over-----"</span>);</span><br><span class="line">&#125;);</span><br><span class="line">t.start();</span><br><span class="line">Thread.sleep(<span class="number">1000</span>);</span><br><span class="line">System.out.println(<span class="string">"唤醒Thread-t"</span>);</span><br><span class="line">unsafe.unpark(t);</span><br></pre></td></tr></table></figure>
 <h4 id="内存屏障"><a href="#内存屏障" class="headerlink" title="内存屏障"></a>内存屏障</h4><p>Java8中引入，用于定义内存屏障，也称内存栅栏，内存栅障，屏障指令等，是一类同步屏障指令，是CPU或编译器在对内存随机访问的操作中的一个同步点，使得此点之前的所有读写操作都执行后才可以开始执行此点之后的操作，避免代码重排序。</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 禁止load操作重排序。屏障前的load操作不能被重排序到屏障后，屏障后的load操作不能被重排序到屏障前</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">native</span> <span class="keyword">void</span> <span class="title">loadFence</span><span class="params">()</span></span>;</span><br><span class="line"><span class="comment">// 禁止store操作重排序。屏障前的store操作不能被重排序到屏障后，屏障后的store操作不能被重排序到屏障前</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">native</span> <span class="keyword">void</span> <span class="title">storeFence</span><span class="params">()</span></span>;</span><br><span class="line"><span class="comment">// 禁止load、store操作重排序</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">native</span> <span class="keyword">void</span> <span class="title">fullFence</span><span class="params">()</span></span>;</span><br></pre></td></tr></table></figure>
+<h3 id="Atomic"><a href="#Atomic" class="headerlink" title="Atomic"></a>Atomic</h3><p>Atomic包中类基本都是使用<strong><code>Unsafe</code></strong>实现的，Unsafe只提供了<strong>三种<code>CAS</code></strong>方法<strong><code>compareAndSwapObject</code></strong>，<strong><code>compareAndSwapInt</code></strong>和<strong><code>compareAndSwapLong</code></strong>。</p>
+<p>在Atomic包里一共有12个类，四种原子更新方式，分别是<strong>原子更新基本类型</strong>，<strong>原子更新数组</strong>，<strong>原子更新引用</strong>和<strong>原子更新字段</strong>。Atomic包里的类基本都是使用Unsafe实现的包装类。</p>
+<p><strong>基本类</strong>：<strong><code>AtomicInteger</code></strong>、<strong><code>AtomicLong</code></strong>、<strong><code>AtomicBoolean</code></strong>；</p>
+<p><strong>引用类型</strong>：<strong><code>AtomicReference</code></strong>、<strong><code>AtomicReference</code></strong>的ABA实例、<strong><code>AtomicStampedRerence</code></strong>、<strong><code>AtomicMarkableReference</code></strong>；</p>
+<p><strong>数组类型</strong>：<strong><code>AtomicIntegerArray</code></strong>、<strong><code>AtomicLongArray</code></strong>、<strong><code>AtomicReferenceArray</code></strong></p>
+<p><strong>属性原子修改器（Updater）</strong>：<strong><code>AtomicIntegerFieldUpdater</code></strong>、<strong><code>AtomicLongFieldUpdater</code></strong>、<strong><code>AtomicReferenceFieldUpdater</code></strong></p>
 
         </div>
         

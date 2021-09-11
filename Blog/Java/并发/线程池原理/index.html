@@ -4,26 +4,31 @@
     <meta charset="utf-8">
     
     <title>
-        Atomic系列 |
+        线程池原理 |
         
         YingLong</title>
     
     
-        <meta name="keywords" content="并发">
+        <meta name="keywords" content="并发,线程池">
     
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-    <meta name="description" content="在Atomic包里一共有12个类，四种原子更新方式，分别是原子更新基本类型，原子更新数组，原子更新引用和原子更新字段。Atomic包里的类基本都是使用Unsafe实现的包装类。 基本类：AtomicInteger、AtomicLong、AtomicBoolean； 引用类型：AtomicReference、AtomicReference的ABA实例、AtomicStampedRerence、Ato">
-<meta name="keywords" content="并发">
+    <meta name="description" content="线程线程是调度CPU资源的最小单位，线程模型分为KLT模型与ULT模型，JVM使用的KLT模型，Java线程与OS线程保持1:1的映射关系，也就是说有一个java线程也会在操作系统里有一个对应的线程。  线程池线程池可以重用存在的线程，减少线程创建，消亡的开销，提高性能，提高响应速度。当任务到达时，任务可以不需要的等到线程创建就能立即执行。提高线程的可管理性。线程是稀缺资源，如果无限制的创建，不仅">
+<meta name="keywords" content="并发,线程池">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Atomic系列">
-<meta property="og:url" content="https://yaoyinglong.github.io/Blog/Java/并发/Atomic系列/index.html">
+<meta property="og:title" content="线程池原理">
+<meta property="og:url" content="https://yaoyinglong.github.io/Blog/Java/并发/线程池原理/index.html">
 <meta property="og:site_name" content="YingLong">
-<meta property="og:description" content="在Atomic包里一共有12个类，四种原子更新方式，分别是原子更新基本类型，原子更新数组，原子更新引用和原子更新字段。Atomic包里的类基本都是使用Unsafe实现的包装类。 基本类：AtomicInteger、AtomicLong、AtomicBoolean； 引用类型：AtomicReference、AtomicReference的ABA实例、AtomicStampedRerence、Ato">
+<meta property="og:description" content="线程线程是调度CPU资源的最小单位，线程模型分为KLT模型与ULT模型，JVM使用的KLT模型，Java线程与OS线程保持1:1的映射关系，也就是说有一个java线程也会在操作系统里有一个对应的线程。  线程池线程池可以重用存在的线程，减少线程创建，消亡的开销，提高性能，提高响应速度。当任务到达时，任务可以不需要的等到线程创建就能立即执行。提高线程的可管理性。线程是稀缺资源，如果无限制的创建，不仅">
 <meta property="og:locale" content="en">
-<meta property="og:updated_time" content="2021-09-07T07:59:59.342Z">
+<meta property="og:image" content="https://yaoyinglong.github.io/images/Java/并发/线程状态切换.png">
+<meta property="og:image" content="https://yaoyinglong.github.io/images/Java/并发/ctl字段.png">
+<meta property="og:image" content="https://yaoyinglong.github.io/images/Java/并发/线程池状态流转.png">
+<meta property="og:image" content="https://yaoyinglong.github.io/images/Java/并发/线程池原理.png">
+<meta property="og:updated_time" content="2021-09-08T15:28:38.739Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Atomic系列">
-<meta name="twitter:description" content="在Atomic包里一共有12个类，四种原子更新方式，分别是原子更新基本类型，原子更新数组，原子更新引用和原子更新字段。Atomic包里的类基本都是使用Unsafe实现的包装类。 基本类：AtomicInteger、AtomicLong、AtomicBoolean； 引用类型：AtomicReference、AtomicReference的ABA实例、AtomicStampedRerence、Ato">
+<meta name="twitter:title" content="线程池原理">
+<meta name="twitter:description" content="线程线程是调度CPU资源的最小单位，线程模型分为KLT模型与ULT模型，JVM使用的KLT模型，Java线程与OS线程保持1:1的映射关系，也就是说有一个java线程也会在操作系统里有一个对应的线程。  线程池线程池可以重用存在的线程，减少线程创建，消亡的开销，提高性能，提高响应速度。当任务到达时，任务可以不需要的等到线程创建就能立即执行。提高线程的可管理性。线程是稀缺资源，如果无限制的创建，不仅">
+<meta name="twitter:image" content="https://yaoyinglong.github.io/images/Java/并发/线程状态切换.png">
     
 
     
@@ -379,8 +384,6 @@
                 
                     <li class="file"><a href="/Blog/Java/并发/Java内存模型/">Java内存模型</a></li>
                 
-                    <li class="file active"><a href="/Blog/Java/并发/Atomic系列/">Atomic系列</a></li>
-                
                     <li class="file"><a href="/Blog/Java/并发/ReentrantReadWriteLock原理/">ReentrantReadWriteLock原理</a></li>
                 
                     <li class="file"><a href="/Blog/Java/并发/同步工具类/">同步工具类</a></li>
@@ -390,6 +393,8 @@
                     <li class="file"><a href="/Blog/Java/并发/Unsafe应用/">Unsafe应用</a></li>
                 
                     <li class="file"><a href="/Blog/Java/并发/AQS与ReentrantLock/">AQS与ReentrantLock</a></li>
+                
+                    <li class="file active"><a href="/Blog/Java/并发/线程池原理/">线程池原理</a></li>
                 
             </ul>
         
@@ -824,7 +829,7 @@
     <div id="toTop" class="fa fa-angle-up"></div>
 </aside>
         
-        <section id="main"><article id="post-Java/并发/Atomic系列" class="article article-type-post" itemscope itemprop="blogPost">
+        <section id="main"><article id="post-Java/并发/线程池原理" class="article article-type-post" itemscope itemprop="blogPost">
     <div class="article-inner">
         
         
@@ -840,14 +845,14 @@
                         
     <div class="article-tag">
         <i class="fa fa-tag"></i>
-        <a class="tag-link" href="/tags/并发/">并发</a>
+        <a class="tag-link" href="/tags/并发/">并发</a>, <a class="tag-link" href="/tags/线程池/">线程池</a>
     </div>
 
                         
     <div class="article-date">
         <i class="fa fa-calendar"></i>
-        <a href="/Blog/Java/并发/Atomic系列/">
-            <time datetime="2021-09-06T16:00:00.000Z" itemprop="datePublished">2021-09-07</time>
+        <a href="/Blog/Java/并发/线程池原理/">
+            <time datetime="2021-09-07T16:00:00.000Z" itemprop="datePublished">2021-09-08</time>
         </a>
     </div>
 
@@ -858,7 +863,7 @@
                 
     
         <h1 class="article-title" itemprop="name">
-            Atomic系列
+            线程池原理
         </h1>
     
 
@@ -871,45 +876,16 @@
                     
             
             
-                <p>在Atomic包里一共有12个类，四种原子更新方式，分别是<strong>原子更新基本类型</strong>，<strong>原子更新数组</strong>，<strong>原子更新引用</strong>和<strong>原子更新字段</strong>。Atomic包里的类基本都是使用Unsafe实现的包装类。</p>
-<p><strong>基本类</strong>：<strong><code>AtomicInteger</code></strong>、<strong><code>AtomicLong</code></strong>、<strong><code>AtomicBoolean</code></strong>；</p>
-<p><strong>引用类型</strong>：<strong><code>AtomicReference</code></strong>、<strong><code>AtomicReference</code></strong>的ABA实例、<strong><code>AtomicStampedRerence</code></strong>、<strong><code>AtomicMarkableReference</code></strong>；</p>
-<p><strong>数组类型</strong>：<strong><code>AtomicIntegerArray</code></strong>、<strong><code>AtomicLongArray</code></strong>、<strong><code>AtomicReferenceArray</code></strong></p>
-<p><strong>属性原子修改器（Updater）</strong>：<strong><code>AtomicIntegerFieldUpdater</code></strong>、<strong><code>AtomicLongFieldUpdater</code></strong>、<strong><code>AtomicReferenceFieldUpdater</code></strong></p>
-<h4 id="原子更新基本类型类"><a href="#原子更新基本类型类" class="headerlink" title="原子更新基本类型类"></a>原子更新基本类型类</h4><p>用于通过原子的方式更新基本类型，Atomic包提供了<strong><code>AtomicInteger</code></strong>、<strong><code>AtomicLong</code></strong>、<strong><code>AtomicBoolean</code></strong>三个类，</p>
-<p>AtomicInteger的常用方法如下：</p>
-<ul>
-<li>int addAndGet(int delta) ：以原子方式将输入的数值与实例中的值（AtomicInteger里的value）相加，并返回结果</li>
-<li>boolean compareAndSet(int expect, int update) ：如果输入的数值等于预期值，则以原子方式将该值设置为输入的值。</li>
-<li>int getAndIncrement()：以原子方式将当前值加1，注意：这里返回的是自增前的值。</li>
-<li>void lazySet(int newValue)：最终会设置成newValue，使用lazySet设置值后，可能导致其他线程在之后的一小段时间内还是可以读到旧的值。</li>
-<li>int getAndSet(int newValue)：以原子方式设置为newValue的值，并返回旧值。</li>
-</ul>
-<p>Atomic包提供了三种基本类型的原子更新，但是Java的基本类型里还有char，float和double等。那么问题来了，如何原子的更新其他的基本类型呢？Atomic包里的类基本都是使用Unsafe实现的，Unsafe只提供了三种CAS方法，compareAndSwapObject，compareAndSwapInt和compareAndSwapLong，再看AtomicBoolean源码，发现其是先把Boolean转换成整型，再使用compareAndSwapInt进行CAS，所以原子更新double也可以用类似的思路来实现。</p>
-<h4 id="原子更新数组类"><a href="#原子更新数组类" class="headerlink" title="原子更新数组类"></a>原子更新数组类</h4><p>通过原子的方式更新数组里的某个元素，Atomic包提供了以下三个类：</p>
-<ul>
-<li>AtomicIntegerArray：原子更新整型数组里的元素。</li>
-<li>AtomicLongArray：原子更新长整型数组里的元素。</li>
-<li>AtomicReferenceArray：原子更新引用类型数组里的元素。</li>
-</ul>
-<p>AtomicIntegerArray类主要是提供原子的方式更新数组里的整型，其常用方法如下</p>
-<ul>
-<li>int addAndGet(int i, int delta)：以原子方式将输入值与数组中索引i的元素相加。</li>
-<li>boolean compareAndSet(int i, int expect, int update)：如果当前值等于预期值，则以原子方式将数组位置i的元素设置成update值。</li>
-</ul>
-<h4 id="原子更新引用类型"><a href="#原子更新引用类型" class="headerlink" title="原子更新引用类型"></a>原子更新引用类型</h4><p>原子更新基本类型的AtomicInteger，只能更新一个变量，如果要原子的更新多个变量，就需要使用这个原子更新引用类型提供的类。Atomic包提供了以下三个类：</p>
-<ul>
-<li>AtomicReference：原子更新引用类型。</li>
-<li>AtomicReferenceFieldUpdater：原子更新引用类型里的字段。</li>
-<li>AtomicMarkableReference：原子更新带有标记位的引用类型。可以原子的更新一个布尔类型的标记位和引用类型。构造方法是AtomicMarkableReference(V initialRef, boolean initialMark)</li>
-</ul>
-<h4 id="原子更新字段类"><a href="#原子更新字段类" class="headerlink" title="原子更新字段类"></a>原子更新字段类</h4><p>如果我们只需要某个类里的某个字段，那么就需要使用原子更新字段类，Atomic包提供了以下三个类：</p>
-<ul>
-<li>AtomicIntegerFieldUpdater：原子更新整型的字段的更新器。</li>
-<li>AtomicLongFieldUpdater：原子更新长整型字段的更新器。</li>
-<li>AtomicStampedReference：原子更新带有版本号的引用类型。该类将整数值与引用关联起来，可用于原子的更数据和数据的版本号，可以解决使用CAS进行原子更新时，可能出现的ABA问题。</li>
-</ul>
-<p>原子更新字段类都是抽象类，每次使用都时候必须使用静态方法newUpdater创建一个更新器。原子更新类的字段的必须使用public volatile修饰符。</p>
+                <h3 id="线程"><a href="#线程" class="headerlink" title="线程"></a>线程</h3><p>线程是调度CPU资源的最小单位，线程模型分为KLT模型与ULT模型，JVM使用的KLT模型，<strong>Java线程与OS线程保持<code>1:1</code>的映射关系</strong>，也就是说有一个java线程也会在操作系统里有一个对应的线程。</p>
+<p><img src="../../../../../images/Java/并发/线程状态切换.png" alt="线程状态切换"></p>
+<h3 id="线程池"><a href="#线程池" class="headerlink" title="线程池"></a>线程池</h3><p>线程池可以<strong>重用存在的线程，减少线程创建，消亡的开销，提高性能</strong>，<strong>提高响应速度</strong>。当任务到达时，任务可以不需要的等到线程创建就能立即执行。<strong>提高线程的可管理性</strong>。线程是稀缺资源，如果无限制的创建，不仅会消耗系统资源，还会降低系统的稳定性，使用线程池可以进行统一的分配，调优和监控。</p>
+<p>线程池框架中最基础的接口是Executor，其定义了用于执行Runnable的execute方法，在其子类ExecutorService中定义了线程池的具体行为：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">Executor</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">execute</span><span class="params">(Runnable command)</span></span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">ExecutorService</span> <span class="keyword">extends</span> <span class="title">Executor</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">shutdown</span><span class="params">()</span></span>; <span class="comment">// 在完成已提交的任务后封闭办事，不再接管新任务</span></span><br><span class="line">    <span class="function">List&lt;Runnable&gt; <span class="title">shutdownNow</span><span class="params">()</span></span>; <span class="comment">//停止所有正在履行的任务并封闭办事</span></span><br><span class="line">    <span class="function"><span class="keyword">boolean</span> <span class="title">isShutdown</span><span class="params">()</span></span>; <span class="comment">// 测试是否该ExecutorService已被关闭</span></span><br><span class="line">    <span class="function"><span class="keyword">boolean</span> <span class="title">isTerminated</span><span class="params">()</span></span>; <span class="comment">// 测试是否所有任务都履行完毕了</span></span><br><span class="line">    <span class="function"><span class="keyword">boolean</span> <span class="title">awaitTermination</span><span class="params">(<span class="keyword">long</span> timeout, TimeUnit unit)</span> <span class="keyword">throws</span> InterruptedException</span>;</span><br><span class="line">    &lt;T&gt; <span class="function">Future&lt;T&gt; <span class="title">submit</span><span class="params">(Callable&lt;T&gt; task)</span></span>; <span class="comment">// 可用来提交Callable或Runnable任务，并返回代表此任务的Future对象</span></span><br><span class="line">    &lt;T&gt; <span class="function">Future&lt;T&gt; <span class="title">submit</span><span class="params">(Runnable task, T result)</span></span>; <span class="comment">// 可用来提交Callable或Runnable任务，并返回代表此任务的Future对象</span></span><br><span class="line">    Future&lt;?&gt; submit(Runnable task); <span class="comment">// 可用来提交Callable或Runnable任务，并返回代表此任务的Future对象</span></span><br><span class="line">    &lt;T&gt; List&lt;Future&lt;T&gt;&gt; invokeAll(Collection&lt;? extends Callable&lt;T&gt;&gt; tasks) <span class="keyword">throws</span> InterruptedException;</span><br><span class="line">    &lt;T&gt; List&lt;Future&lt;T&gt;&gt; invokeAll(Collection&lt;? extends Callable&lt;T&gt;&gt; tasks, <span class="keyword">long</span> timeout, TimeUnit unit) <span class="keyword">throws</span> InterruptedException;</span><br><span class="line">    &lt;T&gt; <span class="function">T <span class="title">invokeAny</span><span class="params">(Collection&lt;? extends Callable&lt;T&gt;&gt; tasks)</span> <span class="keyword">throws</span> InterruptedException, ExecutionException</span>;</span><br><span class="line">    &lt;T&gt; <span class="function">T <span class="title">invokeAny</span><span class="params">(Collection&lt;? extends Callable&lt;T&gt;&gt; tasks, <span class="keyword">long</span> timeout, TimeUnit unit)</span> <span class="keyword">throws</span> InterruptedException, ExecutionException, TimeoutException</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="线程池重要属性"><a href="#线程池重要属性" class="headerlink" title="线程池重要属性"></a>线程池重要属性</h4><p><img src="../../../../../images/Java/并发/ctl字段.png" alt></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ThreadPoolExecutor</span> <span class="keyword">extends</span> <span class="title">AbstractExecutorService</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 线程池的运行状态和线程池中有效线程的数量，高3位保存runState，低29位保存workerCount</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> AtomicInteger ctl = <span class="keyword">new</span> AtomicInteger(ctlOf(RUNNING, <span class="number">0</span>));</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> COUNT_BITS = Integer.SIZE - <span class="number">3</span>;	<span class="comment">// 29</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> CAPACITY   = (<span class="number">1</span> &lt;&lt; COUNT_BITS) - <span class="number">1</span>; <span class="comment">// 线程池容量</span></span><br><span class="line">    <span class="comment">// 初始化状态，能够接收新任务，以及对已添加的任务进行处理</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> RUNNING    = -<span class="number">1</span> &lt;&lt; COUNT_BITS;	<span class="comment">//高3位为111</span></span><br><span class="line">    <span class="comment">// 不接收新任务，但能处理已添加的任务，调用线程池的shutdown()接口时，线程池由RUNNING -&gt; SHUTDOWN</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> SHUTDOWN   =  <span class="number">0</span> &lt;&lt; COUNT_BITS; <span class="comment">//高3位为000</span></span><br><span class="line">    <span class="comment">// 不接收新任务，不处理已添加任务，且中断正在处理的任务，调用shutdownNow()时线程池由(RUNNING or SHUTDOWN) -&gt; STOP。</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> STOP       =  <span class="number">1</span> &lt;&lt; COUNT_BITS; <span class="comment">//高3位为001 </span></span><br><span class="line">    <span class="comment">// 当所有的任务已终止，线程池会变为TIDYING状态，会执行钩子函数terminated()，默认是空函数</span></span><br><span class="line">    <span class="comment">// SHUTDOWN状态下，阻塞队列为空且线程池中执行的任务也为空时，则由SHUTDOWN -&gt; TIDYING，在STOP状态下，线程池中执行的任务为空时，则由STOP -&gt; TIDYING。</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> TIDYING    =  <span class="number">2</span> &lt;&lt; COUNT_BITS; <span class="comment">//高3位为010</span></span><br><span class="line">    <span class="comment">// 线程池彻底终止，则为TERMINATED状态，TIDYING状态下，执行完terminated()之后，由TIDYING -&gt; TERMINATED</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> TERMINATED =  <span class="number">3</span> &lt;&lt; COUNT_BITS; <span class="comment">//高3位为011</span></span><br><span class="line">    <span class="comment">// 获取运行状态</span></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">int</span> <span class="title">runStateOf</span><span class="params">(<span class="keyword">int</span> c)</span>     </span>&#123; <span class="keyword">return</span> c &amp; ~CAPACITY; &#125;</span><br><span class="line">    <span class="comment">// 取出低29位的值，表示当前活动的线程数</span></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">int</span> <span class="title">workerCountOf</span><span class="params">(<span class="keyword">int</span> c)</span>  </span>&#123; <span class="keyword">return</span> c &amp; CAPACITY; &#125;</span><br><span class="line">    <span class="comment">// 获取运行状态和活动线程数的值</span></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">int</span> <span class="title">ctlOf</span><span class="params">(<span class="keyword">int</span> rs, <span class="keyword">int</span> wc)</span> </span>&#123; <span class="keyword">return</span> rs | wc; &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><img src="../../../../../images/Java/并发/线程池状态流转.png" alt="线程池状态流转"></p>
+<h4 id="线程池原理"><a href="#线程池原理" class="headerlink" title="线程池原理"></a>线程池原理</h4><p><img src="../../../../../images/Java/并发/线程池原理.png" alt="线程池原理"></p>
+<h5 id="execute"><a href="#execute" class="headerlink" title="execute"></a>execute</h5><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">execute</span><span class="params">(Runnable command)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (command == <span class="keyword">null</span>)</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> NullPointerException();</span><br><span class="line">    <span class="keyword">int</span> c = ctl.get();</span><br><span class="line">    <span class="comment">// 当前活动线程数小于corePoolSize，则新建一个线程放入线程池中，并把任务添加到该线程中</span></span><br><span class="line">    <span class="keyword">if</span> (workerCountOf(c) &lt; corePoolSize) &#123;</span><br><span class="line">        <span class="comment">// 第二个参数表示限制添加线程的数量是根据corePoolSize来判断还是maximumPoolSize来判断</span></span><br><span class="line">        <span class="keyword">if</span> (addWorker(command, <span class="keyword">true</span>))</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        <span class="comment">// 若果添加失败，则重新获取ctl值</span></span><br><span class="line">        c = ctl.get();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 如果当前线程池是运行状态，且任务添加到队列成功</span></span><br><span class="line">    <span class="keyword">if</span> (isRunning(c) &amp;&amp; workQueue.offer(command)) &#123;</span><br><span class="line">        <span class="comment">// 重新获取ctl值</span></span><br><span class="line">        <span class="keyword">int</span> recheck = ctl.get();</span><br><span class="line">        <span class="comment">// 再次判断线程池的运行状态，若不是运行状态，由于之前把command已添加到workQueue中，需移除该command，执行后通过拒绝策略对该任务进行处理，整个方法返回</span></span><br><span class="line">        <span class="keyword">if</span> (!isRunning(recheck) &amp;&amp; remove(command))</span><br><span class="line">            reject(command); <span class="comment">// 调用具体配置的拒绝策略</span></span><br><span class="line">        <span class="comment">// 获取线程池中有效线程数，若为0则执行addWorker方法，若workerCount大于0则直接返回，在workQueue中新增的command会在将来的某个时刻被执行</span></span><br><span class="line">        <span class="comment">// 第一个参数为null，表示在线程池中创建一个线程，但不去启动</span></span><br><span class="line">        <span class="comment">// 第二个参数为false，将线程池的有限线程数量的上限设置为maximumPoolSize，添加线程时根据maximumPoolSize来判断；</span></span><br><span class="line">        <span class="keyword">else</span> <span class="keyword">if</span> (workerCountOf(recheck) == <span class="number">0</span>)</span><br><span class="line">            addWorker(<span class="keyword">null</span>, <span class="keyword">false</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 若线程池已经不是RUNNING状态，或workerCount &gt;= corePoolSize并且workQueue已满</span></span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">if</span> (!addWorker(command, <span class="keyword">false</span>))</span><br><span class="line">        reject(command);</span><br></pre></td></tr></table></figure>
 
         </div>
         
@@ -921,6 +897,15 @@
 
     
     <nav id="article-nav">
+        
+            <a href="/Blog/Java/并发/BlockingQueue阻塞队列/" id="article-nav-newer" class="article-nav-link-wrap">
+                <strong class="article-nav-caption">Newer</strong>
+                <div class="article-nav-title">
+                    
+                        BlockingQueue阻塞队列
+                    
+                </div>
+            </a>
         
         
             <a href="/Blog/Java/并发/ReentrantReadWriteLock原理/" id="article-nav-older" class="article-nav-link-wrap">
