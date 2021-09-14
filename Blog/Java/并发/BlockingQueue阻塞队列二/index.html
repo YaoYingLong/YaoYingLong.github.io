@@ -1,0 +1,1016 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta name="generator" content="Hexo 3.8.0">
+    <meta charset="utf-8">
+    
+    <title>
+        BlockingQueue阻塞队列二 |
+        
+        YingLong</title>
+    
+    
+        <meta name="keywords" content="并发">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="description" content="SynchronousQueueSynchronousQueue是一种特殊的BlockingQueue，其本身没有容量，先调用put方法线程会阻塞，直到另一个线程调用了take方法，两个线程才同时解锁，反之亦然。通过构造函数可知，和锁一样SynchronousQueue也有公平与非公平模式，若是公平模式，则用TransferQueue实现，若是非公平模式，则用TransferStack实现。 12">
+<meta name="keywords" content="并发">
+<meta property="og:type" content="article">
+<meta property="og:title" content="BlockingQueue阻塞队列二">
+<meta property="og:url" content="https://yaoyinglong.github.io/Blog/Java/并发/BlockingQueue阻塞队列二/index.html">
+<meta property="og:site_name" content="YingLong">
+<meta property="og:description" content="SynchronousQueueSynchronousQueue是一种特殊的BlockingQueue，其本身没有容量，先调用put方法线程会阻塞，直到另一个线程调用了take方法，两个线程才同时解锁，反之亦然。通过构造函数可知，和锁一样SynchronousQueue也有公平与非公平模式，若是公平模式，则用TransferQueue实现，若是非公平模式，则用TransferStack实现。 12">
+<meta property="og:locale" content="en">
+<meta property="og:image" content="https://yaoyinglong.github.io/images/Java/并发/CopyOnWrite机制.png">
+<meta property="og:updated_time" content="2021-09-14T10:05:30.467Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="BlockingQueue阻塞队列二">
+<meta name="twitter:description" content="SynchronousQueueSynchronousQueue是一种特殊的BlockingQueue，其本身没有容量，先调用put方法线程会阻塞，直到另一个线程调用了take方法，两个线程才同时解锁，反之亦然。通过构造函数可知，和锁一样SynchronousQueue也有公平与非公平模式，若是公平模式，则用TransferQueue实现，若是非公平模式，则用TransferStack实现。 12">
+<meta name="twitter:image" content="https://yaoyinglong.github.io/images/Java/并发/CopyOnWrite机制.png">
+    
+
+    
+
+    
+        <link rel="icon" href="/favicon.ico">
+    
+
+    <link rel="stylesheet" href="/libs/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/libs/open-sans/styles.css">
+    <link rel="stylesheet" href="/libs/source-code-pro/styles.css">
+
+    <link rel="stylesheet" href="/css/style.css">
+    <script src="/libs/jquery/2.1.3/jquery.min.js"></script>
+    <script src="/libs/jquery/plugins/cookie/1.4.1/jquery.cookie.js"></script>
+    
+    
+        <link rel="stylesheet" href="/libs/lightgallery/css/lightgallery.min.css">
+    
+    
+        <link rel="stylesheet" href="/libs/justified-gallery/justifiedGallery.min.css">
+    
+    
+    
+    
+
+
+</head>
+</html>
+<body>
+<div id="container">
+    <header id="header">
+    <div id="header-main" class="header-inner">
+        <div class="outer">
+            <a href="/" id="logo">
+                <i class="logo"></i>
+                <span class="site-title">YingLong</span>
+            </a>
+            <nav id="main-nav">
+                
+                    <a class="main-nav-link" href="/">Home</a>
+                
+                    <a class="main-nav-link" href="/archives">Archives</a>
+                
+                    <a class="main-nav-link" href="/categories">Categories</a>
+                
+                    <a class="main-nav-link" href="/tags">Tags</a>
+                
+                    <a class="main-nav-link" href="/about">About</a>
+                
+            </nav>
+            
+            <div id="search-form-wrap">
+    
+        <form class="search-form">
+            <input type="text" class="ins-search-input search-form-input" placeholder="Search">
+            <button type="submit" class="search-form-submit"></button>
+        </form>
+        <div class="ins-search">
+    <div class="ins-search-mask"></div>
+    <div class="ins-search-container">
+        <div class="ins-input-wrapper">
+            <input type="text" class="ins-search-input" placeholder="Type something...">
+            <span class="ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+    (function (window) {
+        var INSIGHT_CONFIG = {
+            TRANSLATION: {
+                POSTS: 'Posts',
+                PAGES: 'Pages',
+                CATEGORIES: 'Categories',
+                TAGS: 'Tags',
+                UNTITLED: '(Untitled)',
+            },
+            ROOT_URL: '/',
+            CONTENT_URL: '/content.json',
+        };
+        window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+    })(window);
+</script>
+<script src="/js/insight.js"></script>
+    
+</div>
+        </div>
+    </div>
+    <div id="main-nav-mobile" class="header-sub header-inner">
+        <table class="menu outer">
+            <tr>
+                
+                    <td><a class="main-nav-link" href="/">Home</a></td>
+                
+                    <td><a class="main-nav-link" href="/archives">Archives</a></td>
+                
+                    <td><a class="main-nav-link" href="/categories">Categories</a></td>
+                
+                    <td><a class="main-nav-link" href="/tags">Tags</a></td>
+                
+                    <td><a class="main-nav-link" href="/about">About</a></td>
+                
+                <td>
+                    
+    <div class="search-form">
+        <input type="text" class="ins-search-input search-form-input" placeholder="Search">
+    </div>
+
+                </td>
+            </tr>
+        </table>
+    </div>
+</header>
+
+    <div class="outer">
+        
+        
+            <aside id="sidebar">
+    
+        
+    <div class="widget-wrap" id="categories">
+        <h3 class="widget-title">
+            <span>categories</span>
+            &nbsp;
+            <a id="allExpand" href="#">
+                <i class="fa fa-angle-double-down fa-2x"></i>
+            </a>
+        </h3>
+
+        
+        
+        
+            <ul class="unstyled" id="tree">
+                
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            DB
+                        </a>
+                        
+            <ul class="unstyled" id="tree">
+                
+                    <li class="file"><a href="/Blog/DB/MySQL基础/">MySQL基础</a></li>
+                
+                    <li class="file"><a href="/Blog/DB/MySQL常用SQL总结/">MySQL常用SQL总结</a></li>
+                
+                    <li class="file"><a href="/Blog/DB/索引的原理与使用/">索引的原理与使用</a></li>
+                
+                    <li class="file"><a href="/Blog/DB/分库分表/">分库分表</a></li>
+                
+                    <li class="file"><a href="/Blog/DB/Explain工具/">Explain工具</a></li>
+                
+                    <li class="file"><a href="/Blog/DB/MySQL内部组件结构/">MySQL内部组件结构</a></li>
+                
+                    <li class="file"><a href="/Blog/DB/索引优化一/">索引优化一</a></li>
+                
+                    <li class="file"><a href="/Blog/DB/MySQL事务隔离级别与锁机制/">MySQL事务隔离级别与锁机制</a></li>
+                
+                    <li class="file"><a href="/Blog/DB/索引优化三/">索引优化三</a></li>
+                
+                    <li class="file"><a href="/Blog/DB/索引优化二/">索引优化二</a></li>
+                
+                    <li class="file"><a href="/Blog/DB/MVCC与BufferPool缓存机制/">MVCC与BufferPool缓存机制</a></li>
+                
+            </ul>
+        
+                    </li>
+                
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            Git
+                        </a>
+                        
+            <ul class="unstyled" id="tree">
+                
+                    <li class="file"><a href="/Blog/Git/GIt基本概念/">Git基本概念</a></li>
+                
+                    <li class="file"><a href="/Blog/Git/GIt常用命令/">Git常用命令</a></li>
+                
+                    <li class="file"><a href="/Blog/Git/分支管理理解/">分支管理理解</a></li>
+                
+            </ul>
+        
+                    </li>
+                
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            Go
+                        </a>
+                        
+            <ul class="unstyled" id="tree">
+                
+                    <li class="file"><a href="/Blog/Go/Go基础/">Go基础</a></li>
+                
+            </ul>
+        
+                    </li>
+                
+                    <li class="directory open">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder-open"></i>
+                            &nbsp;
+                            Java
+                        </a>
+                        
+            <ul class="unstyled" id="tree">
+                
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            VM
+                        </a>
+                        
+            <ul class="unstyled" id="tree">
+                
+                    <li class="file"><a href="/Blog/Java/VM/HotSpot收集算法实现/">HotSpot收集算法实现</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/VM/JVM内存池/">JVM内存池</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/VM/内存非配与回收策略/">内存分配与回收策略</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/VM/Java内存区域/">Java内存区域</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/VM/Minor&Major&Full GC/">Minor&Major&Full GC</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/VM/OutOfMemoryError异常/">OOM异常实验</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/VM/垃圾收集算法/">垃圾收集算法</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/VM/堆中对象分配&布局&访问/">堆中对象分配&布局&访问</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/VM/对象是否存活/">对象是否存活</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/VM/类加载的时机/">类加载的时机</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/VM/运行时栈帧结构/">运行时栈帧结构</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/VM/垃圾收集器/">垃圾收集器</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/VM/方法调用/">方法调用</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/VM/字节码指令/">字节码指令</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/VM/理解GC日志/">理解GC日志</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/VM/类加载器/">类加载器</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/VM/Class文件结构/">Class文件结构</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/VM/属性表集合/">属性表集合</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/VM/类加载过程/">类加载过程</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/VM/字节码指令手册/">字节码指令手册</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/VM/JVM调优思路/">JVM调优思路</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/VM/JVM调优工具/">JVM调优工具</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/VM/常量池/">常量池</a></li>
+                
+            </ul>
+        
+                    </li>
+                
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            基础
+                        </a>
+                        
+            <ul class="unstyled" id="tree">
+                
+                    <li class="file"><a href="/Blog/Java/基础/lambda常用总结/">lambda常用总结</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/基础/时间及日期总结/">Java8时间及日期</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/基础/位运算/">位运算</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/基础/注解实现及应用/">注解实现及应用</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/基础/HashMap源码分析JDK8/">HashMap源码分析JDK8</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/基础/HashMap源码分析JDK7/">HashMap源码分析JDK7</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/基础/反射基础/">反射基础</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/基础/动态代理/">动态代理</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/基础/Java实用工具库/">Java实用工具库</a></li>
+                
+            </ul>
+        
+                    </li>
+                
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            工具
+                        </a>
+                        
+            <ul class="unstyled" id="tree">
+                
+                    <li class="file"><a href="/Blog/Java/工具/Java中调用Groovy脚本/">Java中调用Groovy脚本</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/工具/国密SM2/">国密SM2</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/工具/国密SM4/">国密SM4</a></li>
+                
+            </ul>
+        
+                    </li>
+                
+                    <li class="directory open">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder-open"></i>
+                            &nbsp;
+                            并发
+                        </a>
+                        
+            <ul class="unstyled" id="tree">
+                
+                    <li class="file"><a href="/Blog/Java/并发/原子性、可见性、有序性/">原子性、可见性、有序性</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/并发/Synchronized总结/">Synchronized总结</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/并发/线程安全/">线程安全</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/并发/线程安全实现方式/">线程安全实现方式</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/并发/ThreadLocal原理/">ThreadLocal原理</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/并发/Volatile原理/">Volatile原理</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/并发/Java与线程/">Java与线程</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/并发/锁优化/">锁优化</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/并发/操作系统底层/">操作系统底层</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/并发/Java内存模型/">Java内存模型</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/并发/ReentrantReadWriteLock原理/">ReentrantReadWriteLock原理</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/并发/同步工具类/">同步工具类</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/并发/Condition原理/">Condition原理</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/并发/Unsafe应用/">Unsafe应用</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/并发/AQS与ReentrantLock/">AQS与ReentrantLock</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/并发/线程池原理/">线程池原理</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/并发/ScheduledThreadPoolExecutor/">ScheduledThreadPoolExecutor</a></li>
+                
+                    <li class="file active"><a href="/Blog/Java/并发/BlockingQueue阻塞队列二/">BlockingQueue阻塞队列二</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/并发/Callable与Future/">Callable与Future</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/并发/BlockingQueue阻塞队列一/">BlockingQueue阻塞队列一</a></li>
+                
+            </ul>
+        
+                    </li>
+                
+                    <li class="file"><a href="/Blog/Java/JVM整体概览/">JVM整体概览</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/JVM内存参数设置/">JVM内存参数设置</a></li>
+                
+            </ul>
+        
+                    </li>
+                
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            Linux
+                        </a>
+                        
+            <ul class="unstyled" id="tree">
+                
+                    <li class="file"><a href="/Blog/Linux/Linux常用命令/">Linux常用命令</a></li>
+                
+                    <li class="file"><a href="/Blog/Linux/Linux常用技巧/">Linux常用技巧</a></li>
+                
+            </ul>
+        
+                    </li>
+                
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            Maven
+                        </a>
+                        
+            <ul class="unstyled" id="tree">
+                
+                    <li class="file"><a href="/Blog/Maven/Maven加密JAR包/">Maven加密JAR包</a></li>
+                
+                    <li class="file"><a href="/Blog/Maven/Maven基础/">Maven基础</a></li>
+                
+                    <li class="file"><a href="/Blog/Maven/Maven常用/">Maven常用</a></li>
+                
+                    <li class="file"><a href="/Blog/Maven/Maven属性/">Maven属性</a></li>
+                
+                    <li class="file"><a href="/Blog/Maven/Maven常用工具/">Maven常用工具</a></li>
+                
+                    <li class="file"><a href="/Blog/Maven/Maven插件编写/">Maven插件编写</a></li>
+                
+                    <li class="file"><a href="/Blog/Maven/Maven生命周期/">Maven生命周期</a></li>
+                
+                    <li class="file"><a href="/Blog/Maven/Maven个性化打包/">Maven个性化打包</a></li>
+                
+                    <li class="file"><a href="/Blog/Maven/Maven仓库/">Maven仓库</a></li>
+                
+                    <li class="file"><a href="/Blog/Maven/Maven插件基础/">Maven插件基础</a></li>
+                
+                    <li class="file"><a href="/Blog/Maven/Maven聚合与继承/">Maven聚合与继承</a></li>
+                
+                    <li class="file"><a href="/Blog/Maven/Maven常用插件/">Maven常用插件</a></li>
+                
+                    <li class="file"><a href="/Blog/Maven/Maven标签全解/">Maven标签全解</a></li>
+                
+                    <li class="file"><a href="/Blog/Maven/Maven Assembly标签全解/">Maven Assembly标签全解</a></li>
+                
+            </ul>
+        
+                    </li>
+                
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            Python
+                        </a>
+                        
+            <ul class="unstyled" id="tree">
+                
+                    <li class="file"><a href="/Blog/Python/Excel文件数据抽取/">Excel文件数据抽取</a></li>
+                
+            </ul>
+        
+                    </li>
+                
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            Test
+                        </a>
+                        
+            <ul class="unstyled" id="tree">
+                
+                    <li class="file"><a href="/Blog/Test/IT测试总结/">IT测试总结</a></li>
+                
+                    <li class="file"><a href="/Blog/Test/JMeter日常总结/">JMeter日常总结</a></li>
+                
+                    <li class="file"><a href="/Blog/Test/LoadRunner日常总结/">LoadRunner日常总结</a></li>
+                
+                    <li class="file"><a href="/Blog/Test/UT测试总结/">UT测试总结</a></li>
+                
+            </ul>
+        
+                    </li>
+                
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            中间件
+                        </a>
+                        
+            <ul class="unstyled" id="tree">
+                
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            Spring
+                        </a>
+                        
+            <ul class="unstyled" id="tree">
+                
+                    <li class="file"><a href="/Blog/中间件/Spring/IoC容器/">IoC容器</a></li>
+                
+                    <li class="file"><a href="/Blog/中间件/Spring/Spring Gzip压缩/">Spring Gzip压缩</a></li>
+                
+                    <li class="file"><a href="/Blog/中间件/Spring/Spring整体架构/">Spring整体架构</a></li>
+                
+                    <li class="file"><a href="/Blog/中间件/Spring/Spring线程池跨线程数据共享/">Spring线程池跨线程数据共享</a></li>
+                
+                    <li class="file"><a href="/Blog/中间件/Spring/Spring知识点/">Spring知识点</a></li>
+                
+                    <li class="file"><a href="/Blog/中间件/Spring/SpringMvc异步/">SpringMvc异步原理及实现</a></li>
+                
+                    <li class="file"><a href="/Blog/中间件/Spring/Hystrix总结/">Hystrix总结</a></li>
+                
+                    <li class="file"><a href="/Blog/中间件/Spring/Spring初始化扩展/">Spring初始化扩展</a></li>
+                
+            </ul>
+        
+                    </li>
+                
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            Tomcat
+                        </a>
+                        
+            <ul class="unstyled" id="tree">
+                
+                    <li class="file"><a href="/Blog/中间件/Tomcat/Tomcat工作原理/">Tomcat工作原理</a></li>
+                
+                    <li class="file"><a href="/Blog/中间件/Tomcat/Tomcat整体架构/">Tomcat整体架构</a></li>
+                
+                    <li class="file"><a href="/Blog/中间件/Tomcat/Tomcat中BIO和NIO底层原理实现对比/">Tomcat中BIO和NIO底层原理实现对比</a></li>
+                
+                    <li class="file"><a href="/Blog/中间件/Tomcat/Tomcat启动过程/">Tomcat启动过程</a></li>
+                
+                    <li class="file"><a href="/Blog/中间件/Tomcat/Tomcat处理请求过程/">Tomcat处理请求过程</a></li>
+                
+                    <li class="file"><a href="/Blog/中间件/Tomcat/Tomcat处理响应过程/">Tomcat处理响应过程</a></li>
+                
+                    <li class="file"><a href="/Blog/中间件/Tomcat/Tomcat热部署热加载/">Tomcat热部署热加载</a></li>
+                
+            </ul>
+        
+                    </li>
+                
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            常见问题
+                        </a>
+                        
+            <ul class="unstyled" id="tree">
+                
+                    <li class="file"><a href="/Blog/中间件/常见问题/HBase依赖冲突/">HBase依赖冲突</a></li>
+                
+                    <li class="file"><a href="/Blog/中间件/常见问题/Maven编译后文件损坏/">Maven编译后文件损坏</a></li>
+                
+            </ul>
+        
+                    </li>
+                
+                    <li class="file"><a href="/Blog/中间件/Redis分布式锁实现/">Redis分布式锁实现</a></li>
+                
+                    <li class="file"><a href="/Blog/中间件/Redis总结/">Redis总结</a></li>
+                
+            </ul>
+        
+                    </li>
+                
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            协议族
+                        </a>
+                        
+            <ul class="unstyled" id="tree">
+                
+                    <li class="file"><a href="/Blog/协议族/TCPIP四层&五层模型/">TCP/IP四层&五层模型</a></li>
+                
+                    <li class="file"><a href="/Blog/协议族/网络基础知识/">网络基础知识</a></li>
+                
+                    <li class="file"><a href="/Blog/协议族/以太网/">以太网</a></li>
+                
+                    <li class="file"><a href="/Blog/协议族/地址解析协议/">地址解析协议ARP</a></li>
+                
+            </ul>
+        
+                    </li>
+                
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            杂记
+                        </a>
+                        
+            <ul class="unstyled" id="tree">
+                
+                    <li class="file"><a href="/Blog/杂记/IDEA实用插件/">IDEA实用插件</a></li>
+                
+                    <li class="file"><a href="/Blog/杂记/JAVA实用工具/">JAVA实用工具</a></li>
+                
+                    <li class="file"><a href="/Blog/杂记/IDEA快捷的使用/">IDEA的快捷使用</a></li>
+                
+                    <li class="file"><a href="/Blog/杂记/Win实用工具/">Win实用工具</a></li>
+                
+                    <li class="file"><a href="/Blog/杂记/XSD使用总结/">XSD实用总结</a></li>
+                
+                    <li class="file"><a href="/Blog/杂记/SonarQube配置总结/">SonarQube配置总结</a></li>
+                
+            </ul>
+        
+                    </li>
+                
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            算法
+                        </a>
+                        
+            <ul class="unstyled" id="tree">
+                
+                    <li class="file"><a href="/Blog/算法/二叉搜索树/">二叉搜索树</a></li>
+                
+                    <li class="file"><a href="/Blog/算法/平衡二叉树/">平衡二叉树</a></li>
+                
+                    <li class="file"><a href="/Blog/算法/树基础/">树基础</a></li>
+                
+                    <li class="file"><a href="/Blog/算法/排序算法/">排序算法</a></li>
+                
+                    <li class="file"><a href="/Blog/算法/图基础/">图基础</a></li>
+                
+            </ul>
+        
+                    </li>
+                
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            设计模式
+                        </a>
+                        
+            <ul class="unstyled" id="tree">
+                
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            创建型模式
+                        </a>
+                        
+            <ul class="unstyled" id="tree">
+                
+                    <li class="file"><a href="/Blog/设计模式/创建型模式/单例模式/">单例模式</a></li>
+                
+                    <li class="file"><a href="/Blog/设计模式/创建型模式/原型模式/">原型模式</a></li>
+                
+                    <li class="file"><a href="/Blog/设计模式/创建型模式/建造者模式/">建造者模式</a></li>
+                
+                    <li class="file"><a href="/Blog/设计模式/创建型模式/工厂模式/">工厂模式</a></li>
+                
+            </ul>
+        
+                    </li>
+                
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            结构型模式
+                        </a>
+                        
+            <ul class="unstyled" id="tree">
+                
+                    <li class="file"><a href="/Blog/设计模式/结构型模式/代理模式/">代理模式</a></li>
+                
+                    <li class="file"><a href="/Blog/设计模式/结构型模式/装饰模式/">装饰模式</a></li>
+                
+                    <li class="file"><a href="/Blog/设计模式/结构型模式/适配器模式/">适配器模式</a></li>
+                
+                    <li class="file"><a href="/Blog/设计模式/结构型模式/组合模式/">组合模式</a></li>
+                
+                    <li class="file"><a href="/Blog/设计模式/结构型模式/外观模式/">外观模式</a></li>
+                
+            </ul>
+        
+                    </li>
+                
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            行为型模式
+                        </a>
+                        
+            <ul class="unstyled" id="tree">
+                
+                    <li class="file"><a href="/Blog/设计模式/行为型模式/模板方法模式/">模板方法模式</a></li>
+                
+                    <li class="file"><a href="/Blog/设计模式/行为型模式/中介者模式/">中介者模式</a></li>
+                
+                    <li class="file"><a href="/Blog/设计模式/行为型模式/命令模式/">命令模式</a></li>
+                
+                    <li class="file"><a href="/Blog/设计模式/行为型模式/责任链模式/">责任链模式</a></li>
+                
+                    <li class="file"><a href="/Blog/设计模式/行为型模式/策略模式/">策略模式</a></li>
+                
+                    <li class="file"><a href="/Blog/设计模式/行为型模式/迭代器模式/">迭代器模式</a></li>
+                
+                    <li class="file"><a href="/Blog/设计模式/行为型模式/观察者模式/">观察者模式</a></li>
+                
+                    <li class="file"><a href="/Blog/设计模式/行为型模式/备忘录模式/">备忘录模式</a></li>
+                
+                    <li class="file"><a href="/Blog/设计模式/行为型模式/访问者模式/">访问者模式</a></li>
+                
+                    <li class="file"><a href="/Blog/设计模式/行为型模式/状态模式/">状态模式</a></li>
+                
+            </ul>
+        
+                    </li>
+                
+                    <li class="file"><a href="/Blog/设计模式/SOLID基本原则/">SOLID基本原则</a></li>
+                
+                    <li class="file"><a href="/Blog/设计模式/设计模式概览/">设计模式概览</a></li>
+                
+            </ul>
+        
+                    </li>
+                
+                    <li class="file"><a href="/Blog/index/">Welcome YingLong's Blog</a></li>
+                
+            </ul>
+        
+    </div>
+    <script>
+        $(document).ready(function () {
+            var iconFolderOpenClass = 'fa-folder-open';
+            var iconFolderCloseClass = 'fa-folder';
+            var iconAllExpandClass = 'fa-angle-double-down';
+            var iconAllPackClass = 'fa-angle-double-up';
+            // Handle directory-tree expansion:
+            // 左键单独展开目录
+            $(document).on('click', '#categories a[data-role="directory"]', function (event) {
+                event.preventDefault();
+
+                var icon = $(this).children('.fa');
+                var expanded = icon.hasClass(iconFolderOpenClass);
+                var subtree = $(this).siblings('ul');
+                icon.removeClass(iconFolderOpenClass).removeClass(iconFolderCloseClass);
+                if (expanded) {
+                    if (typeof subtree != 'undefined') {
+                        subtree.slideUp({duration: 100});
+                    }
+                    icon.addClass(iconFolderCloseClass);
+                } else {
+                    if (typeof subtree != 'undefined') {
+                        subtree.slideDown({duration: 100});
+                    }
+                    icon.addClass(iconFolderOpenClass);
+                }
+            });
+            // 右键展开下属所有目录
+            $('#categories a[data-role="directory"]').bind("contextmenu", function (event) {
+                event.preventDefault();
+
+                var icon = $(this).children('.fa');
+                var expanded = icon.hasClass(iconFolderOpenClass);
+                var listNode = $(this).siblings('ul');
+                var subtrees = $.merge(listNode.find('li ul'), listNode);
+                var icons = $.merge(listNode.find('.fa'), icon);
+                icons.removeClass(iconFolderOpenClass).removeClass(iconFolderCloseClass);
+                if (expanded) {
+                    subtrees.slideUp({duration: 100});
+                    icons.addClass(iconFolderCloseClass);
+                } else {
+                    subtrees.slideDown({duration: 100});
+                    icons.addClass(iconFolderOpenClass);
+                }
+            })
+            // 展开关闭所有目录按钮
+            $(document).on('click', '#allExpand', function (event) {
+                event.preventDefault();
+
+                var icon = $(this).children('.fa');
+                var expanded = icon.hasClass(iconAllExpandClass);
+                icon.removeClass(iconAllExpandClass).removeClass(iconAllPackClass);
+                if (expanded) {
+                    $('#sidebar .fa.fa-folder').removeClass('fa-folder').addClass('fa-folder-open')
+                    $('#categories li ul').slideDown({duration: 100});
+                    icon.addClass(iconAllPackClass);
+                } else {
+                    $('#sidebar .fa.fa-folder-open').removeClass('fa-folder-open').addClass('fa-folder')
+                    $('#categories li ul').slideUp({duration: 100});
+                    icon.addClass(iconAllExpandClass);
+                }
+            });
+        });
+    </script>
+
+    
+    <div id="toTop" class="fa fa-angle-up"></div>
+</aside>
+        
+        <section id="main"><article id="post-Java/并发/BlockingQueue阻塞队列二" class="article article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+        
+            <header class="article-header">
+                
+                    <div class="article-meta">
+                        
+    <div class="article-category">
+        <i class="fa fa-folder"></i>
+        <a class="article-category-link" href="/categories/Java/">Java</a><i class="fa fa-angle-right"></i><a class="article-category-link" href="/categories/Java/并发/">并发</a>
+    </div>
+
+                        
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link" href="/tags/并发/">并发</a>
+    </div>
+
+                        
+    <div class="article-date">
+        <i class="fa fa-calendar"></i>
+        <a href="/Blog/Java/并发/BlockingQueue阻塞队列二/">
+            <time datetime="2021-09-12T16:00:00.000Z" itemprop="datePublished">2021-09-13</time>
+        </a>
+    </div>
+
+
+                        
+                    </div>
+                
+                
+    
+        <h1 class="article-title" itemprop="name">
+            BlockingQueue阻塞队列二
+        </h1>
+    
+
+            </header>
+        
+        
+        <div class="article-entry" itemprop="articleBody">
+            
+            
+                    
+            
+            
+                <h3 id="SynchronousQueue"><a href="#SynchronousQueue" class="headerlink" title="SynchronousQueue"></a>SynchronousQueue</h3><p>SynchronousQueue是一种特殊的BlockingQueue，其本身<strong>没有容量</strong>，<strong>先调用put方法线程会阻塞，直到另一个线程调用了take方法，两个线程才同时解锁</strong>，反之亦然。通过构造函数可知，和锁一样SynchronousQueue也有<strong>公平</strong>与<strong>非公平</strong>模式，若是<strong>公平模式，则用<code>TransferQueue</code>实现</strong>，若是<strong>非公平模式，则用<code>TransferStack</code>实现</strong>。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">transient</span> <span class="keyword">volatile</span> Transferer&lt;E&gt; transferer;</span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="title">SynchronousQueue</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">this</span>(<span class="keyword">false</span>);</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="title">SynchronousQueue</span><span class="params">(<span class="keyword">boolean</span> fair)</span> </span>&#123;</span><br><span class="line">    transferer = fair ? <span class="keyword">new</span> TransferQueue&lt;E&gt;() : <span class="keyword">new</span> TransferStack&lt;E&gt;();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>put和take都调用了transfer方法，而TransferQueue和TransferStack分别实现了该接口，<strong>若是put第一个参数就是对应元素，若是take则第一个参数为null</strong>。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">put</span><span class="params">(E e)</span> <span class="keyword">throws</span> InterruptedException </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (e == <span class="keyword">null</span>) <span class="keyword">throw</span> <span class="keyword">new</span> NullPointerException();</span><br><span class="line">    <span class="keyword">if</span> (transferer.transfer(e, <span class="keyword">false</span>, <span class="number">0</span>) == <span class="keyword">null</span>) &#123;</span><br><span class="line">        Thread.interrupted();</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> InterruptedException();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">public</span> E <span class="title">take</span><span class="params">()</span> <span class="keyword">throws</span> InterruptedException </span>&#123;</span><br><span class="line">    E e = transferer.transfer(<span class="keyword">null</span>, <span class="keyword">false</span>, <span class="number">0</span>);</span><br><span class="line">    <span class="keyword">if</span> (e != <span class="keyword">null</span>)</span><br><span class="line">        <span class="keyword">return</span> e;</span><br><span class="line">    Thread.interrupted();</span><br><span class="line">    <span class="keyword">throw</span> <span class="keyword">new</span> InterruptedException();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>若是<strong>公平</strong>模式，则<strong>第一个</strong>调用put的线程会在<strong>队列头部</strong>，<strong>第一个</strong>来到的take线程和它进行配对，<strong>遵循先到先配对原则</strong>，若是<strong>非公平</strong>模式，则<strong>最后一个</strong>调用put的线程会在栈顶，<strong>第一个</strong>来到的take线程会和它进行配对，<strong>遵循后道先配对原则</strong>。</p>
+<h4 id="TransferQueue"><a href="#TransferQueue" class="headerlink" title="TransferQueue"></a>TransferQueue</h4><p>TransferQueue是一个基于单向链表实现的队列，通过head和tail两个指针记录头部和尾部，初始时head和tail会指向一个空节点。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">static</span> <span class="keyword">final</span> <span class="class"><span class="keyword">class</span> <span class="title">TransferQueue</span>&lt;<span class="title">E</span>&gt; <span class="keyword">extends</span> <span class="title">Transferer</span>&lt;<span class="title">E</span>&gt; </span>&#123;</span><br><span class="line">    <span class="keyword">static</span> <span class="keyword">final</span> <span class="class"><span class="keyword">class</span> <span class="title">QNode</span> </span>&#123;</span><br><span class="line">        <span class="keyword">volatile</span> QNode next;          <span class="comment">// 单向链表</span></span><br><span class="line">        <span class="keyword">volatile</span> Object item;         <span class="comment">// 若是put则item不为空，若是take则item为空</span></span><br><span class="line">        <span class="keyword">volatile</span> Thread waiter;       <span class="comment">// put或take对应的阻塞线程</span></span><br><span class="line">        <span class="keyword">final</span> <span class="keyword">boolean</span> isData;		  <span class="comment">// 若是put则isData为true否则为false</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">transient</span> <span class="keyword">volatile</span> QNode head; <span class="comment">// 单向链表的队头</span></span><br><span class="line">    <span class="keyword">transient</span> <span class="keyword">volatile</span> QNode tail; <span class="comment">// 单向链表的队尾</span></span><br><span class="line">    <span class="keyword">transient</span> <span class="keyword">volatile</span> QNode cleanMe;</span><br><span class="line">    TransferQueue() &#123;</span><br><span class="line">        QNode h = <span class="keyword">new</span> QNode(<span class="keyword">null</span>, <span class="keyword">false</span>); <span class="comment">// initialize to dummy node.</span></span><br><span class="line">        head = h;</span><br><span class="line">        tail = h;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>put节点和take节点一旦相遇，就会配对出队列，故队列中不可能同事存在put节点和take节点，故要么所有节点都是put节点，要么所有节点都是take节点。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">E <span class="title">transfer</span><span class="params">(E e, <span class="keyword">boolean</span> timed, <span class="keyword">long</span> nanos)</span> </span>&#123;</span><br><span class="line">    QNode s = <span class="keyword">null</span>; <span class="comment">// constructed/reused as needed</span></span><br><span class="line">    <span class="keyword">boolean</span> isData = (e != <span class="keyword">null</span>);</span><br><span class="line">    <span class="keyword">for</span> (;;) &#123;</span><br><span class="line">        QNode t = tail;</span><br><span class="line">        QNode h = head;</span><br><span class="line">        <span class="keyword">if</span> (t == <span class="keyword">null</span> || h == <span class="keyword">null</span>)         <span class="comment">// 队列还未初始化，自旋等待</span></span><br><span class="line">            <span class="keyword">continue</span>;                       <span class="comment">// spin</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (h == t || t.isData == isData) &#123; <span class="comment">// 队列为空或当前线程和队列中元素为同一中模式</span></span><br><span class="line">            QNode tn = t.next;</span><br><span class="line">            <span class="keyword">if</span> (t != tail)                  <span class="comment">// 不一致读，重新执行for循环</span></span><br><span class="line">                <span class="keyword">continue</span>;</span><br><span class="line">            <span class="keyword">if</span> (tn != <span class="keyword">null</span>) &#123;               <span class="comment">// 若t.next不为空，则替换尾部节点</span></span><br><span class="line">                advanceTail(t, tn);</span><br><span class="line">                <span class="keyword">continue</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span> (timed &amp;&amp; nanos &lt;= <span class="number">0</span>)        <span class="comment">// can't wait</span></span><br><span class="line">                <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">            <span class="keyword">if</span> (s == <span class="keyword">null</span>)</span><br><span class="line">                s = <span class="keyword">new</span> QNode(e, isData); 	<span class="comment">// 新建一个节点</span></span><br><span class="line">            <span class="keyword">if</span> (!t.casNext(<span class="keyword">null</span>, s))        <span class="comment">// 加入尾部</span></span><br><span class="line">                <span class="keyword">continue</span>;</span><br><span class="line"></span><br><span class="line">            advanceTail(t, s);              <span class="comment">// 后移tail指针</span></span><br><span class="line">            Object x = awaitFulfill(s, e, timed, nanos); <span class="comment">// 进入阻塞状态</span></span><br><span class="line">            <span class="keyword">if</span> (x == s) &#123;                   <span class="comment">// wait was cancelled</span></span><br><span class="line">                clean(t, s);</span><br><span class="line">                <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> (!s.isOffList()) &#123;           <span class="comment">// 从队列中唤醒，确定已经处于队列中的第一个元素</span></span><br><span class="line">                advanceHead(t, s);          <span class="comment">// unlink if head</span></span><br><span class="line">                <span class="keyword">if</span> (x != <span class="keyword">null</span>)              <span class="comment">// and forget fields</span></span><br><span class="line">                    s.item = s;</span><br><span class="line">                s.waiter = <span class="keyword">null</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">return</span> (x != <span class="keyword">null</span>) ? (E)x : e;</span><br><span class="line"></span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;                            <span class="comment">// 当前线程可以和队列中的第一个元素进行配对</span></span><br><span class="line">            QNode m = h.next;               <span class="comment">// 取出队列中第一个元素</span></span><br><span class="line">            <span class="keyword">if</span> (t != tail || m == <span class="keyword">null</span> || h != head) <span class="comment">// 不一致读，重新执行for循环</span></span><br><span class="line">                <span class="keyword">continue</span>;                   <span class="comment">// inconsistent read</span></span><br><span class="line"></span><br><span class="line">            Object x = m.item;</span><br><span class="line">            <span class="keyword">if</span> (isData == (x != <span class="keyword">null</span>) ||    <span class="comment">// 已经配对过了</span></span><br><span class="line">                x == m ||                   <span class="comment">// m cancelled</span></span><br><span class="line">                !m.casItem(x, e)) &#123;         <span class="comment">// 尝试配对</span></span><br><span class="line">                advanceHead(h, m);          <span class="comment">// 已经配对过，直接出队列</span></span><br><span class="line">                <span class="keyword">continue</span>;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            advanceHead(h, m);              <span class="comment">// 配对成功，出队列</span></span><br><span class="line">            LockSupport.unpark(m.waiter);   <span class="comment">// 唤醒队列中与第一个元素对应的线程</span></span><br><span class="line">            <span class="keyword">return</span> (x != <span class="keyword">null</span>) ? (E)x : e;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">advanceTail</span><span class="params">(QNode t, QNode nt)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (tail == t) UNSAFE.compareAndSwapObject(<span class="keyword">this</span>, tailOffset, t, nt);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>若当前线程和队列中的元素时同一种模式，则与当前线程对应的节点被加入队列尾部并阻塞，若不是同一种模式，则选取队列头部的第一元素进行配对。这里配对是通过<strong><code>m.casItem(x, e)</code></strong>把自己的item x换成对方的item e，若CAS操作成功，则配对成功，若是put节点，则isData=true,item!=null，若是take节点，则isData=false,item=null，若CAS操作不成功，则isData和item之间将不一致，也就是isData == (x != null)，通过该条件可以判断节点是否已经配对成功过了。</p>
+<h4 id="TransferStack"><a href="#TransferStack" class="headerlink" title="TransferStack"></a>TransferStack</h4><p>TransferStack也是一个单向链表，不同于队列，其只需要一个head指针就能实现入栈和出栈操作，链表中节点有三种状态，REQUEST表示take节点，DATA表示put节点，二者配对成功会生成一个FULFILLING节点，入栈，然后FULFILLING节点和被配对的节点一起出栈。与TransferQueue不同TransferStack没有空的头结点。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">static</span> <span class="keyword">final</span> <span class="class"><span class="keyword">class</span> <span class="title">TransferStack</span>&lt;<span class="title">E</span>&gt; <span class="keyword">extends</span> <span class="title">Transferer</span>&lt;<span class="title">E</span>&gt; </span>&#123;</span><br><span class="line">    <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> REQUEST    = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> DATA       = <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> FULFILLING = <span class="number">2</span>;</span><br><span class="line">    <span class="function"><span class="keyword">static</span> <span class="keyword">boolean</span> <span class="title">isFulfilling</span><span class="params">(<span class="keyword">int</span> m)</span> </span>&#123; <span class="keyword">return</span> (m &amp; FULFILLING) != <span class="number">0</span>; &#125;</span><br><span class="line">    <span class="keyword">static</span> <span class="keyword">final</span> <span class="class"><span class="keyword">class</span> <span class="title">SNode</span> </span>&#123;</span><br><span class="line">        <span class="keyword">volatile</span> SNode next;        <span class="comment">// 单向链表</span></span><br><span class="line">        <span class="keyword">volatile</span> SNode match;       <span class="comment">// 配对的节点</span></span><br><span class="line">        <span class="keyword">volatile</span> Thread waiter;     <span class="comment">// 对应的阻塞线程</span></span><br><span class="line">        Object item;                <span class="comment">// data; or null for REQUESTs</span></span><br><span class="line">        <span class="keyword">int</span> mode;					<span class="comment">// 三种模式</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">volatile</span> SNode head;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">E <span class="title">transfer</span><span class="params">(E e, <span class="keyword">boolean</span> timed, <span class="keyword">long</span> nanos)</span> </span>&#123;</span><br><span class="line">    SNode s = <span class="keyword">null</span>; <span class="comment">// constructed/reused as needed</span></span><br><span class="line">    <span class="keyword">int</span> mode = (e == <span class="keyword">null</span>) ? REQUEST : DATA;</span><br><span class="line">    <span class="keyword">for</span> (;;) &#123;</span><br><span class="line">        SNode h = head;</span><br><span class="line">        <span class="keyword">if</span> (h == <span class="keyword">null</span> || h.mode == mode) &#123;  <span class="comment">// 同一种模式</span></span><br><span class="line">            <span class="keyword">if</span> (timed &amp;&amp; nanos &lt;= <span class="number">0</span>) &#123;      <span class="comment">// can't wait</span></span><br><span class="line">                <span class="keyword">if</span> (h != <span class="keyword">null</span> &amp;&amp; h.isCancelled())</span><br><span class="line">                    casHead(h, h.next);     <span class="comment">// pop cancelled node</span></span><br><span class="line">                <span class="keyword">else</span></span><br><span class="line">                    <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">            &#125; <span class="keyword">else</span> <span class="keyword">if</span> (casHead(h, s = snode(s, e, h, mode))) &#123; <span class="comment">// 入栈</span></span><br><span class="line">                SNode m = awaitFulfill(s, timed, nanos);   <span class="comment">// 阻塞等待</span></span><br><span class="line">                <span class="keyword">if</span> (m == s) &#123;               <span class="comment">// wait was cancelled</span></span><br><span class="line">                    clean(s);</span><br><span class="line">                    <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">if</span> ((h = head) != <span class="keyword">null</span> &amp;&amp; h.next == s)</span><br><span class="line">                    casHead(h, s.next);     <span class="comment">// help s's fulfiller</span></span><br><span class="line">                <span class="keyword">return</span> (E) ((mode == REQUEST) ? m.item : s.item);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (!isFulfilling(h.mode)) &#123; <span class="comment">// 非同一种模式</span></span><br><span class="line">            <span class="keyword">if</span> (h.isCancelled())            <span class="comment">// already cancelled</span></span><br><span class="line">                casHead(h, h.next);         <span class="comment">// pop and retry</span></span><br><span class="line">            <span class="keyword">else</span> <span class="keyword">if</span> (casHead(h, s=snode(s, e, h, FULFILLING|mode))) &#123;</span><br><span class="line">                <span class="keyword">for</span> (;;) &#123; <span class="comment">// 生成一个FULFILLING节点入栈</span></span><br><span class="line">                    SNode m = s.next;       <span class="comment">// m is s's match</span></span><br><span class="line">                    <span class="keyword">if</span> (m == <span class="keyword">null</span>) &#123;        <span class="comment">// all waiters are gone</span></span><br><span class="line">                        casHead(s, <span class="keyword">null</span>);   <span class="comment">// pop fulfill node</span></span><br><span class="line">                        s = <span class="keyword">null</span>;           <span class="comment">// use new node next time</span></span><br><span class="line">                        <span class="keyword">break</span>;              <span class="comment">// restart main loop</span></span><br><span class="line">                    &#125;</span><br><span class="line">                    SNode mn = m.next;</span><br><span class="line">                    <span class="keyword">if</span> (m.tryMatch(s)) &#123;</span><br><span class="line">                        casHead(s, mn);     <span class="comment">// 两个节点一起出栈</span></span><br><span class="line">                        <span class="keyword">return</span> (E) ((mode == REQUEST) ? m.item : s.item);</span><br><span class="line">                    &#125; <span class="keyword">else</span>                  <span class="comment">// lost match</span></span><br><span class="line">                        s.casNext(m, mn);   <span class="comment">// help unlink</span></span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;                            <span class="comment">// 已经匹配过了，出栈</span></span><br><span class="line">            SNode m = h.next;               <span class="comment">// m is h's match</span></span><br><span class="line">            <span class="keyword">if</span> (m == <span class="keyword">null</span>)                  <span class="comment">// waiter is gone</span></span><br><span class="line">                casHead(h, <span class="keyword">null</span>);           <span class="comment">// pop fulfilling node</span></span><br><span class="line">            <span class="keyword">else</span> &#123;</span><br><span class="line">                SNode mn = m.next;</span><br><span class="line">                <span class="keyword">if</span> (m.tryMatch(h))          <span class="comment">// help match</span></span><br><span class="line">                    casHead(h, mn);         <span class="comment">// 配对一起出栈</span></span><br><span class="line">                <span class="keyword">else</span>                        <span class="comment">// lost match</span></span><br><span class="line">                    h.casNext(m, mn);       <span class="comment">// help unlink</span></span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="BlockingDeque"><a href="#BlockingDeque" class="headerlink" title="BlockingDeque"></a>BlockingDeque</h3><h3 id="CopyOnWrite"><a href="#CopyOnWrite" class="headerlink" title="CopyOnWrite"></a>CopyOnWrite</h3><p>CopyOnWrite机制的核心思想是，<strong>读写分离</strong>，<strong>空间换时间</strong>，避免为保证并发安全导致的激烈的锁竞争。<strong>适用于读多写少的情况</strong>，最大程度的提高读的效率；    </p>
+<p>CopyOnWrite是最终一致性，在写的过程中，原有的读的数据是不会发生更新的，只有新的读才能读到最新数据；写的时候不能并发写，需要对写操作进行加锁；使用volatile变量，使其他线程能够及时读到新的数据；</p>
+<p>CopyOnWrite机制在Java并发包中有CopyOnWriteArrayList和CopyOnWriteArraySet两种实现。CopyOnWriteArraySet底层也是通过CopyOnWriteArrayList来实现的。</p>
+<p><img src="../../../../../images/Java/并发/CopyOnWrite机制.png" alt="CopyOnWrite机制"></p>
+<p>集合框架中的ArrayList是非线程安全的，Vector虽是线程安全的，但由于简单粗暴的锁同步机制，性能较差。CopyOnWriteArrayList容器允许并发读，读操作是无锁的，性能较高。至于写操作，如向容器中添加一个元素，<strong>则首先将当前容器复制一份，然后在新副本上执行写操作，结束之后再将原容器的引用指向新容器。</strong></p>
+<p>由于每次都要拷贝一份数据，对内存压力较大，甚至可能导致频繁GC，且无法保证实时性。添加的逻辑很简单，先将原容器copy一份，然后在新副本上执行写操作，之后再切换引用。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">add</span><span class="params">(E e)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">final</span> ReentrantLock lock = <span class="keyword">this</span>.lock;</span><br><span class="line">    lock.lock();</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        Object[] elements = getArray();</span><br><span class="line">        <span class="keyword">int</span> len = elements.length;</span><br><span class="line">        <span class="comment">// 拷贝原容器，长度为原容器长度加一</span></span><br><span class="line">        Object[] newElements = Arrays.copyOf(elements, len + <span class="number">1</span>);</span><br><span class="line">        <span class="comment">// 在新副本上执行添加操作</span></span><br><span class="line">        newElements[len] = e;</span><br><span class="line">        setArray(newElements);</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">    &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">        lock.unlock();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>删除操作同理，将除要删除元素之外的其他元素拷贝到新副本中，然后切换引用，将原容器引用指向新副本。同属写操作，需要加锁。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> E <span class="title">remove</span><span class="params">(<span class="keyword">int</span> index)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">final</span> ReentrantLock lock = <span class="keyword">this</span>.lock;</span><br><span class="line">    lock.lock();</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        Object[] elements = getArray();</span><br><span class="line">        <span class="keyword">int</span> len = elements.length;</span><br><span class="line">        E oldValue = get(elements, index);</span><br><span class="line">        <span class="keyword">int</span> numMoved = len - index - <span class="number">1</span>;</span><br><span class="line">        <span class="keyword">if</span> (numMoved == <span class="number">0</span>)</span><br><span class="line">            <span class="comment">// 如果要删除的是列表末端数据，拷贝前len-1个数据到新副本上，再切换引用</span></span><br><span class="line">            setArray(Arrays.copyOf(elements, len - <span class="number">1</span>));</span><br><span class="line">        <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="comment">// 将除要删除元素之外的其他元素拷贝到新副本中，并切换引用</span></span><br><span class="line">            Object[] newElements = <span class="keyword">new</span> Object[len - <span class="number">1</span>];</span><br><span class="line">            System.arraycopy(elements, <span class="number">0</span>, newElements, <span class="number">0</span>, index);</span><br><span class="line">            System.arraycopy(elements, index + <span class="number">1</span>, newElements, index, numMoved);</span><br><span class="line">            setArray(newElements);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> oldValue;</span><br><span class="line">    &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">        lock.unlock();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>读操作是无锁的</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> E <span class="title">get</span><span class="params">(<span class="keyword">int</span> index)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> get(getArray(), index);</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">private</span> E <span class="title">get</span><span class="params">(Object[] a, <span class="keyword">int</span> index)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> (E) a[index];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+        </div>
+        
+    <footer class="article-footer">
+    </footer>
+    </div>
+</article>
+
+
+    
+    <nav id="article-nav">
+        
+            <a href="/Blog/Java/并发/ScheduledThreadPoolExecutor/" id="article-nav-newer" class="article-nav-link-wrap">
+                <strong class="article-nav-caption">Newer</strong>
+                <div class="article-nav-title">
+                    
+                        ScheduledThreadPoolExecutor
+                    
+                </div>
+            </a>
+        
+        
+            <a href="/Blog/Java/并发/BlockingQueue阻塞队列一/" id="article-nav-older" class="article-nav-link-wrap">
+                <strong class="article-nav-caption">Older</strong>
+                <div class="article-nav-title">BlockingQueue阻塞队列一</div>
+            </a>
+        
+    </nav>
+
+
+
+
+
+    
+    
+
+
+
+
+    <!-- baidu url auto push script -->
+    <script type="text/javascript">
+        !function () {
+            var e = /([http|https]:\/\/[a-zA-Z0-9\_\.]+\.baidu\.com)/gi, r = window.location.href,
+                o = document.referrer;
+            if (!e.test(r)) {
+                var n = "//api.share.baidu.com/s.gif";
+                o ? (n += "?r=" + encodeURIComponent(document.referrer), r && (n += "&l=" + r)) : r && (n += "?l=" + r);
+                var t = new Image;
+                t.src = n
+            }
+        }(window);
+    </script>
+</section>
+    </div>
+    <footer id="footer">
+    <div class="outer">
+        <div id="footer-info" class="inner">
+            YaoYingLong &copy; 2021
+            <!-- <a rel="license" href="http://creativecommons.org/licenses/by-nc-nd/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-nc-nd/4.0/80x15.png" /></a> -->
+            <br> Powered by <a href="http://hexo.io/" target="_blank" rel="external nofollow noopener noreferrer">Hexo</a>. Theme - <a href="https://github.com/zthxxx/hexo-theme-Wikitten" rel="external nofollow noopener noreferrer" target="_blank">wikitten</a>
+        </div>
+    </div>
+</footer>
+    
+
+    
+        <script src="/libs/lightgallery/js/lightgallery.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-thumbnail.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-pager.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-autoplay.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-fullscreen.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-zoom.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-hash.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-share.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-video.min.js"></script>
+    
+    
+        <script src="/libs/justified-gallery/jquery.justifiedGallery.min.js"></script>
+    
+    
+        <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [ ["$","$"], ["\\(","\\)"] ],
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
+            processEscapes: true,
+            TeX: {
+                equationNumbers: {
+                  autoNumber: 'AMS'
+                }
+            }
+        }
+    });
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax();
+        for (var i = 0; i < all.length; ++i)
+            all[i].SourceElement().parentNode.className += ' has-jax';
+    });
+
+
+</script>
+<script async src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+
+
+
+<!-- Custom Scripts -->
+<script src="/js/main.js"></script>
+
+</div>
+</body>
