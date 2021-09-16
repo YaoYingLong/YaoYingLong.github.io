@@ -12,20 +12,20 @@
         <meta name="keywords" content="并发">
     
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-    <meta name="description" content="ScheduledThreadPoolExecutor是用来处理延时任务或定时任务或周期任务。延迟执行任务是依靠DelayQueue，而周期性执行任务是执行完一个任务后，再把任务仍回到任务队列中。任务的执行过程还是复用ThreadPoolExecutor，延迟的过程是在DelayedWorkQueue内部完成。  ScheduledThreadPoolExecutor内部有实现了一个特定的Dela">
+    <meta name="description" content="12345678910111213ScheduledThreadPoolExecutor scheduledThreadPoolExecutor = new ScheduledThreadPoolExecutor(1);// 延迟任务，非周期scheduledThreadPoolExecutor.schedule(() -&amp;gt; &amp;#123;    System.out.println(&quot;延迟3">
 <meta name="keywords" content="并发">
 <meta property="og:type" content="article">
 <meta property="og:title" content="ScheduledThreadPoolExecutor">
 <meta property="og:url" content="https://yaoyinglong.github.io/Blog/Java/并发/ScheduledThreadPoolExecutor/index.html">
 <meta property="og:site_name" content="YingLong">
-<meta property="og:description" content="ScheduledThreadPoolExecutor是用来处理延时任务或定时任务或周期任务。延迟执行任务是依靠DelayQueue，而周期性执行任务是执行完一个任务后，再把任务仍回到任务队列中。任务的执行过程还是复用ThreadPoolExecutor，延迟的过程是在DelayedWorkQueue内部完成。  ScheduledThreadPoolExecutor内部有实现了一个特定的Dela">
+<meta property="og:description" content="12345678910111213ScheduledThreadPoolExecutor scheduledThreadPoolExecutor = new ScheduledThreadPoolExecutor(1);// 延迟任务，非周期scheduledThreadPoolExecutor.schedule(() -&amp;gt; &amp;#123;    System.out.println(&quot;延迟3">
 <meta property="og:locale" content="en">
 <meta property="og:image" content="https://yaoyinglong.github.io/images/Java/并发/ScheduledThreadPoolExecutor类图.png">
 <meta property="og:image" content="https://yaoyinglong.github.io/images/Java/并发/ScheduledThreadPoolExecutor线程池工作原理.png">
-<meta property="og:updated_time" content="2021-09-14T01:35:24.202Z">
+<meta property="og:updated_time" content="2021-09-15T11:06:33.457Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="ScheduledThreadPoolExecutor">
-<meta name="twitter:description" content="ScheduledThreadPoolExecutor是用来处理延时任务或定时任务或周期任务。延迟执行任务是依靠DelayQueue，而周期性执行任务是执行完一个任务后，再把任务仍回到任务队列中。任务的执行过程还是复用ThreadPoolExecutor，延迟的过程是在DelayedWorkQueue内部完成。  ScheduledThreadPoolExecutor内部有实现了一个特定的Dela">
+<meta name="twitter:description" content="12345678910111213ScheduledThreadPoolExecutor scheduledThreadPoolExecutor = new ScheduledThreadPoolExecutor(1);// 延迟任务，非周期scheduledThreadPoolExecutor.schedule(() -&amp;gt; &amp;#123;    System.out.println(&quot;延迟3">
 <meta name="twitter:image" content="https://yaoyinglong.github.io/images/Java/并发/ScheduledThreadPoolExecutor类图.png">
     
 
@@ -365,6 +365,10 @@
                     <li class="file"><a href="/Blog/Java/并发/Callable与Future/">Callable与Future</a></li>
                 
                     <li class="file"><a href="/Blog/Java/并发/BlockingQueue阻塞队列一/">BlockingQueue阻塞队列一</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/并发/ConcurrentHashMap源码分析JDK7/">ConcurrentHashMap源码分析JDK7</a></li>
+                
+                    <li class="file"><a href="/Blog/Java/并发/ConcurrentHashMap源码分析JDK8/">ConcurrentHashMap源码分析JDK8</a></li>
                 
             </ul>
         
@@ -893,7 +897,8 @@
                     
             
             
-                <p><strong><code>ScheduledThreadPoolExecutor</code></strong>是用来<strong>处理延时任务</strong>或<strong>定时任务</strong>或<strong>周期任务</strong>。延迟执行任务是依靠DelayQueue，而周期性执行任务是执行完一个任务后，再把任务仍回到任务队列中。任务的<strong>执行过程还是复用<code>ThreadPoolExecutor</code></strong>，延迟的过程是在DelayedWorkQueue内部完成。</p>
+                <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">ScheduledThreadPoolExecutor scheduledThreadPoolExecutor = <span class="keyword">new</span> ScheduledThreadPoolExecutor(<span class="number">1</span>);</span><br><span class="line"><span class="comment">// 延迟任务，非周期</span></span><br><span class="line">scheduledThreadPoolExecutor.schedule(() -&gt; &#123;</span><br><span class="line">    System.out.println(<span class="string">"延迟3s执行"</span>);</span><br><span class="line">&#125;, <span class="number">5000</span>, TimeUnit.MILLISECONDS);</span><br><span class="line"><span class="comment">// 周期任务，与任务本身执行时间有关</span></span><br><span class="line">scheduledThreadPoolExecutor.scheduleWithFixedDelay(() -&gt; &#123;</span><br><span class="line">	System.out.println(<span class="string">"1s后执行然后每2s执行一次"</span>);</span><br><span class="line">&#125;, <span class="number">1000</span>, <span class="number">2000</span>, TimeUnit.MILLISECONDS);</span><br><span class="line"><span class="comment">// 周期任务，与任务本身执行时间无关，任务执行时间必须小于间隔时间</span></span><br><span class="line">scheduledThreadPoolExecutor.scheduleAtFixedRate(() -&gt; &#123;</span><br><span class="line">	System.out.println(<span class="string">"1s后执行然后每2s执行一次"</span>);</span><br><span class="line">&#125;, <span class="number">1000</span>, <span class="number">2000</span>, TimeUnit.MILLISECONDS);</span><br></pre></td></tr></table></figure>
+<p><strong><code>ScheduledThreadPoolExecutor</code></strong>是用来<strong>处理延时任务</strong>或<strong>定时任务</strong>或<strong>周期任务</strong>。延迟执行任务是依靠DelayQueue，而周期性执行任务是执行完一个任务后，再把任务仍回到任务队列中。任务的<strong>执行过程还是复用<code>ThreadPoolExecutor</code></strong>，延迟的过程是在DelayedWorkQueue内部完成。</p>
 <p><img src="../../../../../images/Java/并发/ScheduledThreadPoolExecutor类图.png" alt></p>
 <p><strong><code>ScheduledThreadPoolExecutor</code></strong>内部有实现了一个特定的DelayQueue即<strong>DelayedWorkQueue</strong>，其原理与DelayQueue一样，但对任务的取消进行了优化，<strong>DelayedWorkQueue是一个无界队列</strong>，内部实现了一个<code>PriorityQueue</code>，它会<strong>根据time的先后时间排序</strong>，time小的排在前面，若<strong>time相同则根据sequenceNumber排序</strong>，sequenceNumber小的排在前面；</p>
 <p>工作线程会从DelayedWorkQueue取已经到期的任务去执行，执行结束后重新设置任务的到期时间，再次放回DelayedWorkQueue。</p>
