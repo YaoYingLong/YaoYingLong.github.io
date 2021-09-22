@@ -4,26 +4,20 @@
     <meta charset="utf-8">
     
     <title>
-        Bean生命周期 |
         
         YingLong</title>
     
     
-        <meta name="keywords" content="Spring,Bean">
+        <meta name="keywords" content="YingLong">
     
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-    <meta name="description" content="生命周期相关内容 Bean的作用域Bean的作用域通过@Scope注解在来指定，Bean的作用域有以下5个：  singleton：单例模式，当创建applicationContext容器时，spring会欲初始化所有的该作用域实例，加上lazy-init就可以避免预处理； prototype：原型模式，每次通过getBean获取该bean就会新产生一个实例，创建后spring将不再对其管理； r">
-<meta name="keywords" content="Spring,Bean">
-<meta property="og:type" content="article">
-<meta property="og:title" content="Bean生命周期">
-<meta property="og:url" content="https://yaoyinglong.github.io/Blog/中间件/Spring/Bean生命周期/index.html">
+    <meta property="og:type" content="website">
+<meta property="og:title" content="YingLong">
+<meta property="og:url" content="https://yaoyinglong.github.io/page/35/index.html">
 <meta property="og:site_name" content="YingLong">
-<meta property="og:description" content="生命周期相关内容 Bean的作用域Bean的作用域通过@Scope注解在来指定，Bean的作用域有以下5个：  singleton：单例模式，当创建applicationContext容器时，spring会欲初始化所有的该作用域实例，加上lazy-init就可以避免预处理； prototype：原型模式，每次通过getBean获取该bean就会新产生一个实例，创建后spring将不再对其管理； r">
 <meta property="og:locale" content="en">
-<meta property="og:updated_time" content="2020-09-15T09:57:30.277Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Bean生命周期">
-<meta name="twitter:description" content="生命周期相关内容 Bean的作用域Bean的作用域通过@Scope注解在来指定，Bean的作用域有以下5个：  singleton：单例模式，当创建applicationContext容器时，spring会欲初始化所有的该作用域实例，加上lazy-init就可以避免预处理； prototype：原型模式，每次通过getBean获取该bean就会新产生一个实例，创建后spring将不再对其管理； r">
+<meta name="twitter:title" content="YingLong">
     
 
     
@@ -475,6 +469,16 @@
                 
                     <li class="file"><a href="/Blog/中间件/Spring/Spring初始化扩展/">Spring初始化扩展</a></li>
                 
+                    <li class="file"><a href="/Blog/中间件/Spring/BeanDefinition解析注册/">BeanDefinition解析注册</a></li>
+                
+                    <li class="file"><a href="/Blog/中间件/Spring/IoC容器加载过程/">IoC容器加载过程</a></li>
+                
+                    <li class="file"><a href="/Blog/中间件/Spring/内置后置处理器执行时机/">内置后置处理器执行时机</a></li>
+                
+                    <li class="file"><a href="/Blog/中间件/Spring/循环依赖/">循环依赖</a></li>
+                
+                    <li class="file"><a href="/Blog/中间件/Spring/Bean的生命周期/">Bean生命周期</a></li>
+                
             </ul>
         
                     </li>
@@ -847,7 +851,8 @@
     <div id="toTop" class="fa fa-angle-up"></div>
 </aside>
         
-        <section id="main"><article id="post-中间件/Spring/Bean生命周期" class="article article-type-post" itemscope itemprop="blogPost">
+        <section id="main">
+    <article id="post-index" class="article article-type-post" itemscope itemprop="blogPost">
     <div class="article-inner">
         
         
@@ -855,22 +860,12 @@
                 
                     <div class="article-meta">
                         
-    <div class="article-category">
-        <i class="fa fa-folder"></i>
-        <a class="article-category-link" href="/categories/hide/">hide</a>
-    </div>
-
                         
-    <div class="article-tag">
-        <i class="fa fa-tag"></i>
-        <a class="tag-link" href="/tags/Bean/">Bean</a>, <a class="tag-link" href="/tags/Spring/">Spring</a>
-    </div>
-
                         
     <div class="article-date">
         <i class="fa fa-calendar"></i>
-        <a href="/Blog/中间件/Spring/Bean生命周期/">
-            <time datetime="2019-09-14T16:00:00.000Z" itemprop="datePublished">2019-09-15</time>
+        <a href="/Blog/index/">
+            <time datetime="2017-11-21T16:00:00.000Z" itemprop="datePublished">2017-11-22</time>
         </a>
     </div>
 
@@ -881,7 +876,7 @@
                 
     
         <h1 class="article-title" itemprop="name">
-            Bean生命周期
+            Welcome YingLong&#39;s Blog
         </h1>
     
 
@@ -894,16 +889,12 @@
                     
             
             
-                <p>生命周期相关内容</p>
-<h3 id="Bean的作用域"><a href="#Bean的作用域" class="headerlink" title="Bean的作用域"></a>Bean的作用域</h3><p>Bean的作用域通过<strong><code>@Scope</code></strong>注解在来指定，Bean的作用域有以下<strong><code>5</code></strong>个：</p>
-<ul>
-<li><code>singleton</code>：<strong>单例模式</strong>，当<strong>创建<code>applicationContext</code>容器时，<code>spring</code>会欲初始化所有的该作用域实例</strong>，加上<code>lazy-init</code>就可以<strong>避免预处理</strong>；</li>
-<li><code>prototype</code>：<strong>原型模式</strong>，每次通过<code>getBean</code>获取该<code>bean</code>就会<strong>新产生一个实例</strong>，<strong>创建后<code>spring</code>将不再对其管理</strong>；</li>
-<li><code>request</code>：<strong>每次请求都新产生一个实例</strong>，和<code>prototype</code>不同就是创建后，接下来的管理<strong><code>spring</code>依然在监听</strong>；</li>
-<li><code>session</code>：<strong>每次会话都新产生一个实例</strong>，和<code>prototype</code>不同就是创建后，接下来的管理<strong><code>spring</code>依然在监听</strong>；</li>
-<li><code>global session</code>：<strong>全局的<code>web</code>域</strong>，类似于<code>servlet</code>中的<code>application</code></li>
-</ul>
-<h3 id="BeanDefinition"><a href="#BeanDefinition" class="headerlink" title="BeanDefinition"></a>BeanDefinition</h3><h3 id="Bean后置处理器"><a href="#Bean后置处理器" class="headerlink" title="Bean后置处理器"></a>Bean后置处理器</h3><h3 id="Bean工厂后置处理器"><a href="#Bean工厂后置处理器" class="headerlink" title="Bean工厂后置处理器"></a>Bean工厂后置处理器</h3><h3 id="BeanFactory与ApplicationContext"><a href="#BeanFactory与ApplicationContext" class="headerlink" title="BeanFactory与ApplicationContext"></a>BeanFactory与ApplicationContext</h3><h3 id="BeanFactory与FactoryBean"><a href="#BeanFactory与FactoryBean" class="headerlink" title="BeanFactory与FactoryBean"></a>BeanFactory与FactoryBean</h3><h3 id="Import、-Component、-Bean"><a href="#Import、-Component、-Bean" class="headerlink" title="@Import、@Component、@Bean"></a>@Import、@Component、@Bean</h3><h3 id="ImportBeanDefinitionRegister作用"><a href="#ImportBeanDefinitionRegister作用" class="headerlink" title="ImportBeanDefinitionRegister作用"></a>ImportBeanDefinitionRegister作用</h3><h3 id="Bean的扩展点"><a href="#Bean的扩展点" class="headerlink" title="Bean的扩展点"></a>Bean的扩展点</h3>
+                <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>首先需要说明的是，该博客系统使用的主题是<a href="https://github.com/zthxxx/hexo-theme-Wikitten" rel="external nofollow noopener noreferrer" target="_blank">Wikitten</a>，这个主题是由一个很厉害的学弟写的。本来想自己搭建一个完全属于我自己的博客系统的，虽然会一些蹩脚的前端，真的要去做的话相信也能做出来，但是搭建这个很费时间和精力，由于现在工作了空余时间本来就少，而且我从事的是后台的开发工作，也比较喜欢做后台开发，所以不想本末倒置，再者这个主题我也比较喜欢，反正就是一大堆借口，最终使用了这个模板。</p>
+<p>版面上之所以使用的是英文，不是为了装逼，恩~~，好吧，不仅仅是为了装逼。其实个人英语很烂，虽然在Nokia实习过半年，但还是改变不了英语烂的这个事实。虽然烂但是却一值想把这个东西学好，客观的讲对于编程来说这个东西真的很重要，很多有用的文档都是英文的，比如说Spring。我发现有很大一部分人英语很差的人，总是很害怕它。老实说我以前也害怕它，但是在Nokia的全英文环境中逐渐克服了。越畏惧就要越接触越差就要越去使用，这样才会有进步，所以说使用英文版面，仅仅是为了让自己尽量多的处于英文环境中，哪怕产生一丝丝潜移默化的影响那也是好的。</p>
+<h3 id="目的"><a href="#目的" class="headerlink" title="目的"></a>目的</h3><p>其实很早就有搭建一个博客系统的打算，先前也搭建过一个，但是觉得以前那个不怎么样，也没有怎么用了。最近看了一些书，但是总是很难融会贯通，仔细想了一下没有去对某个知识点进行深入得理解学习，或者说没有将书上的东西有效的串联起来，很零散。如果没有进行系统化的整理，你会发现很快这个东西在你的记忆力越来越模糊。</p>
+<p>为了方便记录，为了方便将自己总结的东西管理起来，甚至说将自己的知识库管理起来。深有体会的一点就是，梳理前后那就不是一个量级的东西了，甚至更夸张的有可能给你的感觉那就不是一个东西。最重要的一点也是最主要的一个目的，就是为了督促自己去学习总结和提高，永远保持一个努力前行的心，坚定目标，尽可能的降低外界环境对自己的干扰。</p>
+<p><strong>虽奔放不羁，但也束缚自我，努力前行</strong>。</p>
+
         </div>
         
     <footer class="article-footer">
@@ -915,20 +906,15 @@
     
     <nav id="article-nav">
         
-            <a href="/Blog/中间件/Spring/Spring线程池跨线程数据共享/" id="article-nav-newer" class="article-nav-link-wrap">
+            <a href="/Blog/杂记/工具/IDEA快捷的使用/" id="article-nav-newer" class="article-nav-link-wrap">
                 <strong class="article-nav-caption">Newer</strong>
                 <div class="article-nav-title">
                     
-                        Spring线程池跨线程数据共享
+                        IDEA的快捷使用
                     
                 </div>
             </a>
         
-        
-            <a href="/Blog/杂记/工具/Win实用工具/" id="article-nav-older" class="article-nav-link-wrap">
-                <strong class="article-nav-caption">Older</strong>
-                <div class="article-nav-title">Win实用工具</div>
-            </a>
         
     </nav>
 
@@ -955,6 +941,8 @@
             }
         }(window);
     </script>
+
+
 </section>
     </div>
     <footer id="footer">
